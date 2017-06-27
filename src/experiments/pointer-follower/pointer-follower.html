@@ -1,0 +1,222 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../third_party/imports/import-intersection-observer.html">
+<link rel="import" href="../../third_party/imports/import-pep.html">
+<link rel="import" href="../../shared-styles.html">
+
+<dom-module id="pointer-follower">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        width: 100%;
+        height: 500px;
+      }
+    </style>
+
+    <canvas id="canvas"></canvas>
+  </template>
+
+  <script>
+    class PointerFollower extends Polymer.Element {
+      static get is() { return 'pointer-follower'; }
+      static get properties() {
+        return {
+          active: {
+            type: Boolean,
+            value: true
+          },
+
+          ctx: Object,
+
+          rows: {
+            type: Number,
+            value: 8
+          },
+
+          columns: {
+            type: Number,
+            value: 8
+          },
+
+          color: {
+            type: String,
+            value: 'rgb(255, 255, 255)'
+          },
+
+          gapX: {
+            type: Number,
+            value: 40
+          },
+          
+          gapY: {
+            type: Number,
+            value: 40
+          },
+
+          entities: {
+            type: Array,
+            value: () => {
+              return []
+            }
+          },
+
+          bcr: Object,
+
+          pointerX: Number,
+          pointerY: Number,
+          currentX: Number,
+          currentY: Number,
+
+          pointerActive: {
+            type: Boolean,
+            value: false
+          }
+        }
+      }
+
+      constructor() {
+        super();
+        this._boundResizeListener = this._onResize.bind(this);
+        this._boundPointerMove = this._onPointerMove.bind(this);
+        this._boundScrollListener = this._onScroll.bind(this);
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.ctx = this.$.canvas.getContext('2d');
+
+        this._onResize();
+        this._onScroll();
+        this._prepareEntities();
+        this._addEventListeners();
+
+        this.update();
+      }
+
+      _addEventListeners() {
+        window.addEventListener('resize', this._boundResizeListener, {passive: true});
+        this.addEventListener('pointermove', this._boundPointerMove, {passive: true});
+      }
+
+      _onPointerMove(event) {
+        this.pointerActive = true;
+
+        console.log('HEY', event);
+
+        this.pointerX = Math.floor((event.x * window.devicePixelRatio) - this.bcr.left);
+        this.pointerY = Math.floor((event.y * window.devicePixelRatio) - this.bcr.top);
+
+        if (!this.active) {
+          this.active = true;
+          this.render();
+        }
+
+        requestAnimationFrame(() => {
+          this.pointerActive = false;
+        });
+      }
+
+      _onScroll() {
+        this.bcr = this.$.canvas.getBoundingClientRect();
+      }
+
+      _prepareEntities() {
+        let width = this.gapX / 2;
+        let height = this.gapY / 4;
+
+        for (let i = this.rows - 1; i > 0; i--) {
+          for (let j = this.columns - 1; j > 0; j--) {
+            let entity = {
+              x: Math.round((this.gapX * i) - (width / 2)),
+              y: Math.round((this.gapY * j) - (height / 2)),
+              w: width,
+              h: 1 * window.devicePixelRatio
+            };
+
+            this.entities.push(entity);
+          }
+        }
+      }
+
+      _resetPointerPosition() {
+        this.pointerX = this.$.canvas.width / 2;
+        this.pointerY = this.$.canvas.height / 2;
+      }
+
+      _onResize() {
+        this.$.canvas.width = this.offsetWidth * window.devicePixelRatio;
+        this.$.canvas.height = this.offsetHeight * window.devicePixelRatio;
+
+        this.gapX = this.$.canvas.width / this.rows;
+        this.gapY = this.$.canvas.height / this.columns;
+      }
+
+      // Animate from number A to number B.
+      _lerp(a, b, time) {
+        return a + time * (b - a);
+      }
+
+      _cursorMoved() {
+        if (Math.round(this.currentX) === this.pointerX &&
+            Math.floor(this.currentY) === Math.floor(this.pointerY)) {
+          return false;
+        }
+
+        return true;
+      }
+
+
+      update() {
+        requestAnimationFrame(this.update.bind(this));
+        this.render();
+      }
+
+      render() {
+        // if (!this._cursorMoved) return;
+
+        this.ctx.clearRect(0, 0, this.$.canvas.width, this.$.canvas.height);
+
+        let x;
+        let y;
+
+        if (this.pointerActive) {
+          x = this.pointerX;
+          y = this.pointerY;
+        } else {
+          x = this._lerp(this.pointerX, this.currentX, 0.96);
+          y = this._lerp(this.pointerY, this.currentY, 0.96);
+        }
+
+        for (var i = 0; i < this.entities.length; i++) {
+          let entity = this.entities[i];
+          let radians = Math.atan2(y - (entity.y + (entity.h / 2)), x - (entity.x + (entity.w / 2)));
+          let translateX = entity.x + (entity.w / 2);
+          let translateY = entity.y + (entity.h / 2);
+
+          this.ctx.save();
+          this.ctx.translate(translateX, translateY);
+          this.ctx.rotate(radians);
+          this.ctx.fillStyle = this.color;
+          this.ctx.fillRect(-entity.w / 2, -entity.h / 2, entity.w, entity.h);
+          this.ctx.restore();
+        }
+
+        this.currentX = x;
+        this.currentY = y;
+      }
+
+      disconnectedCallback () {
+        super.disconnectedCallback();
+
+        this._removeEventListeners();
+      }
+
+      _removeEventListeners() {
+
+      }
+    }
+
+    window.customElements.define(PointerFollower.is, PointerFollower);
+  </script>
+</dom-module>
