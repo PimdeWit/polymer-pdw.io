@@ -1,0 +1,325 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../third_party/imports/import-intersection-observer.html">
+<link rel="import" href="../../shared-styles.html">
+
+<dom-module id="noise-displacer">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        position: relative;
+
+        width: 100%;
+        height: 500px;
+      }
+
+      canvas {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+
+        touch-action: none;
+        -ms-touch-action: none;
+        touch-action: none;
+      }
+    </style>
+
+    <canvas id="input"></canvas>
+    <canvas id="output"></canvas>
+  </template>
+
+  <script>
+    class NoiseDisplacer extends Polymer.Element {
+      static get is() { return 'noise-displacer'; }
+      static get properties() {
+        return {
+          active: {
+            type: Boolean,
+            value: false
+          },
+
+          intersectionObserver: Object,
+
+          input: HTMLElement,
+
+          inputContext: Object,
+
+          output: HTMLElement,
+
+          outputContext: Object,
+
+          image: HTMLElement,
+
+          time: {
+            type: Number,
+            value: 0
+          },
+
+          timeMultiplier: {
+            type: Number,
+            value: 0.0005
+          },
+
+          timeEffector: {
+            type: Number,
+            value: 0.37
+          },
+
+          mixMultiplier: {
+            type: Number,
+            value: 32
+          },
+
+          distortionOffset: {
+            type: Number,
+            value: 30
+          },
+
+          distortionCount: {
+            type: Number,
+            value: 120
+          },
+
+          density: {
+            type: Number,
+            value: 0.75
+          },
+
+          primaryColor: {
+            type: String,
+            value: 'rgb(255, 255, 255)'
+          },
+
+          secondaryColor: {
+            type: String,
+            value: 'rgba(255, 255, 255, 0.1)'
+          },
+
+          backgroundColor: {
+            type: String,
+            value: 'rgb(26, 26, 26)'
+          },
+
+          noiseX: {
+            type: Number,
+            value: 128 / window.devicePixelRatio
+          },
+          
+          noiseY: {
+            type: Number,
+            value: 128 / window.devicePixelRatio
+          },
+
+          noiseWidth: {
+            type: Number,
+            value: 2
+          },
+
+          noiseHeight: {
+            type: Number,
+            value: 32
+          },
+
+          noiseSize: {
+            type: Number,
+            value: 10
+          },
+
+          pointerX: Number,
+          pointerY: Number
+        }
+      }
+
+      constructor() {
+        super();
+        this._boundResizeListener = this._onResize.bind(this);
+        this._boundPointerMove = this._onPointerMove.bind(this);
+        this._boundScrollListener = this._onScroll.bind(this);
+        this.intersectionObserver = this._createIntersectionObserver();
+        this.intersectionObserver.observe(this);
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.input = this.shadowRoot.querySelector('#input');
+        this.output = this.shadowRoot.querySelector('#output');
+
+        this.inputContext = this.input.getContext('2d');
+        this.outputContext = this.output.getContext('2d');
+
+        this.input.style.opacity = 0;
+
+        this._onResize();
+        this._addEventListeners();
+
+        this.image = this._generateBaseTexture(this.input, this.inputContext);
+        console.log(this.image);
+        document.body.appendChild(this.image);
+        this.render();
+      }
+
+      _generateBaseTexture(canvas, context, text) {
+        this._generateNoise(canvas, context);
+        return this.convertCanvasToImage(canvas);
+      }
+
+      _generateNoise(canvas, context) {
+        context.fillStyle = this.backgroundColor;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        let gapX = this.noiseX * window.devicePixelRatio;
+        let gapY = this.noiseY * window.devicePixelRatio;
+
+        for (let x = 0; x < canvas.width; x = x + gapX) {
+          for (let y = 0; y < canvas.height; y = y + gapY) {
+            let alpha = (Math.floor(Math.random() * 100) / 100);
+
+            if (alpha >= this.density) {
+              let color = `rgba(255, 255, 255, ${Math.random()})`;
+              let w = this.noiseWidth * window.devicePixelRatio;
+              let blurW = w * 2;
+              let h = this.noiseHeight * window.devicePixelRatio;
+              let blurH = h * 2;
+
+              context.fillStyle = this.secondaryColor;
+              context.fillRect(
+                  x + (gapX * 0.5),
+                  y - (h * 2),
+                  w,
+                  h * (Math.random() * 10));
+
+              context.fillStyle = color;
+              context.fillRect(
+                  x + (gapX * 0.5),
+                  y,
+                  w,
+                  h);
+            }
+          }
+        }
+      }
+
+      convertCanvasToImage(canvas) {
+        let image = new Image();
+        image.src = canvas.toDataURL('image/png');
+        return image;
+      }
+
+      _createIntersectionObserver() {
+        let options = {
+          root: null,
+          rootMargin: '0px',
+          threshold: 0.3
+        }
+
+        return new IntersectionObserver(this._onObserve.bind(this), options);
+      }
+
+      _onObserve(entries) {
+        entries.forEach(entry => {
+          let el = entry.target;
+          let ratio = entry.intersectionRatio;
+          let isVisible = ratio > 0.3;
+          if (isVisible) {
+            this.active = true;
+            this.render();
+          } else {
+            this.active = false;
+          }
+        });
+      }
+
+      _addEventListeners() {
+        window.addEventListener('resize', this._boundResizeListener, { passive: true });
+        // this.addEventListener('mousemove', this._boundPointerMove, { passive: true });
+        // this.addEventListener('touchmove', this._boundPointerMove, { passive: true });
+      }
+
+      _onPointerMove(e) {
+        let x = e.clientX || e.clientX === 0 ? e.clientX : e.touches[0].clientX;
+        let y = e.clientY || e.clientX === 0 ? e.clientY : e.touches[0].clientY;
+        this.pointerX = Math.floor(x * window.devicePixelRatio);
+        this.pointerY = Math.floor(y * window.devicePixelRatio);
+      }
+
+      _setToActive() {
+        if (!this.active) {
+          this.active = true;
+          this.render();
+        }
+      }
+
+      _onScroll() {
+      }
+
+      _onResize() {
+        let width = this.offsetWidth;
+        let height = this.offsetHeight;
+
+        this.input.width = width * window.devicePixelRatio;
+        this.input.height = height * window.devicePixelRatio;
+
+        this.output.width = width * window.devicePixelRatio;
+        this.output.height = height * window.devicePixelRatio;
+      }
+
+      _mix(a, b, l) {
+        return a + (b - a) * l;
+      }
+
+      _upDown(value) {
+        return (Math.sin(value) * 0.5) + 0.5;
+      }
+
+      _createDistortion(row, time) {
+        return Math.sin((row + 0.5) *
+            this._mix(this.distortionOffset, this.distortionCount,
+            this._upDown(time)));
+      }
+
+      render() {
+        this.time++;
+        let time = this.time * this.timeMultiplier;
+        let timeDetained = time * this.timeEffector;
+
+        for (let distance = 0;
+            distance < this.output.height;
+            distance = distance + this.noiseSize) {
+
+          let row = distance / this.output.height;
+
+          let a = this._createDistortion(row, time) * this.mixMultiplier;
+          let b = this._createDistortion(row, timeDetained) * this.mixMultiplier;
+          let offset = a + b;
+
+          let srcY = ((distance * this.image.height) / this.output.height) + offset;
+          srcY = Math.max(0, Math.min(this.image.height - 1, srcY));
+
+          this.outputContext.drawImage(
+              this.image,
+              0, srcY, this.image.width, this.noiseSize,
+              0, distance, this.output.width, this.noiseSize);
+        }
+
+        if (this.active) {
+          requestAnimationFrame(this.render.bind(this));
+        }
+      }
+
+      disconnectedCallback () {
+        super.disconnectedCallback();
+
+        this._removeEventListeners();
+      }
+
+      _removeEventListeners() {
+        window.removeEventListener('resize', this._boundResizeListener);
+        this.removeEventListener('mousemove', this._boundPointerMove);
+        this.removeEventListener('touchmove', this._boundPointerMove);
+      }
+    }
+
+    window.customElements.define(NoiseDisplacer.is, NoiseDisplacer);
+  </script>
+</dom-module>
