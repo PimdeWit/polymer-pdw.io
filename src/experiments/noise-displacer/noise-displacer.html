@@ -148,14 +148,12 @@
         this.inputContext = this.input.getContext('2d');
         this.outputContext = this.output.getContext('2d');
 
-        this.input.style.opacity = 0;
-
         this._onResize();
         this._addEventListeners();
 
         this.image = this._generateBaseTexture(this.input, this.inputContext);
-        console.log(this.image);
-        document.body.appendChild(this.image);
+
+        this.input.style.display = 'none';
         this.render();
       }
 
