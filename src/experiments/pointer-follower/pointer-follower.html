@@ -8,8 +8,18 @@
     <style include="shared-styles">
       :host {
         display: block;
+
         width: 100%;
         height: 500px;
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+
+        touch-action: none;
+        -ms-touch-action: none;
+        touch-action: none;
       }
     </style>
 
@@ -26,16 +36,16 @@
             value: true
           },
 
-          ctx: Object,
+          context: Object,
 
           rows: {
             type: Number,
-            value: 8
+            value: 2
           },
 
           columns: {
             type: Number,
-            value: 8
+            value: 20
           },
 
           color: {
@@ -65,12 +75,7 @@
           pointerX: Number,
           pointerY: Number,
           currentX: Number,
-          currentY: Number,
-
-          pointerActive: {
-            type: Boolean,
-            value: false
-          }
+          currentY: Number
         }
       }
 
@@ -84,37 +89,36 @@
       connectedCallback() {
         super.connectedCallback();
 
-        this.ctx = this.$.canvas.getContext('2d');
+        this.context = this.$.canvas.getContext('2d');
 
         this._onResize();
         this._onScroll();
         this._prepareEntities();
         this._addEventListeners();
-
-        this.update();
       }
 
       _addEventListeners() {
-        window.addEventListener('resize', this._boundResizeListener, {passive: true});
-        this.addEventListener('pointermove', this._boundPointerMove, {passive: true});
+        window.addEventListener('resize', this._boundResizeListener, { passive: true });
+        this.addEventListener('mousemove', this._boundPointerMove, { passive: true });
+        this.addEventListener('touchmove', this._boundPointerMove, { passive: true });
       }
 
-      _onPointerMove(event) {
-        this.pointerActive = true;
+      _onPointerMove(e) {
+        let x = e.clientX || e.clientX === 0 ? e.clientX : e.touches[0].clientX;
+        let y = e.clientY || e.clientX === 0 ? e.clientY : e.touches[0].clientY;
+        this.pointerX = Math.floor((x * window.devicePixelRatio) - this.bcr.left);
+        this.pointerY = Math.floor((y * window.devicePixelRatio) - this.bcr.top);
 
-        console.log('HEY', event);
+        this._setToActive();
 
-        this.pointerX = Math.floor((event.x * window.devicePixelRatio) - this.bcr.left);
-        this.pointerY = Math.floor((event.y * window.devicePixelRatio) - this.bcr.top);
+        this.render();
+      }
 
+      _setToActive() {
         if (!this.active) {
           this.active = true;
           this.render();
         }
-
-        requestAnimationFrame(() => {
-          this.pointerActive = false;
-        });
       }
 
       _onScroll() {
@@ -148,13 +152,11 @@
         this.$.canvas.width = this.offsetWidth * window.devicePixelRatio;
         this.$.canvas.height = this.offsetHeight * window.devicePixelRatio;
 
+        this.$.canvas.style.width = this.offsetWidth;
+        this.$.canvas.style.height = this.offsetHeight;
+
         this.gapX = this.$.canvas.width / this.rows;
         this.gapY = this.$.canvas.height / this.columns;
-      }
-
-      // Animate from number A to number B.
-      _lerp(a, b, time) {
-        return a + time * (b - a);
       }
 
       _cursorMoved() {
@@ -166,40 +168,31 @@
         return true;
       }
 
-
-      update() {
-        requestAnimationFrame(this.update.bind(this));
-        this.render();
+      _getRadiansTowardsPointer(pointerX, pointerY, object) {
+        return Math.atan2(
+          pointerY - (object.y + (object.h / 2)),
+          pointerX - (object.x + (object.w / 2))
+        );
       }
 
       render() {
-        // if (!this._cursorMoved) return;
+        this.context.clearRect(0, 0, this.$.canvas.width, this.$.canvas.height);
 
-        this.ctx.clearRect(0, 0, this.$.canvas.width, this.$.canvas.height);
-
-        let x;
-        let y;
-
-        if (this.pointerActive) {
-          x = this.pointerX;
-          y = this.pointerY;
-        } else {
-          x = this._lerp(this.pointerX, this.currentX, 0.96);
-          y = this._lerp(this.pointerY, this.currentY, 0.96);
-        }
+        let x = this.pointerX;
+        let y = this.pointerY;
 
         for (var i = 0; i < this.entities.length; i++) {
           let entity = this.entities[i];
-          let radians = Math.atan2(y - (entity.y + (entity.h / 2)), x - (entity.x + (entity.w / 2)));
+          let radians = this._getRadiansTowardsPointer(x, y, entity);
           let translateX = entity.x + (entity.w / 2);
           let translateY = entity.y + (entity.h / 2);
 
-          this.ctx.save();
-          this.ctx.translate(translateX, translateY);
-          this.ctx.rotate(radians);
-          this.ctx.fillStyle = this.color;
-          this.ctx.fillRect(-entity.w / 2, -entity.h / 2, entity.w, entity.h);
-          this.ctx.restore();
+          this.context.save();
+          this.context.translate(translateX, translateY);
+          this.context.rotate(radians);
+          this.context.fillStyle = this.color;
+          this.context.fillRect(-entity.w / 2, -entity.h / 2, entity.w, entity.h);
+          this.context.restore();
         }
 
         this.currentX = x;
@@ -213,7 +206,9 @@
       }
 
       _removeEventListeners() {
-
+        window.removeEventListener('resize', this._boundResizeListener);
+        this.removeEventListener('mousemove', this._boundPointerMove);
+        this.removeEventListener('touchmove', this._boundPointerMove);
       }
     }
 
