@@ -1,6 +1,5 @@
 <link rel="import" href="../../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../third_party/imports/import-intersection-observer.html">
-<link rel="import" href="../../third_party/imports/import-pep.html">
 <link rel="import" href="../../shared-styles.html">
 
 <dom-module id="pointer-follower">
@@ -35,6 +34,8 @@
             type: Boolean,
             value: true
           },
+
+          intersectionObserver: Object,
 
           context: Object,
 
@@ -84,6 +85,8 @@
         this._boundResizeListener = this._onResize.bind(this);
         this._boundPointerMove = this._onPointerMove.bind(this);
         this._boundScrollListener = this._onScroll.bind(this);
+        this.intersectionObserver = this._createIntersectionObserver();
+        this.intersectionObserver.observe(this);
       }
 
       connectedCallback() {
@@ -95,6 +98,26 @@
         this._onScroll();
         this._prepareEntities();
         this._addEventListeners();
+      }
+
+      _createIntersectionObserver() {
+        let options = {
+          root: null,
+          rootMargin: '0px',
+          threshold: 0.3
+        }
+
+        return new IntersectionObserver(this.onObserve.bind(this), options);
+      }
+
+      onObserve(entries) {
+        entries.forEach(entry => {
+          let el = entry.target;
+          let ratio = entry.intersectionRatio;
+          let isVisible = ratio > 0.3;
+
+          this.active = isVisible;
+        });
       }
 
       _addEventListeners() {
@@ -110,7 +133,6 @@
         this.pointerY = Math.floor((y * window.devicePixelRatio) - this.bcr.top);
 
         this._setToActive();
-
         this.render();
       }
 
