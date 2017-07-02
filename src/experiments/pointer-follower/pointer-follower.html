@@ -64,12 +64,16 @@
             value: 40
           },
 
+          scrollTarget: HTMLElement,
+
           entities: {
             type: Array,
             value: () => {
               return []
             }
           },
+
+          scrollTarget: HTMLElement,
 
           bcr: Object,
 
@@ -92,7 +96,8 @@
       connectedCallback() {
         super.connectedCallback();
 
-        this.context = this.$.canvas.getContext('2d');
+        this.context = this.shadowRoot.querySelector('#canvas').getContext('2d');
+        this.scrollTarget = document.querySelector('pdw-app').shadowRoot.querySelector('app-header').scrollTarget;
 
         this._onResize();
         this._onScroll();
@@ -117,6 +122,8 @@
           let isVisible = ratio > 0.3;
 
           this.active = isVisible;
+
+          isVisible ? this._addEventListeners() : this._removeEventListeners();
         });
       }
 
@@ -124,6 +131,7 @@
         window.addEventListener('resize', this._boundResizeListener, { passive: true });
         this.addEventListener('mousemove', this._boundPointerMove, { passive: true });
         this.addEventListener('touchmove', this._boundPointerMove, { passive: true });
+        this.scrollTarget.addEventListener('scroll', this._boundScrollListener, { passive: true });
       }
 
       _onPointerMove(e) {
@@ -144,7 +152,7 @@
       }
 
       _onScroll() {
-        this.bcr = this.$.canvas.getBoundingClientRect();
+        this.bcr = this.shadowRoot.querySelector('#canvas').getBoundingClientRect();
       }
 
       _prepareEntities() {
@@ -166,19 +174,19 @@
       }
 
       _resetPointerPosition() {
-        this.pointerX = this.$.canvas.width / 2;
-        this.pointerY = this.$.canvas.height / 2;
+        this.pointerX = this.shadowRoot.querySelector('#canvas').width / 2;
+        this.pointerY = this.shadowRoot.querySelector('#canvas').height / 2;
       }
 
       _onResize() {
-        this.$.canvas.width = this.offsetWidth * window.devicePixelRatio;
-        this.$.canvas.height = this.offsetHeight * window.devicePixelRatio;
+        this.shadowRoot.querySelector('#canvas').width = this.offsetWidth * window.devicePixelRatio;
+        this.shadowRoot.querySelector('#canvas').height = this.offsetHeight * window.devicePixelRatio;
 
-        this.$.canvas.style.width = this.offsetWidth;
-        this.$.canvas.style.height = this.offsetHeight;
+        this.shadowRoot.querySelector('#canvas').style.width = this.offsetWidth;
+        this.shadowRoot.querySelector('#canvas').style.height = this.offsetHeight;
 
-        this.gapX = this.$.canvas.width / this.rows;
-        this.gapY = this.$.canvas.height / this.columns;
+        this.gapX = this.shadowRoot.querySelector('#canvas').width / this.rows;
+        this.gapY = this.shadowRoot.querySelector('#canvas').height / this.columns;
       }
 
       _cursorMoved() {
@@ -198,7 +206,7 @@
       }
 
       render() {
-        this.context.clearRect(0, 0, this.$.canvas.width, this.$.canvas.height);
+        this.context.clearRect(0, 0, this.shadowRoot.querySelector('#canvas').width, this.shadowRoot.querySelector('#canvas').height);
 
         let x = this.pointerX;
         let y = this.pointerY;
@@ -231,6 +239,7 @@
         window.removeEventListener('resize', this._boundResizeListener);
         this.removeEventListener('mousemove', this._boundPointerMove);
         this.removeEventListener('touchmove', this._boundPointerMove);
+        this.scrollTarget.removeEventListener('scroll', this._boundScrollListener);
       }
     }
 
