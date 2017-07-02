@@ -1,0 +1,229 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../third_party/imports/import-intersection-observer.html">
+<link rel="import" href="../../third_party/imports/import-matter.html">
+<link rel="import" href="../../shared-styles.html">
+
+<dom-module id="lorem-ipsum">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        position: relative;
+
+        width: 100%;
+        height: 500px;
+      }
+
+      canvas {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+
+        touch-action: none;
+        -ms-touch-action: none;
+        touch-action: none;
+      }
+    </style>
+
+    <canvas id="canvas"></canvas>
+  </template>
+
+  <script>
+    class LoremIpsum extends Polymer.Element {
+      static get is() { return 'lorem-ipsum'; }
+      static get properties() {
+        return {
+          active: {
+            type: Boolean,
+            value: false
+          },
+
+          intersectionObserver: Object,
+
+          canvas: HTMLElement,
+
+          context: Object,
+
+          primaryColor: {
+            type: String,
+            value: 'rgb(255, 255, 255)'
+          },
+
+          secondaryColor: {
+            type: String,
+            value: 'rgba(255, 255, 255, 0.1)'
+          },
+
+          backgroundColor: {
+            type: String,
+            value: 'rgb(26, 26, 26)'
+          },
+
+          pointerX: Number,
+          pointerY: Number,
+
+          World: Object,
+          Engine: Object,
+          Render: Object,
+          Bodies: Object,
+          Composites: Object,
+          Composite: Object,
+          Common: Object,
+          Events: Object
+
+        }
+      }
+
+      constructor() {
+        super();
+        this._boundResizeListener = this._onResize.bind(this);
+        this._boundPointerMove = this._onPointerMove.bind(this);
+        this._boundScrollListener = this._onScroll.bind(this);
+        this.intersectionObserver = this._createIntersectionObserver();
+        this.intersectionObserver.observe(this);
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.canvas = this.shadowRoot.querySelector('#canvas');
+        this.context = this.canvas.getContext('2d');
+
+        this._onResize();
+
+        this.World = Matter.World;
+        this.Engine = Matter.Engine;
+        this.Render = Matter.Render;
+        this.Bodies = Matter.Bodies;
+        this.Composites = Matter.Composites;
+        this.Composite = Matter.Composite;
+        this.Common = Matter.Common;
+        this.Events = Matter.Events;
+
+        this._setup();
+        this.render();
+      }
+
+      _createIntersectionObserver() {
+        let options = {
+          root: null,
+          rootMargin: '0px',
+          threshold: 0.3
+        }
+
+        return new IntersectionObserver(this._onObserve.bind(this), options);
+      }
+
+      _onObserve(entries) {
+        entries.forEach(entry => {
+          let el = entry.target;
+          let ratio = entry.intersectionRatio;
+          let isVisible = ratio > 0.3;
+
+          if (isVisible) {
+            this.active = true;
+            this.render();
+          } else {
+            this.active = false;
+          }
+        });
+      }
+
+      _addEventListeners() {
+        window.addEventListener('resize', this._boundResizeListener, { passive: true });
+        // this.addEventListener('mousemove', this._boundPointerMove, { passive: true });
+        // this.addEventListener('touchmove', this._boundPointerMove, { passive: true });
+      }
+
+      _onPointerMove(e) {
+        let x = e.clientX || e.clientX === 0 ? e.clientX : e.touches[0].clientX;
+        let y = e.clientY || e.clientX === 0 ? e.clientY : e.touches[0].clientY;
+        this.pointerX = Math.floor(x * window.devicePixelRatio);
+        this.pointerY = Math.floor(y * window.devicePixelRatio);
+      }
+
+      _setToActive() {
+        if (!this.active) {
+          this.active = true;
+          this.render();
+        }
+      }
+
+      _onScroll() {
+      }
+
+      _onResize() {
+        let width = this.offsetWidth;
+        let height = this.offsetHeight;
+
+        this.canvas.width = this.offsetWidth;
+        this.canvas.height = this.offsetHeight;
+      }
+
+      _setup() {
+        this.engine = this.Engine.create();
+
+        let stack = this.Composites.stack(0, 0, 2, 2, window.innerWidth / 8, 32, (x, y) => {
+          return this.Bodies.circle(x, y, this.Common.random(10, 20), {
+            friction: 0.00001,
+            restitution: 0.99,
+            density: this.Common.random(0.001, 0.6),
+            wrap: {
+              min: { x: -this.canvas.width * 0.1, y: -this.canvas.height * 0.1 },
+              max: { x: this.canvas.width * 1.2, y: this.canvas.height * 1.2 }
+            }
+          });
+        });
+
+        this.World.add(this.engine.world, stack);
+
+        this.World.add(this.engine.world, [
+          this.Bodies.rectangle(this.canvas.width / 2, 0, this.canvas.width, 20, { isStatic: true, angle: 0 }),
+          this.Bodies.rectangle(0, this.canvas.height / 2, 20, this.canvas.height, { isStatic: true, angle: Math.PI * 45 }),
+          this.Bodies.rectangle(this.canvas.width, this.canvas.height / 2, 20, this.canvas.height, { isStatic: true, angle: Math.PI * 45 }),
+          this.Bodies.rectangle(this.canvas.width / 2, this.canvas.height, this.canvas.width, 20, { isStatic: true, angle: 0 })
+        ]);
+      }
+
+      render() {
+        let bodies = this.Composite.allBodies(this.engine.world);
+
+        for (let i = 0; i < bodies.length; i += 1) {
+          let vertices = bodies[i].vertices;
+
+          this.context.moveTo(vertices[0].x, vertices[0].y);
+
+          for (let j = 1; j < vertices.length; j += 1) {
+            this.context.lineTo(vertices[j].x, vertices[j].y);
+          }
+
+          this.context.lineTo(vertices[0].x, vertices[0].y);
+        }
+
+        this.context.fillStyle = '#fff';
+        this.context.fill();
+
+        
+
+        this.Engine.update(this.engine);
+
+        if (this.active) {
+          requestAnimationFrame(this.render.bind(this));
+        }
+      }
+
+      disconnectedCallback () {
+        super.disconnectedCallback();
+        this._removeEventListeners();
+      }
+
+      _removeEventListeners() {
+        window.removeEventListener('resize', this._boundResizeListener);
+        this.removeEventListener('mousemove', this._boundPointerMove);
+        this.removeEventListener('touchmove', this._boundPointerMove);
+      }
+    }
+
+    window.customElements.define(LoremIpsum.is, LoremIpsum);
+  </script>
+</dom-module>

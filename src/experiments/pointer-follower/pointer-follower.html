@@ -37,16 +37,17 @@
 
           intersectionObserver: Object,
 
+          canvas: HTMLElement,
           context: Object,
 
           rows: {
             type: Number,
-            value: 2
+            value: Math.floor(window.innerWidth / 100)
           },
 
           columns: {
             type: Number,
-            value: 20
+            value: Math.floor(window.innerHeight / 100)
           },
 
           color: {
@@ -96,7 +97,8 @@
       connectedCallback() {
         super.connectedCallback();
 
-        this.context = this.shadowRoot.querySelector('#canvas').getContext('2d');
+        this.canvas = this.shadowRoot.querySelector('#canvas');
+        this.context = this.canvas.getContext('2d');
         this.scrollTarget = document.querySelector('pdw-app').shadowRoot.querySelector('app-header').scrollTarget;
 
         this._onResize();
@@ -152,7 +154,7 @@
       }
 
       _onScroll() {
-        this.bcr = this.shadowRoot.querySelector('#canvas').getBoundingClientRect();
+        this.bcr = this.canvas.getBoundingClientRect();
       }
 
       _prepareEntities() {
@@ -165,7 +167,8 @@
               x: Math.round((this.gapX * i) - (width / 2)),
               y: Math.round((this.gapY * j) - (height / 2)),
               w: width,
-              h: 1 * window.devicePixelRatio
+              h: 1 * window.devicePixelRatio,
+              alpha: Math.random()
             };
 
             this.entities.push(entity);
@@ -174,19 +177,25 @@
       }
 
       _resetPointerPosition() {
-        this.pointerX = this.shadowRoot.querySelector('#canvas').width / 2;
-        this.pointerY = this.shadowRoot.querySelector('#canvas').height / 2;
+        this.pointerX = this.canvas.width / 2;
+        this.pointerY = this.canvas.height / 2;
       }
 
       _onResize() {
-        this.shadowRoot.querySelector('#canvas').width = this.offsetWidth * window.devicePixelRatio;
-        this.shadowRoot.querySelector('#canvas').height = this.offsetHeight * window.devicePixelRatio;
+        this.entities = [];
 
-        this.shadowRoot.querySelector('#canvas').style.width = this.offsetWidth;
-        this.shadowRoot.querySelector('#canvas').style.height = this.offsetHeight;
+        this.canvas.width = this.offsetWidth * window.devicePixelRatio;
+        this.canvas.height = this.offsetHeight * window.devicePixelRatio;
 
-        this.gapX = this.shadowRoot.querySelector('#canvas').width / this.rows;
-        this.gapY = this.shadowRoot.querySelector('#canvas').height / this.columns;
+        this.canvas.style.width = this.offsetWidth;
+        this.canvas.style.height = this.offsetHeight;
+
+        this.gapX = this.canvas.width / this.rows;
+        this.gapY = this.canvas.height / this.columns;
+
+        this._onScroll();
+
+        this._prepareEntities();
       }
 
       _cursorMoved() {
@@ -206,10 +215,11 @@
       }
 
       render() {
-        this.context.clearRect(0, 0, this.shadowRoot.querySelector('#canvas').width, this.shadowRoot.querySelector('#canvas').height);
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         let x = this.pointerX;
         let y = this.pointerY;
+        let arr = [];
 
         for (var i = 0; i < this.entities.length; i++) {
           let entity = this.entities[i];
@@ -221,9 +231,50 @@
           this.context.translate(translateX, translateY);
           this.context.rotate(radians);
           this.context.fillStyle = this.color;
-          this.context.fillRect(-entity.w / 2, -entity.h / 2, entity.w, entity.h);
+          // this.context.fillRect(-entity.w / 2, -entity.h / 2, entity.w, entity.h);
+          this.context.fillStyle = `rgba(255, 255, 255, ${entity.alpha}`;
+          this.context.fillRect(-entity.w / (2), -entity.h / 2, 2, 2);
+          // this.context.fillRect(-entity.w / (2), -entity.h / 2, 20, 2);
+
+
+
+          if (entity.alpha >= 0.99) {
+            this.context.fillRect(entity.w / 2, -entity.h / 2, 40 * entity.alpha, 4 * entity.alpha);
+            arr.push({x: entity.x, y: entity.y, w: entity.w, h: entity.h, r: radians});
+          }
+
+
+
           this.context.restore();
         }
+
+
+        if (arr.length > 0) {
+          this.context.moveTo(arr[0].x, arr[0].y);
+
+          this.context.beginPath();
+          for (let j = 0; j < arr.length; j++) {
+            let a = arr[j];
+            let cx = a.x + (a.w / 2);
+            let cy = a.y + (a.h / 2);
+            let f1 = cx;
+            let f2 = cy;
+            let f3 = f1 * Math.cos(a.r) - f2 * Math.sin(a.r);
+            let f4 = f1 * Math.sin(a.r) + f2 * Math.cos(a.r);
+            this.context.lineTo(f3, f4);
+            // this.context.fillRect(-entity.w / (2), -entity.h / 2, 2, 2);
+
+            // this.context.lineTo(
+            //     (a.x + a.w) * Math.cos(a.r) + (a.y - a.h) * Math.sin(a.r),
+            //     (a.x + a.w) * Math.sin(a.r) - (a.y - a.h) * Math.cos(a.r));
+            // this.context.lineTo(a.x + (a.w / 2), a.y + (a.h / 2));
+          }
+          this.context.closePath();
+        }
+
+        this.context.lineWidth = 1;
+        this.context.strokeStyle = '#fff';
+        this.context.stroke();
 
         this.currentX = x;
         this.currentY = y;
