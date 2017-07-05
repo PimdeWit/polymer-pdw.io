@@ -1,6 +1,6 @@
-<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../../third_party/imports/import-intersection-observer.html">
-<link rel="import" href="../../shared-styles.html">
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../third_party/imports/import-intersection-observer.html">
+<link rel="import" href="../shared-styles.html">
 
 <dom-module id="pointer-follower">
   <template>
@@ -42,12 +42,12 @@
 
           rows: {
             type: Number,
-            value: Math.floor(window.innerWidth / 100)
+            value: 8
           },
 
           columns: {
             type: Number,
-            value: Math.floor(window.innerHeight / 100)
+            value: 8
           },
 
           color: {
@@ -81,7 +81,17 @@
           pointerX: Number,
           pointerY: Number,
           currentX: Number,
-          currentY: Number
+          currentY: Number,
+
+          tag: {
+            type: Boolean,
+            value: false
+          },
+
+          threshold: {
+            type: Number,
+            value: 0.97
+          }
         }
       }
 
@@ -105,6 +115,8 @@
         this._onScroll();
         this._prepareEntities();
         this._addEventListeners();
+        this._resetPointerPosition();
+        this.render();
       }
 
       _createIntersectionObserver() {
@@ -196,6 +208,7 @@
         this._onScroll();
 
         this._prepareEntities();
+        this.render();
       }
 
       _cursorMoved() {
@@ -215,11 +228,14 @@
       }
 
       render() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        if (!this.tag) {
+          this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
 
         let x = this.pointerX;
         let y = this.pointerY;
-        let arr = [];
+
+        this.context.beginPath();
 
         for (var i = 0; i < this.entities.length; i++) {
           let entity = this.entities[i];
@@ -227,54 +243,30 @@
           let translateX = entity.x + (entity.w / 2);
           let translateY = entity.y + (entity.h / 2);
 
+          let entityX = this.canvas.width > 500 ?
+              -entity.w :
+              -entity.w * (this.canvas.width * 0.01);
+
           this.context.save();
           this.context.translate(translateX, translateY);
           this.context.rotate(radians);
-          this.context.fillStyle = this.color;
-          // this.context.fillRect(-entity.w / 2, -entity.h / 2, entity.w, entity.h);
           this.context.fillStyle = `rgba(255, 255, 255, ${entity.alpha}`;
-          this.context.fillRect(-entity.w / (2), -entity.h / 2, 2, 2);
-          // this.context.fillRect(-entity.w / (2), -entity.h / 2, 20, 2);
 
-
-
-          if (entity.alpha >= 0.99) {
-            this.context.fillRect(entity.w / 2, -entity.h / 2, 40 * entity.alpha, 4 * entity.alpha);
-            arr.push({x: entity.x, y: entity.y, w: entity.w, h: entity.h, r: radians});
+          if (this.tag && entity.alpha > this.threshold) {
+            this.context.fillStyle = this.color;
+            this.context.fillRect(entityX, -entity.h / 2, entity.w / 5, 2);
+            this.context.lineTo(-entity.w / 2, -entity.h / 2);
+          } else {
+            this.context.fillRect(entityX, -entity.h / 2, 2, 2);
           }
-
-
 
           this.context.restore();
         }
 
-
-        if (arr.length > 0) {
-          this.context.moveTo(arr[0].x, arr[0].y);
-
-          this.context.beginPath();
-          for (let j = 0; j < arr.length; j++) {
-            let a = arr[j];
-            let cx = a.x + (a.w / 2);
-            let cy = a.y + (a.h / 2);
-            let f1 = cx;
-            let f2 = cy;
-            let f3 = f1 * Math.cos(a.r) - f2 * Math.sin(a.r);
-            let f4 = f1 * Math.sin(a.r) + f2 * Math.cos(a.r);
-            this.context.lineTo(f3, f4);
-            // this.context.fillRect(-entity.w / (2), -entity.h / 2, 2, 2);
-
-            // this.context.lineTo(
-            //     (a.x + a.w) * Math.cos(a.r) + (a.y - a.h) * Math.sin(a.r),
-            //     (a.x + a.w) * Math.sin(a.r) - (a.y - a.h) * Math.cos(a.r));
-            // this.context.lineTo(a.x + (a.w / 2), a.y + (a.h / 2));
-          }
-          this.context.closePath();
+        if (this.tag) {
+          this.context.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+          this.context.stroke();
         }
-
-        this.context.lineWidth = 1;
-        this.context.strokeStyle = '#fff';
-        this.context.stroke();
 
         this.currentX = x;
         this.currentY = y;

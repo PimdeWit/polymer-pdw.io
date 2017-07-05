@@ -1,0 +1,46 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../experiments/pointer-follower.html">
+<link rel="import" href="../experiments/noise-displacer.html">
+<!--<link rel="import" href="../experiments/lorem-ipsum/lorem-ipsum.html">-->
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="pdw-home">
+  <template>
+    <style include="shared-styles">
+       :host {
+        display: block;
+
+        padding: 10px;
+      }
+
+      section {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      pointer-follower {
+       width: 40vw;
+       height: 40vw; 
+      }
+    </style>
+
+    <section>
+      <pointer-follower rows="32" columns="32"></pointer-follower>
+    </section>
+    <noise-displacer></noise-displacer>
+    <!--<lorem-ipsum></lorem-ipsum>-->
+
+    <div style="width:50px; height:8000px; background-color: red;"></div>
+  </template>
+
+  <script>
+    class PdwHome extends Polymer.Element {
+      static get is() { return 'pdw-home'; }
+    }
+
+    window.customElements.define(PdwHome.is, PdwHome);
+  </script>
+</dom-module>
