@@ -151,8 +151,8 @@
       _onPointerMove(e) {
         let x = e.clientX || e.clientX === 0 ? e.clientX : e.touches[0].clientX;
         let y = e.clientY || e.clientX === 0 ? e.clientY : e.touches[0].clientY;
-        this.pointerX = Math.floor((x * window.devicePixelRatio) - this.bcr.left);
-        this.pointerY = Math.floor((y * window.devicePixelRatio) - this.bcr.top);
+        this.pointerX = Math.floor((x - this.bcr.left) * window.devicePixelRatio);
+        this.pointerY = Math.floor((y - this.bcr.top) * window.devicePixelRatio);
 
         this._setToActive();
         this.render();
