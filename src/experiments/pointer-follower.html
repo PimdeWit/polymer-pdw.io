@@ -83,14 +83,16 @@
           currentX: Number,
           currentY: Number,
 
-          tag: {
+          clear: {
             type: Boolean,
             value: false
           },
 
-          threshold: {
+          tag: Number,
+
+          distortion: {
             type: Number,
-            value: 0.97
+            value: 20
           }
         }
       }
@@ -228,7 +230,7 @@
       }
 
       render() {
-        if (!this.tag) {
+        if (this.clear) {
           this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         }
 
@@ -243,19 +245,17 @@
           let translateX = entity.x + (entity.w / 2);
           let translateY = entity.y + (entity.h / 2);
 
-          let entityX = this.canvas.width > 500 ?
-              -entity.w :
-              -entity.w * (this.canvas.width * 0.01);
+          let entityX = -entity.w - this.distortion;
 
           this.context.save();
           this.context.translate(translateX, translateY);
           this.context.rotate(radians);
           this.context.fillStyle = `rgba(255, 255, 255, ${entity.alpha}`;
 
-          if (this.tag && entity.alpha > this.threshold) {
+          if (this.tag && entity.alpha > this.tag) {
             this.context.fillStyle = this.color;
             this.context.fillRect(entityX, -entity.h / 2, entity.w / 5, 2);
-            this.context.lineTo(-entity.w / 2, -entity.h / 2);
+            this.context.lineTo(entityX, -entity.h / 2);
           } else {
             this.context.fillRect(entityX, -entity.h / 2, 2, 2);
           }
