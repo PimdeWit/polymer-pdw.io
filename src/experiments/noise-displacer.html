@@ -173,6 +173,7 @@
       }
 
       _generateBaseTexture(canvas, context, text) {
+        this._onResize();
         this.inputContext.clearRect(0, 0, this.input.width, this.input.height);
         this._generateNoise(canvas, context);
         this._drawTextToCanvas(canvas, context, text);
