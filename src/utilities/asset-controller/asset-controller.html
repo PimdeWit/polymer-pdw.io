@@ -33,7 +33,7 @@
 
         const imageMeta = {
           id: 'screenshot',
-          url: '../../images/test/rano_compressed.jpg',
+          url: '../../images/test/random.jpg',
           alt: 'Hello mum!'
         }
 
@@ -43,6 +43,8 @@
       async addImageToGlobal(imageMeta) {
         const response = await this.getImage(imageMeta.url, imageMeta.alt);
         this.assets[imageMeta.id] = response.target;
+
+        console.log(this.assets);
       }
 
       getImage(url, alt) {

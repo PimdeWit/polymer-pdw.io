@@ -59,6 +59,7 @@
       }
     </style>
 
+    <asset-controller></asset-controller>
     <app-location route="{{route}}"></app-location>
     <app-route
         route="{{route}}"
@@ -118,7 +119,6 @@
           subroute: String,
           assets: {
             type: Object,
-            value: {},
             observer: '_onAssetLoaded'
           }
         };
@@ -139,7 +139,7 @@
       }
 
       _onAssetLoaded(event) {
-        console.log(event);
+        console.log(event, this.assets);
       }
 
       _routePageChanged(page) {
