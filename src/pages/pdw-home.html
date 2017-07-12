@@ -8,10 +8,8 @@
 <dom-module id="pdw-home">
   <template>
     <style include="shared-styles">
-       :host {
+      :host {
         display: block;
-
-        padding: 10px;
       }
 
       section {
@@ -22,26 +20,11 @@
         align-items: center;
         justify-content: space-around;
         flex-wrap: wrap;
-        margin: 30vh 0;
       }
 
       pointer-follower {
-       width: 30vw;
-       height: 30vw; 
-      }
-
-      @media (max-width: 1100px) {
-        pointer-follower {
-          width: 40vw;
-          height: 40vw;
-        }
-      }
-
-      @media (max-width: 900px) {
-        pointer-follower {
-          width: 70vw;
-          height: 70vw;
-        }
+        width: 40vw;
+        height: 40vw;
       }
 
       svg-morph {
@@ -75,48 +58,29 @@
     </style>
 
     <section>
-      <pointer-follower rows="32" columns="32" distortion="10" clear></pointer-follower>
-      <pointer-follower rows="32" columns="32" distortion="10" tag="0.99" clear></pointer-follower>
-      <pointer-follower rows="80" columns="2" distortion="100" tag="0.5" clear></pointer-follower>
-      <pointer-follower rows="4" columns="20" distortion="100" tag="0.8" clear></pointer-follower>
+      <div class="container">
+        <h1>Pim de Wit <em>is a creative technologist exploring the critical relationship between behaviour, art, and information.</em></h1>
+      </div>
     </section>
 
     <section>
-      <noise-displacer id="noise-displacer"
-          density="[[density]]"
-          slice-size="[[noiseSize]]"
-          noise-x="[[noiseX]]"
-          noise-y="[[noiseY]]"
-          noise-width="[[noiseWidth]]"
-          noise-height="[[noiseHeight]]">
-      </noise-displacer>
-      
-      <div class="gui">
-        <h3>Pattern Generator</h3>
-        <h4>Direct Changes</h4>
-        <span>Slice Size</span>
-        <input id="gui-noise-size" type="range" min="1" max="100" step="1">
-        <br>
-        <h4>Requires re-init</h4>
+      <pointer-follower rows="32" columns="32" distortion="10" clear></pointer-follower>
+    </section>
 
-        <span>width</span>
-        <input id="gui-noise-width" type="range" min="1" max="20" step="1">
-        <span>height</span>
-        <input id="gui-noise-height" type="range" min="1" max="20" step="1">
-        <span>density</span>
-        <input id="gui-noise-density" type="range" min="0" max="1" step="0.01">
-        <span>columns</span>
-        <input id="gui-noise-x" type="range" min="1" max="200" step="1">
-        <span>rows</span>
-        <input id="gui-noise-y" type="range" min="1" max="200" step="1">
-        <span>text</span>
-        <input id="gui-noise-text" type="text" placholder="text?">
-        <br>
+    <section>
+      <pointer-follower rows="32" columns="32" distortion="10" tag="0.99" clear></pointer-follower>
+    </section>
 
-        <button id="gui-noise-reset" type="button">re-init</button>
-      </div>
+    <section>
+      <pointer-follower rows="80" columns="2" distortion="100" tag="0.5" clear></pointer-follower>
+    </section>
 
-      <noise-displacer slice-size="1" distortion-count="10" image="../../images/test/random.jpg"></noise-displacer>
+    <section>
+      <pointer-follower rows="8" columns="20" distortion="80" tag="0.8" clear></pointer-follower>
+    </section>
+
+    <section>
+      <noise-displacer id="noise-displacer"></noise-displacer>
     </section>
 
     
@@ -290,16 +254,6 @@
         </svg>
       </svg-morph>
     </section>
-
-    <section>
-      <svg-morph>
-        <svg xmlns="http://www.w3.org/2000/svg" id="layer-2" data-name="Layer 1" viewBox="0 0 1024 1024" class="svgmorph"><defs><style>#layer-2 .cls-1,#layer-2 .cls-2,#layer-2 .cls-3,#layer-2 .cls-4,#layer-2 .cls-5,#layer-2 .cls-6,#layer-2 .cls-7,#layer-2 .cls-8,#layer-2 .cls-9{fill:none;stroke:#89d3e2;stroke-linecap:round;stroke-miterlimit:10;stroke-width:25px;}#layer-2 .cls-1{stroke-dasharray:38;}#layer-2 .cls-2{stroke-dasharray:102 151.59;}#layer-2 .cls-3{stroke-dasharray:170 220;}#layer-2 .cls-4{stroke-dasharray:112.23 234.76;}#layer-2 .cls-5{stroke-dasharray:112.97 276.35;}#layer-2 .cls-6{stroke-dasharray:113.72 310;}#layer-2 .cls-7{stroke-dasharray:114.46 330;}#layer-2 .cls-8{stroke-dasharray:115.2 559;}#layer-2 .cls-9{stroke-dasharray:171 490;}</style></defs><g style="mix-blend-mode: screen; transform-origin: 525.002px 525px 0px; transform: translate(-13.0021px, -13px) scale(0.8, 0.8) rotate(2.55355rad);"><title>Artboard 1</title><circle class="cls-1" cx="525" cy="525" r="49.08" transform="translate(-217.46 525) rotate(-45)" style=";  stroke: hsla(289.8809947746087,94.81998605223363%,79.63156293385603%,1); stroke-width: 25.96949063976803; stroke-dasharray: 60.81127046833831 218.80810136951033;; ; "></circle><circle class="cls-2" cx="525" cy="525" r="103.86" transform="translate(-217.46 525) rotate(-45)" style=";  stroke: hsla(289.8809947746087,94.81998605223363%,79.63156293385603%,1); stroke-width: 25.96949063976803; stroke-dasharray: 60.81127046833831 218.80810136951033;; ; "></circle><path class="cls-3" d="M637.18,637.18a158.65,158.65,0,1,0-224.36,0" style=";  stroke: hsla(289.8809947746087,94.81998605223363%,79.63156293385603%,1); stroke-width: 25.96949063976803; stroke-dasharray: 60.81127046833831 218.80810136951033;; ; "></path><circle class="cls-4" cx="525" cy="525" r="213.43" transform="translate(-212.39 438.4) rotate(-38.3)" style=";  stroke: hsla(289.8809947746087,94.81998605223363%,79.63156293385603%,1); stroke-width: 25.96949063976803; stroke-dasharray: 60.81127046833831 218.80810136951033;; ; "></circle><path class="cls-5" d="M335.34,714.66c104.74,104.74,274.57,104.74,379.31,0s104.74-274.57,0-379.31" style=";  stroke: hsla(289.8809947746087,94.81998605223363%,79.63156293385603%,1); stroke-width: 25.96949063976803; stroke-dasharray: 60.81127046833831 218.80810136951033;; ; "></path><circle class="cls-6" cx="525" cy="525" r="323" transform="translate(-217.46 525) rotate(-45)" style=";  stroke: hsla(289.8809947746087,94.81998605223363%,79.63156293385603%,1); stroke-width: 25.96949063976803; stroke-dasharray: 60.81127046833831 218.80810136951033;; ; "></circle><path class="cls-7" d="M257.87,257.87c-147.53,147.53-147.53,386.73,0,534.26s386.73,147.53,534.26,0" style=";  stroke: hsla(289.8809947746087,94.81998605223363%,79.63156293385603%,1); stroke-width: 25.96949063976803; stroke-dasharray: 60.81127046833831 218.80810136951033;; ; "></path><path class="cls-8" d="M219.13,219.13C50.2,388.06,50.2,661.94,219.13,830.87s442.81,168.93,611.74,0,168.93-442.81,0-611.74" style=";  stroke: hsla(289.8809947746087,94.81998605223363%,79.63156293385603%,1); stroke-width: 25.96949063976803; stroke-dasharray: 60.81127046833831 218.80810136951033;; ; "></path><circle class="cls-9" cx="525" cy="525" r="487.35" transform="translate(-217.46 525) rotate(-45)" style=";  stroke: hsla(289.8809947746087,94.81998605223363%,79.63156293385603%,1); stroke-width: 25.96949063976803; stroke-dasharray: 60.81127046833831 218.80810136951033;; ; "></circle><desc>Created with Snap</desc></g></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" id="layer-3" data-name="Layer 1" viewBox="0 0 1024 1024" class="svgmorph"><defs><style>#layer-3 .cls-1,#layer-3 .cls-2,#layer-3 .cls-3,#layer-3 .cls-4,#layer-3 .cls-5,#layer-3 .cls-6,#layer-3 .cls-7,#layer-3 .cls-8,#layer-3 .cls-9{fill:none;stroke:#f06392;stroke-linecap:round;stroke-miterlimit:10;stroke-width:25px;}#layer-3 .cls-1{stroke-dasharray:51.38 256.9;}#layer-3 .cls-2{stroke-dasharray:54.38 271.92;}#layer-3 .cls-3{stroke-dasharray:55.38 276.9;}#layer-3 .cls-4{stroke-dasharray:55.88 279.39;}#layer-3 .cls-5{stroke-dasharray:46.81 234.07;}#layer-3 .cls-6{stroke-dasharray:48.32 241.61;}#layer-3 .cls-7{stroke-dasharray:49.45 247.27;}#layer-3 .cls-8{stroke-dasharray:50.33 251.67;}#layer-3 .cls-9{stroke-dasharray:51.04 255.19;}</style></defs><g style="mix-blend-mode: screen; transform-origin: 525px 525px 0px; transform: translate(-13px, -13px) scale(0.8, 0.8) rotate(2.55355rad);"><title>Artboard 1 copy 3</title><circle class="cls-1" cx="525" cy="525" r="49.08" style=";  stroke: hsla(254.5152162356466,71.47660374616001%,75.10282959320647%,1); stroke-width: 34.65073895151954; stroke-dasharray: 180.37705037447404 117.75569806562243;; ; "></circle><circle class="cls-2" cx="525" cy="525" r="103.86" style=";  stroke: hsla(254.5152162356466,71.47660374616001%,75.10282959320647%,1); stroke-width: 34.65073895151954; stroke-dasharray: 180.37705037447404 117.75569806562243;; ; "></circle><circle class="cls-3" cx="525" cy="525" r="158.65" style=";  stroke: hsla(254.5152162356466,71.47660374616001%,75.10282959320647%,1); stroke-width: 34.65073895151954; stroke-dasharray: 180.37705037447404 117.75569806562243;; ; "></circle><circle class="cls-4" cx="525" cy="525" r="213.43" style=";  stroke: hsla(254.5152162356466,71.47660374616001%,75.10282959320647%,1); stroke-width: 34.65073895151954; stroke-dasharray: 180.37705037447404 117.75569806562243;; ; "></circle><circle class="cls-5" cx="525" cy="525" r="268.21" style=";  stroke: hsla(254.5152162356466,71.47660374616001%,75.10282959320647%,1); stroke-width: 34.65073895151954; stroke-dasharray: 180.37705037447404 117.75569806562243;; ; "></circle><circle class="cls-6" cx="525" cy="525" r="323" style=";  stroke: hsla(254.5152162356466,71.47660374616001%,75.10282959320647%,1); stroke-width: 34.65073895151954; stroke-dasharray: 180.37705037447404 117.75569806562243;; ; "></circle><circle class="cls-7" cx="525" cy="525" r="377.78" style=";  stroke: hsla(254.5152162356466,71.47660374616001%,75.10282959320647%,1); stroke-width: 34.65073895151954; stroke-dasharray: 180.37705037447404 117.75569806562243;; ; "></circle><circle class="cls-8" cx="525" cy="525" r="432.57" style=";  stroke: hsla(254.5152162356466,71.47660374616001%,75.10282959320647%,1); stroke-width: 34.65073895151954; stroke-dasharray: 180.37705037447404 117.75569806562243;; ; "></circle><circle class="cls-9" cx="525" cy="525" r="487.35" style=";  stroke: hsla(254.5152162356466,71.47660374616001%,75.10282959320647%,1); stroke-width: 34.65073895151954; stroke-dasharray: 180.37705037447404 117.75569806562243;; ; "></circle><desc>Created with Snap</desc></g></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" id="layer-1" data-name="Layer 1" viewBox="0 0 1024 1024" class="svgmorph"><defs><style>#layer-1 .cls-1{fill:none;stroke:#e0e0e0;stroke-linecap:round;stroke-miterlimit:10;stroke-width:25px;stroke-dasharray:400 240;}</style></defs><g style="mix-blend-mode: screen; transform-origin: 525px 525px 0px; transform: translate(-13px, -13px) scale(0.8, 0.8) rotate(2.55355rad);"><title>Artboard 1 copy 2</title><circle class="cls-1" cx="525" cy="525" r="49.08" style=";  stroke: hsla(14.760802469135793,91.25503046924229%,77.21985224820959%,1); stroke-width: 9.944523303189214; stroke-dasharray: 412.30129569779575 581.0207785784299;; ; "></circle><circle class="cls-1" cx="525" cy="525" r="103.86" style=";  stroke: hsla(14.760802469135793,91.25503046924229%,77.21985224820959%,1); stroke-width: 9.944523303189214; stroke-dasharray: 412.30129569779575 581.0207785784299;; ; "></circle><circle class="cls-1" cx="525" cy="525" r="158.65" style=";  stroke: hsla(14.760802469135793,91.25503046924229%,77.21985224820959%,1); stroke-width: 9.944523303189214; stroke-dasharray: 412.30129569779575 581.0207785784299;; ; "></circle><circle class="cls-1" cx="525" cy="525" r="213.43" style=";  stroke: hsla(14.760802469135793,91.25503046924229%,77.21985224820959%,1); stroke-width: 9.944523303189214; stroke-dasharray: 412.30129569779575 581.0207785784299;; ; "></circle><circle class="cls-1" cx="525" cy="525" r="268.21" style=";  stroke: hsla(14.760802469135793,91.25503046924229%,77.21985224820959%,1); stroke-width: 9.944523303189214; stroke-dasharray: 412.30129569779575 581.0207785784299;; ; "></circle><circle class="cls-1" cx="525" cy="525" r="323" style=";  stroke: hsla(14.760802469135793,91.25503046924229%,77.21985224820959%,1); stroke-width: 9.944523303189214; stroke-dasharray: 412.30129569779575 581.0207785784299;; ; "></circle><circle class="cls-1" cx="525" cy="525" r="377.78" style=";  stroke: hsla(14.760802469135793,91.25503046924229%,77.21985224820959%,1); stroke-width: 9.944523303189214; stroke-dasharray: 412.30129569779575 581.0207785784299;; ; "></circle><circle class="cls-1" cx="525" cy="525" r="432.57" style=";  stroke: hsla(14.760802469135793,91.25503046924229%,77.21985224820959%,1); stroke-width: 9.944523303189214; stroke-dasharray: 412.30129569779575 581.0207785784299;; ; "></circle><circle class="cls-1" cx="525" cy="525" r="487.35" style=";  stroke: hsla(14.760802469135793,91.25503046924229%,77.21985224820959%,1); stroke-width: 9.944523303189214; stroke-dasharray: 412.30129569779575 581.0207785784299;; ; "></circle><desc>Created with Snap</desc></g></svg>
-      </svg-morph>
-    </section>
-
-    <div style="width:50px; height:8000px; background-color: red;"></div>
   </template>
 
   <script>
@@ -307,39 +261,7 @@
       static get is() { return 'pdw-home'; }
       static get properties() {
         return {
-          assets: Object,
-          NoiseDisplacer: Object,
-          GUINoiseReset: HTMLElement,
-          GUINoiseDensity: HTMLElement,
-          GUINoiseSize: HTMLElement,
-          GUINoiseX: HTMLElement,
-          GUINoiseY: HTMLElement,
-          GUINoiseText: HTMLElement,
-          GUINoiseWidth: HTMLElement,
-          GUINoiseHeight: HTMLElement,
-
-          noiseSize: {
-            type: Number,
-            value: 1
-          },
-
-          noiseX: {
-            type: Number,
-            value: 160
-          },
-
-          noiseY: {
-            type: Number,
-            value: 160
-          },
-
-          noiseText: {
-            type: String,
-            value: 'Hello TTR'
-          },
-
-          noiseWidth: Number,
-          noiseHeight: Number
+          assets: Object
         }
       }
 
@@ -350,71 +272,10 @@
       connectedCallback() {
         super.connectedCallback();
 
-        this.NoiseDisplacer = this.shadowRoot.querySelector('#noise-displacer');
-        this.GUINoiseDensity = this.shadowRoot.querySelector('#gui-noise-density');
-        this.GUINoiseReset = this.shadowRoot.querySelector('#gui-noise-reset');
-        this.GUINoiseSize = this.shadowRoot.querySelector('#gui-noise-size');
-        this.GUINoiseX = this.shadowRoot.querySelector('#gui-noise-x');
-        this.GUINoiseY = this.shadowRoot.querySelector('#gui-noise-y');
-        this.GUINoiseText = this.shadowRoot.querySelector('#gui-noise-text');
-        this.GUINoiseWidth = this.shadowRoot.querySelector('#gui-noise-width');
-        this.GUINoiseHeight = this.shadowRoot.querySelector('#gui-noise-height');
-
         this._addEventListeners();
       }
 
       _addEventListeners() {
-        this._boundNoiseReset = this.onNoiseReset.bind(this);
-        this._boundNoiseSizeChange = this.onNoiseSizeChange.bind(this);
-        this._boundNoiseXChange = this.onNoiseXChange.bind(this);
-        this._boundNoiseYChange = this.onNoiseYChange.bind(this);
-        this._boundNoiseTextChange = this.onNoiseTextChange.bind(this);
-        this._boundNoiseDensity = this.onNoiseDensityChange.bind(this);
-        this._boundNoiseWidth = this.onNoiseWidthChange.bind(this);
-        this._boundNoiseHeight = this.onNoiseHeightChange.bind(this);
-        this.GUINoiseReset.addEventListener('click', this._boundNoiseReset);
-        this.GUINoiseSize.addEventListener('input', this._boundNoiseSizeChange);
-        this.GUINoiseX.addEventListener('input', this._boundNoiseXChange);
-        this.GUINoiseY.addEventListener('input', this._boundNoiseYChange);
-        this.GUINoiseText.addEventListener('change', this._boundNoiseTextChange);
-        this.GUINoiseDensity.addEventListener('input', this._boundNoiseDensity);
-        this.GUINoiseWidth.addEventListener('input', this._boundNoiseWidth);
-        this.GUINoiseHeight.addEventListener('input', this._boundNoiseHeight);
-      }
-
-      onNoiseDensityChange() {
-        this.density = this.GUINoiseDensity.value;
-      }
-
-      onNoiseReset() {
-        console.log(this.noiseText);
-        this.NoiseDisplacer.reset(this.noiseText);
-      }
-
-      onNoiseSizeChange() {
-        console.log(this.GUINoiseSize.value);
-        this.noiseSize = this.GUINoiseSize.value;
-      }
-
-      onNoiseXChange() {
-        this.noiseX = this.GUINoiseX.value;
-      }
-
-      onNoiseYChange() {
-        this.noiseY = this.GUINoiseY.value;
-      }
-
-      onNoiseTextChange() {
-        console.log('iwqdqwkdpokqw');
-        this.noiseText = this.GUINoiseText.value;
-      }
-
-      onNoiseWidthChange() {
-        this.noiseWidth = this.GUINoiseWidth.value;
-      }
-
-      onNoiseHeightChange() {
-        this.noiseHeight = this.GUINoiseHeight.value;
       }
     }
 

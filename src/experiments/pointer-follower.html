@@ -16,6 +16,8 @@
         width: 100%;
         height: 100%;
 
+        cursor: crosshair;
+
         touch-action: none;
         -ms-touch-action: none;
         touch-action: none;
@@ -100,6 +102,7 @@
       constructor() {
         super();
         this._boundResizeListener = this._onResize.bind(this);
+        this._boundPointerDown = this._onPointerDown.bind(this);
         this._boundPointerMove = this._onPointerMove.bind(this);
         this._boundScrollListener = this._onScroll.bind(this);
         this.intersectionObserver = this._createIntersectionObserver();
@@ -138,6 +141,10 @@
           let isVisible = ratio > 0.3;
 
           this.active = isVisible;
+          
+          if (isVisible) {
+            this._onResize();
+          }
 
           isVisible ? this._addEventListeners() : this._removeEventListeners();
         });
@@ -145,9 +152,15 @@
 
       _addEventListeners() {
         window.addEventListener('resize', this._boundResizeListener, { passive: true });
+        this.addEventListener('mousedown', this._boundPointerDown, { passive: true });
+        this.addEventListener('touchstart', this._boundPointerDown, { passive: true });
         this.addEventListener('mousemove', this._boundPointerMove, { passive: true });
         this.addEventListener('touchmove', this._boundPointerMove, { passive: true });
         this.scrollTarget.addEventListener('scroll', this._boundScrollListener, { passive: true });
+      }
+
+      _onPointerDown() {
+        this._prepareEntities();
       }
 
       _onPointerMove(e) {
@@ -163,6 +176,8 @@
       _setToActive() {
         if (!this.active) {
           this.active = true;
+          this._onResize();
+          this._prepareEntities();
           this.render();
         }
       }
@@ -172,6 +187,8 @@
       }
 
       _prepareEntities() {
+        this.entities = [];
+
         let width = this.gapX / 2;
         let height = this.gapY / 4;
 
@@ -188,6 +205,8 @@
             this.entities.push(entity);
           }
         }
+
+        this.render();
       }
 
       _resetPointerPosition() {
@@ -196,8 +215,7 @@
       }
 
       _onResize() {
-        this.entities = [];
-
+        console.log('resize', this);
         this.canvas.width = this.offsetWidth * window.devicePixelRatio;
         this.canvas.height = this.offsetHeight * window.devicePixelRatio;
 
@@ -233,7 +251,7 @@
         if (this.clear) {
           this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         } else {
-          this.context.fillStyle = 'rgba(26, 26, 26, .3)';
+          this.context.fillStyle = 'rgba(26, 26, 26, .5)';
           this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
         }
 
@@ -260,7 +278,7 @@
             this.context.fillRect(entityX, -entity.h / 2, entity.w / 5, 2);
             this.context.lineTo(entityX, -entity.h / 2);
           } else {
-            this.context.fillRect(entityX, -entity.h / 2, 2, 2);
+            this.context.fillRect(entityX, -entity.h / 2, 1, 1);
           }
 
           this.context.restore();
