@@ -139,6 +139,9 @@
         this.intersectionObserver.observe(this);
       }
 
+      /**
+       * Element is attached to the DOM.
+       */
       connectedCallback() {
         super.connectedCallback();
 
@@ -157,11 +160,27 @@
         this.render();
       }
 
+      /**
+       * Generate a texture to distort.
+       *
+       * @param {HTMLElement} canvas The destination canvas element.
+       * @param {CanvasRenderingContext2D} context The drawing context.
+       * @param {String} text Optional text to print over the texture.
+       * @return {HTMLImageElement}
+       * @private
+       */
       _generateBaseTexture(canvas, context, text) {
         this._generateNoise(canvas, context);
-        return this.convertCanvasToImage(canvas);
+        return this._convertCanvasToImage(canvas);
       }
 
+      /**
+       * Generate noise within a canvas boundary.
+       *
+       * @param {HTMLCanvasElement} canvas The destination canvas.
+       * @param {CanvasRenderingContext2D} context The drawing context.
+       * @private
+       */
       _generateNoise(canvas, context) {
         context.fillStyle = this.backgroundColor;
         context.fillRect(0, 0, canvas.width, canvas.height);
@@ -198,12 +217,25 @@
         }
       }
 
-      convertCanvasToImage(canvas) {
+      /**
+       * Convert a canvas drawing to an <img> element.
+       *
+       * @param {HTMLCanvasElement} canvas The canvas to convert.
+       * @return {HTMLimageElement}
+       * @private
+       */
+      _convertCanvasToImage(canvas) {
         let image = new Image();
         image.src = canvas.toDataURL('image/png');
         return image;
       }
 
+      /**
+       * Create and return an IntersectionOBserver instance.
+       *
+       * @return {IntersectionObserver}
+       * @private
+       */
       _createIntersectionObserver() {
         let options = {
           root: null,
@@ -214,6 +246,12 @@
         return new IntersectionObserver(this._onObserve.bind(this), options);
       }
 
+      /**
+       * On Element Into View handler.
+       *
+       * @param {Array[Object]} entries
+       * @private
+       */
       _onObserve(entries) {
         entries.forEach(entry => {
           let el = entry.target;
@@ -228,12 +266,22 @@
         });
       }
 
+      /**
+       * Add event listeners to this instance.
+       * @private
+       */
       _addEventListeners() {
         window.addEventListener('resize', this._boundResizeListener, { passive: true });
         // this.addEventListener('mousemove', this._boundPointerMove, { passive: true });
         // this.addEventListener('touchmove', this._boundPointerMove, { passive: true });
       }
 
+      /**
+       * Pointer handler (pointer being a general term for any type of cursor).
+       *
+       * @param {Event} e
+       * @private
+       */
       _onPointerMove(e) {
         let x = e.clientX || e.clientX === 0 ? e.clientX : e.touches[0].clientX;
         let y = e.clientY || e.clientX === 0 ? e.clientY : e.touches[0].clientY;
@@ -241,6 +289,11 @@
         this.pointerY = Math.floor(y * window.devicePixelRatio);
       }
 
+      /**
+       * Set the component to active and send a rendering tick to start a loop.
+       *
+       * @private
+       */
       _setToActive() {
         if (!this.active) {
           this.active = true;
@@ -248,9 +301,19 @@
         }
       }
 
+      /**
+       * On scroll handler.
+       *
+       * @private
+       */
       _onScroll() {
       }
 
+      /**
+       * On resize handler.
+       *
+       * @private
+       */
       _onResize() {
         let width = this.offsetWidth;
         let height = this.offsetHeight;
@@ -262,20 +325,46 @@
         this.output.height = height * window.devicePixelRatio;
       }
 
+      /**
+       * Mix some numbers up.
+       *
+       * @param {Number} a
+       * @param {Number} b
+       * @param {Number} l
+       * @returns {Number}
+       * @private
+       */
       _mix(a, b, l) {
         return a + (b - a) * l;
       }
 
+      /**
+       * Make a number go up and down.
+       *
+       * @param {Number} value The value that should go up down.
+       * @return {Number}
+       * @private
+       */
       _upDown(value) {
         return (Math.sin(value) * 0.5) + 0.5;
       }
 
+      /**
+       * Create a distortion effect.
+       *
+       * @param {Number} row The row which to affect.
+       * @param {Number} time The current timer of the rendering loop.
+       * @private
+       */
       _createDistortion(row, time) {
         return Math.sin((row + 0.5) *
             this._mix(this.distortionOffset, this.distortionCount,
             this._upDown(time)));
       }
 
+      /**
+       * Render the drawing.
+       */
       render() {
         this.time++;
         let time = this.time * this.timeMultiplier;
@@ -305,12 +394,20 @@
         }
       }
 
+      /**
+       * Disconnected callback.
+       */
       disconnectedCallback () {
         super.disconnectedCallback();
 
         this._removeEventListeners();
       }
 
+      /**
+       * Remove event handlers.
+       *
+       * @private
+       */
       _removeEventListeners() {
         window.removeEventListener('resize', this._boundResizeListener);
         this.removeEventListener('mousemove', this._boundPointerMove);
