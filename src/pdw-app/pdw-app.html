@@ -59,6 +59,7 @@
       }
     </style>
 
+    <asset-controller></asset-controller>
     <app-location route="{{route}}"></app-location>
     <app-route
         route="{{route}}"
@@ -83,7 +84,7 @@
         <app-header slot="header" condenses reveals effects="waterfall">
           <app-toolbar>
             <paper-icon-button icon="pdw-icons:menu" drawer-toggle></paper-icon-button>
-            <div main-title>My App</div>
+            <div main-title>Pim de Wit</div>
           </app-toolbar>
         </app-header>
 
@@ -118,7 +119,6 @@
           subroute: String,
           assets: {
             type: Object,
-            value: {},
             observer: '_onAssetLoaded'
           }
         };
@@ -139,7 +139,7 @@
       }
 
       _onAssetLoaded(event) {
-        console.log(event);
+        console.log(event, this.assets);
       }
 
       _routePageChanged(page) {

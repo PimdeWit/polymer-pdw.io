@@ -1,0 +1,161 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../third_party/imports/import-intersection-observer.html">
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="svg-morph">
+  <template>
+    <style include="shared-styles">
+      :host {
+        position: relative;
+
+        display: block;
+
+        width: 100%;
+        height: 500px;
+      }
+
+      :host ::slotted(svg) {
+        position: absolute;
+
+        width: 100%;
+        height: 100%;
+
+        transform-origin: center;
+        stroke-dashoffset: 0;
+        stroke-dasharray: 800px;
+        stroke-width: 2px;
+        stroke: #fff;
+      }
+    </style>
+
+    <slot></slot>
+  </template>
+
+  <script>
+    class SvgMorph extends Polymer.Element {
+      static get is() { return 'svg-morph'; }
+      static get properties() {
+        return {
+          active: {
+            type: Boolean,
+            value: false
+          },
+
+          intersectionObserver: Object,
+
+          time: {
+            type: Number,
+            value: 0
+          },
+          svg: HTMLElement,
+          paths: {
+            type: Array,
+            value: function() {
+              return []
+            }
+          },
+
+          scrollTarget: HTMLElement,
+        }
+      }
+
+      constructor() {
+        super();
+
+        this._boundScrollListener = this._onScroll.bind(this);
+        this.intersectionObserver = this._createIntersectionObserver();
+        this.intersectionObserver.observe(this);
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        this.scrollTarget = document.querySelector('pdw-app').shadowRoot.querySelector('app-header').scrollTarget;
+
+        this.svg = this.querySelector('svg');
+        this.paths = this.svg.querySelectorAll('g > *');;
+
+
+        for (let i = 0; i < this.paths.length; i++) {
+          let path = this.paths[i];
+          path.style.transformOrigin = 'center';
+          if (!path.style.strokeDasharray) {
+            path.style.strokeDasharray = '800px';
+          }
+        }
+
+        this._addEventListeners();
+        this.render();
+      }
+
+      _createIntersectionObserver() {
+        let options = {
+          root: null,
+          rootMargin: '0px',
+          threshold: 0.3
+        }
+
+        return new IntersectionObserver(this.onObserve.bind(this), options);
+      }
+
+      onObserve(entries) {
+        entries.forEach(entry => {
+          let el = entry.target;
+          let ratio = entry.intersectionRatio;
+          let isVisible = ratio > 0.3;
+
+          if (isVisible) {
+            this._addEventListeners();
+            this._setToActive();
+          } else {
+            this.active = false;
+            this._removeEventListeners();
+          }
+        });
+      }
+
+      _addEventListeners() {
+        this.scrollTarget.addEventListener('scroll', this._boundScrollListener, { passive: true });
+      }
+
+      _setToActive() {
+        if (!this.active) {
+          this.active = true;
+          this.render();
+        }
+      }
+
+      _onScroll() {
+        console.log('tba');
+      }
+
+      upDown(value) {
+        return (Math.sin(value) * 0.5) + 0.5;
+      }
+
+      render() {
+        this.time++;
+        let t = this.time * 0.01;
+        let ud = this.upDown(t);
+        let ud2 = this.upDown(t / 4);
+        let scale = Math.abs(Math.cos(ud2));
+
+        console.log(`rotate(${(20 * ud * ud2) * Math.PI}deg) scale(${scale})`);
+
+        for (let index = 0; index < this.paths.length; index++) {
+          let path = this.paths[index];
+
+          path.style.strokeDashoffset = this.scrollTarget.scrollTop - (t * index) + index;
+          path.style.transform = `rotate(${(index * ud * ud2) * Math.PI}deg) scale(${scale})`;
+        }
+
+        if (this.active) requestAnimationFrame(this.render.bind(this));
+      }
+
+      _removeEventListeners() {
+        this.scrollTarget.removeEventListener('scroll', this._boundScrollListener);
+      }
+    }
+
+    window.customElements.define(SvgMorph.is, SvgMorph);
+  </script>
+</dom-module>

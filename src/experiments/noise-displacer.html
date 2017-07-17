@@ -120,7 +120,7 @@
             value: 32
           },
 
-          noiseSize: {
+          sliceSize: {
             type: Number,
             value: 10
           },
@@ -154,10 +154,25 @@
         this._onResize();
         this._addEventListeners();
 
-        this.image = this._generateBaseTexture(this.input, this.inputContext);
+        if (!this.image) {
+          this.image = this._generateBaseTexture(this.input, this.inputContext, 'Hello TTR');
+          this.render();
+        } else {
+          var img = new Image();
+          img.onload = texture => {
+            this.image = texture.target;
+            this.render();
+          }
+
+          img.src = this.image;
+        }
 
         this.input.style.display = 'none';
-        this.render();
+      }
+
+      reset(text) {
+        let t = text || 'Hello TTR';
+        this.image = this._generateBaseTexture(this.input, this.inputContext, t);
       }
 
       /**
@@ -170,6 +185,8 @@
        * @private
        */
       _generateBaseTexture(canvas, context, text) {
+        this._onResize();
+        this.inputContext.clearRect(0, 0, this.input.width, this.input.height);
         this._generateNoise(canvas, context);
         return this._convertCanvasToImage(canvas);
       }
@@ -372,7 +389,7 @@
 
         for (let distance = 0;
             distance < this.output.height;
-            distance = distance + this.noiseSize) {
+            distance = distance + this.sliceSize) {
 
           let row = distance / this.output.height;
 
@@ -385,8 +402,8 @@
 
           this.outputContext.drawImage(
               this.image,
-              0, srcY, this.image.width, this.noiseSize,
-              0, distance, this.output.width, this.noiseSize);
+              0, srcY, this.image.width, this.sliceSize,
+              0, distance, this.output.width, this.sliceSize);
         }
 
         if (this.active) {

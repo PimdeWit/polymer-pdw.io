@@ -1,11 +1,11 @@
 {
   "entrypoint": "index.html",
-  "shell": "src/my-app.html",
+  "shell": "src/pdw-app/pdw-app.html",
   "fragments": [
-    "src/my-view1.html",
-    "src/my-view2.html",
-    "src/my-view3.html",
-    "src/my-view404.html"
+    "src/pages/pdw-home.html",
+    "src/pages/pdw-view2.html",
+    "src/pages/pdw-view3.html",
+    "src/pages/pdw-404.html"
   ],
   "sources": [
     "src/**/*",
