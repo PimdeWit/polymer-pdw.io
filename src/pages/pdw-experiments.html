@@ -1,0 +1,75 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../experiments/pointer-follower.html">
+<link rel="import" href="../experiments/noise-displacer.html">
+<link rel="import" href="../experiments/svg-morph.html">
+<!--<link rel="import" href="../experiments/lorem-ipsum/lorem-ipsum.html">-->
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="pdw-experiments">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+
+      section {
+        position: relative;
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        flex-wrap: wrap;
+      }
+    </style>
+
+    <app-route
+        route="[[route]]"
+        pattern="/:experiment"
+        data="{{routeData}}"></app-route>
+
+    <h1>[[route.path]]</h1>
+    <iron-pages 
+        selected="[[route.path]]"
+        attr-for-selected="name"
+        fallback-selection="404"
+        role="main">
+      <pointer-follower name="/pointerstalker" rows="32" columns="32" particle-width="2" particle-height="2" distortion="50" clear></pointer-follower>
+      <pointer-follower name="/curtains" rows="8" columns="48" particle-width="48" particle-height="2" distortion="50" clear></pointer-follower>
+      <pointer-follower name="/network" rows="48" columns="20" particle-width="2" particle-height="2" distortion="80" tag="0.8" clear></pointer-follower>
+    </iron-pages>
+
+  </template>
+
+  <script>
+    class PdwExperiments extends Polymer.Element {
+      static get is() { return 'pdw-experiments'; }
+      static get properties() {
+        return {
+          assets: Object,
+
+          route: Object,
+          routeData: Object
+        }
+      }
+
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this._addEventListeners();
+        console.log(this.route);
+      }
+
+      _addEventListeners() {
+      }
+    }
+
+    window.customElements.define(PdwExperiments.is, PdwExperiments);
+  </script>
+</dom-module>

@@ -18,7 +18,8 @@
     "pepjs": "^0.4.3",
     "intersection-observer-polyfill": "^0.1.0",
     "inert-polyfill": "^0.2.3",
-    "Matter": "matter-js#^0.12.0"
+    "Matter": "matter-js#^0.12.0",
+    "webfontloader": "^1.6.28"
   },
   "resolutions": {
     "polymer": "^2.0.0-rc.3"

@@ -67,6 +67,9 @@
         this.intersectionObserver.observe(this);
       }
 
+      /**
+       * Element attached to the DOM.
+       */
       connectedCallback() {
         super.connectedCallback();
         this.scrollTarget = document.querySelector('pdw-app').shadowRoot.querySelector('app-header').scrollTarget;
@@ -87,6 +90,12 @@
         this.render();
       }
 
+      /**
+       * Create and return an IntersectionOBserver instance.
+       *
+       * @return {IntersectionObserver}
+       * @private
+       */
       _createIntersectionObserver() {
         let options = {
           root: null,
@@ -94,10 +103,16 @@
           threshold: 0.3
         }
 
-        return new IntersectionObserver(this.onObserve.bind(this), options);
+        return new IntersectionObserver(this._onObserve.bind(this), options);
       }
 
-      onObserve(entries) {
+      /**
+       * On Element Into View handler.
+       *
+       * @param {Array[Object]} entries
+       * @private
+       */
+      _onObserve(entries) {
         entries.forEach(entry => {
           let el = entry.target;
           let ratio = entry.intersectionRatio;
@@ -113,10 +128,19 @@
         });
       }
 
+      /**
+       * Add event listeners to this instance.
+       * @private
+       */
       _addEventListeners() {
         this.scrollTarget.addEventListener('scroll', this._boundScrollListener, { passive: true });
       }
 
+      /**
+       * Set the component to active and send a rendering tick to start a loop.
+       *
+       * @private
+       */
       _setToActive() {
         if (!this.active) {
           this.active = true;
@@ -124,22 +148,33 @@
         }
       }
 
+      /**
+       * On scroll handler.
+       *
+       * @private
+       */
       _onScroll() {
         console.log('tba');
       }
 
-      upDown(value) {
+      /**
+       * Make a number go up and down.
+       *
+       * @private
+       */
+      _upDown(value) {
         return (Math.sin(value) * 0.5) + 0.5;
       }
 
+      /**
+       * The drawing loop.
+       */
       render() {
         this.time++;
         let t = this.time * 0.01;
-        let ud = this.upDown(t);
-        let ud2 = this.upDown(t / 4);
+        let ud = this._upDown(t);
+        let ud2 = this._upDown(t / 4);
         let scale = Math.abs(Math.cos(ud2));
-
-        console.log(`rotate(${(20 * ud * ud2) * Math.PI}deg) scale(${scale})`);
 
         for (let index = 0; index < this.paths.length; index++) {
           let path = this.paths[index];
@@ -151,6 +186,11 @@
         if (this.active) requestAnimationFrame(this.render.bind(this));
       }
 
+      /**
+       * Remove the event listeners from this instance.
+       *
+       * @private
+       */
       _removeEventListeners() {
         this.scrollTarget.removeEventListener('scroll', this._boundScrollListener);
       }

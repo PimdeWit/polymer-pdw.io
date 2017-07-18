@@ -57,6 +57,16 @@
             value: 'rgb(255, 255, 255)'
           },
 
+          particleWidth: {
+            type: Number,
+            value: 1
+          },
+
+          particleHeight: {
+            type: Number,
+            value: 1
+          },
+
           gapX: {
             type: Number,
             value: 40
@@ -109,6 +119,9 @@
         this.intersectionObserver.observe(this);
       }
 
+      /**
+       * Connected callback.
+       */
       connectedCallback() {
         super.connectedCallback();
 
@@ -124,17 +137,29 @@
         this.render();
       }
 
+      /**
+       * Create and return an IntersectionObserver.
+       *
+       * @return {IntersectionObserver}
+       * @private
+       */
       _createIntersectionObserver() {
-        let options = {
+        const options = {
           root: null,
           rootMargin: '0px',
           threshold: 0.3
         }
 
-        return new IntersectionObserver(this.onObserve.bind(this), options);
+        return new IntersectionObserver(this._onObserve.bind(this), options);
       }
 
-      onObserve(entries) {
+      /**
+       * On Element Into View handler.
+       *
+       * @param {Array[Object]} entries
+       * @private
+       */
+      _onObserve(entries) {
         entries.forEach(entry => {
           let el = entry.target;
           let ratio = entry.intersectionRatio;
@@ -150,6 +175,11 @@
         });
       }
 
+      /**
+       * Add event listeners to this instance.
+       *
+       * @private
+       */
       _addEventListeners() {
         window.addEventListener('resize', this._boundResizeListener, { passive: true });
         this.addEventListener('mousedown', this._boundPointerDown, { passive: true });
@@ -159,13 +189,24 @@
         this.scrollTarget.addEventListener('scroll', this._boundScrollListener, { passive: true });
       }
 
+      /**
+       * Pointer handler (pointer being a general term for any type of cursor).
+       *
+       * @private
+       */
       _onPointerDown() {
         this._prepareEntities();
       }
 
+      /**
+       * Pointer move handler.
+       *
+       * @param {MouseEvent|TouchEvent} 
+       * @private
+       */
       _onPointerMove(e) {
-        let x = e.clientX || e.clientX === 0 ? e.clientX : e.touches[0].clientX;
-        let y = e.clientY || e.clientX === 0 ? e.clientY : e.touches[0].clientY;
+        const x = e.clientX || e.clientX === 0 ? e.clientX : e.touches[0].clientX;
+        const y = e.clientY || e.clientX === 0 ? e.clientY : e.touches[0].clientY;
         this.pointerX = Math.floor((x - this.bcr.left) * window.devicePixelRatio);
         this.pointerY = Math.floor((y - this.bcr.top) * window.devicePixelRatio);
 
@@ -173,6 +214,11 @@
         this.render();
       }
 
+      /**
+       * Set the component to active and send a rendering tick to start a loop.
+       *
+       * @private
+       */
       _setToActive() {
         if (!this.active) {
           this.active = true;
@@ -182,23 +228,33 @@
         }
       }
 
+      /**
+       * On scroll handler.
+       *
+       * @private
+       */
       _onScroll() {
         this.bcr = this.canvas.getBoundingClientRect();
       }
 
+      /**
+       * Prepare "entities", and store them for performance reasons.
+       *
+       * @private
+       */
       _prepareEntities() {
         this.entities = [];
 
-        let width = this.gapX / 2;
-        let height = this.gapY / 4;
+        const width = this.gapX / 2;
+        const height = this.gapY / 4;
 
         for (let i = this.rows - 1; i > 0; i--) {
           for (let j = this.columns - 1; j > 0; j--) {
-            let entity = {
+            const entity = {
               x: Math.round((this.gapX * i) - (width / 2)),
               y: Math.round((this.gapY * j) - (height / 2)),
-              w: width * window.devicePixelRatio,
-              h: 1 * window.devicePixelRatio,
+              w: this.particleWidth * window.devicePixelRatio,
+              h: this.particleHeight * window.devicePixelRatio,
               alpha: Math.random()
             };
 
@@ -209,28 +265,43 @@
         this.render();
       }
 
+      /**
+       * Reset the pointer position to the center.
+       *
+       * @private
+       */
       _resetPointerPosition() {
         this.pointerX = this.canvas.width / 2;
         this.pointerY = this.canvas.height / 2;
       }
 
+      /**
+       * Resize handler.
+       *
+       * @private
+       */
       _onResize() {
-        console.log('resize', this);
         this.canvas.width = this.offsetWidth * window.devicePixelRatio;
         this.canvas.height = this.offsetHeight * window.devicePixelRatio;
 
-        this.canvas.style.width = this.offsetWidth;
-        this.canvas.style.height = this.offsetHeight;
+        this.canvas.style.width = `${this.offsetWidth}px`;
+        this.canvas.style.height = `${this.offsetHeight}px`;
 
         this.gapX = this.canvas.width / this.rows;
         this.gapY = this.canvas.height / this.columns;
 
         this._onScroll();
+        console.log(this.offsetWidth, this.canvas.style.width);
 
         this._prepareEntities();
         this.render();
       }
 
+      /**
+       * On cursor moved.
+       *
+       * @private
+       */
       _cursorMoved() {
         if (Math.round(this.currentX) === this.pointerX &&
             Math.floor(this.currentY) === Math.floor(this.pointerY)) {
@@ -240,6 +311,19 @@
         return true;
       }
 
+      /**
+       * Get the radians towards the pointer.
+       *
+       * @param {Number} pointerX The position of the pointer on the X axis.
+       * @param {Number} pointerY The position of the pointer on the Y axis.
+       * @param {Object} object
+       * @param {Number} object.x The position of the object on the X axis.
+       * @param {Number} object.y The position of the object on the Y axis.
+       * @param {Number} object.w The width of the object.
+       * @param {Number} object.h The height of the object.
+       * @return {Number}
+       * @private 
+       */
       _getRadiansTowardsPointer(pointerX, pointerY, object) {
         return Math.atan2(
           pointerY - (object.y + (object.h / 2)),
@@ -247,6 +331,9 @@
         );
       }
 
+      /**
+       * The drawing loop.
+       */
       render() {
         if (this.clear) {
           this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -255,18 +342,18 @@
           this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
         }
 
-        let x = this.pointerX;
-        let y = this.pointerY;
+        const x = this.pointerX;
+        const y = this.pointerY;
 
         this.context.beginPath();
 
         for (var i = 0; i < this.entities.length; i++) {
-          let entity = this.entities[i];
-          let radians = this._getRadiansTowardsPointer(x, y, entity);
-          let translateX = entity.x + (entity.w / 2);
-          let translateY = entity.y + (entity.h / 2);
+          const entity = this.entities[i];
+          const radians = this._getRadiansTowardsPointer(x, y, entity);
+          const translateX = entity.x + (entity.w / 2);
+          const translateY = entity.y + (entity.h / 2);
 
-          let entityX = -entity.w - this.distortion;
+          const entityX = -entity.w - this.distortion;
 
           this.context.save();
           this.context.translate(translateX, translateY);
@@ -275,10 +362,10 @@
 
           if (this.tag && entity.alpha > this.tag) {
             this.context.fillStyle = this.color;
-            this.context.fillRect(entityX, -entity.h / 2, entity.w / 5, 2);
-            this.context.lineTo(entityX, -entity.h / 2);
+            this.context.fillRect(entityX, -entity.h / 2, entity.w / 5, entity.h);
+            this.context.lineTo(entityX - (entity.w / 2), -entity.h / 2);
           } else {
-            this.context.fillRect(entityX, -entity.h / 2, 1, 1);
+            this.context.fillRect(entityX, -entity.h / 2, entity.w, entity.h);
           }
 
           this.context.restore();
@@ -293,12 +380,20 @@
         this.currentY = y;
       }
 
+      /**
+       * On element removed from DOM handler.
+       */
       disconnectedCallback () {
         super.disconnectedCallback();
 
         this._removeEventListeners();
       }
 
+      /**
+       * Remove the event listeners of this instance.
+       *
+       * @private
+       */
       _removeEventListeners() {
         window.removeEventListener('resize', this._boundResizeListener);
         this.removeEventListener('mousemove', this._boundPointerMove);

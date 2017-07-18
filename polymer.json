@@ -5,6 +5,7 @@
     "src/pages/pdw-home.html",
     "src/pages/pdw-view2.html",
     "src/pages/pdw-view3.html",
+    "src/pages/pdw-experiments.html",
     "src/pages/pdw-404.html"
   ],
   "sources": [
@@ -13,10 +14,20 @@
     "bower.json"
   ],
   "extraDependencies": [
+    "app.yaml",
     "manifest.json",
     "bower_components/webcomponentsjs/*.js"
   ],
   "lint": {
     "rules": ["polymer-2"]
-  }
+  },
+  "builds": [
+    {
+      "preset": "es6-unbundled",
+      "addServiceWorker": true,
+      "js": {"minify": true},
+      "css": {"minify": true},
+      "html": {"minify": true}
+    }
+  ]
 }

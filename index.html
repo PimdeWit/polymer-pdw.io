@@ -5,8 +5,9 @@
     <meta name="generator" content="Polymer Starter Kit">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-    <title>My App</title>
-    <meta name="description" content="My App description">
+    <title>Portfolio | Pim de Wit</title>
+    <meta name="description" content="Pim de Wit - Art & development portfolio">
+    <meta name="author" content="https://pdw.io">
 
     <!--
       If deploying to a non-root path, replace href="/" with the full path to the project root.
@@ -17,19 +18,19 @@
     <link rel="icon" href="images/favicon.ico">
 
     <!-- See https://goo.gl/OOhYW5 -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/manifest.json">
 
     <!-- See https://goo.gl/qRE0vM -->
-    <meta name="theme-color" content="#3f51b5">
+    <meta name="theme-color" content="#1a1a1a">
 
     <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="My App">
+    <meta name="application-name" content="pdw.io">
 
     <!-- Add to homescreen for Safari on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="My App">
+    <meta name="apple-mobile-web-app-title" content="pdw.io">
 
     <!-- Homescreen icons -->
     <link rel="apple-touch-icon" href="images/manifest/icon-48x48.png">
@@ -40,10 +41,9 @@
 
     <!-- Tile icon for Windows 8 (144x144 + tile color) -->
     <meta name="msapplication-TileImage" content="images/manifest/icon-144x144.png">
-    <meta name="msapplication-TileColor" content="#3f51b5">
+    <meta name="msapplication-TileColor" content="#1a1a1a">
     <meta name="msapplication-tap-highlight" content="no">
 
-    <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,500" rel="stylesheet">
     <script>
       // Register the base URL
       const baseUrl = document.querySelector('base').href;
@@ -54,13 +54,22 @@
           navigator.serviceWorker.register(baseUrl + 'service-worker.js');
         });
       }
+
+      window.Polymer = {
+        lazyRegister: true,
+        dom: 'shadow',
+      };
     </script>
 
+    <script async src="src/app.js"></script> 
+
+
+
     <!-- Load webcomponents-loader.js to check and load any polyfills your browser needs -->
-    <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
+    <!-- <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script> -->
 
     <!-- Load your application shell -->
-    <link rel="import" href="src/pdw-app/pdw-app.html">
+    <!-- <link rel="import" href="src/pdw-app/pdw-app.html"> -->
 
     <!-- Add any global styles for body, document, etc. -->
     <style>
@@ -86,10 +95,20 @@
         touch-action: manipulation;
 
       }
+
+      .loader {
+        animation: loading infinite 1s;
+      }
+
+      @keyframes loading {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.2); }
+      }
     </style>
   </head>
   <body>
     <pdw-app></pdw-app>
+    <span class="loader">© Pim de Wit 2017 | MIT Licence</span>
     <noscript>
       Please enable JavaScript to view this website.
     </noscript>

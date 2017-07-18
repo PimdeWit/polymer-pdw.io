@@ -1,0 +1,31 @@
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+
+  - url: /src
+    static_dir: src
+
+  - url: /bower_components
+    static_dir: bower_components
+
+  - url: /images
+    static_dir: images
+
+  - url: /service-worker.js
+    static_files: service-worker.js
+    upload: service-worker.js
+    secure: always
+  
+  - url: /manifest.json
+    static_files: manifest.json
+    upload: manifest.json
+    secure: always
+
+  - url: /.*
+    static_files: index.html
+    expiration: '0d'
+    upload: index.html
+    secure: always
+

@@ -158,7 +158,7 @@
           this.image = this._generateBaseTexture(this.input, this.inputContext, 'Hello TTR');
           this.render();
         } else {
-          var img = new Image();
+          const img = new Image();
           img.onload = texture => {
             this.image = texture.target;
             this.render();
@@ -171,14 +171,14 @@
       }
 
       reset(text) {
-        let t = text || 'Hello TTR';
+        const t = text || 'Hello TTR';
         this.image = this._generateBaseTexture(this.input, this.inputContext, t);
       }
 
       /**
        * Generate a texture to distort.
        *
-       * @param {HTMLElement} canvas The destination canvas element.
+       * @param {HTMLCanvasElement} canvas The destination canvas element.
        * @param {CanvasRenderingContext2D} context The drawing context.
        * @param {String} text Optional text to print over the texture.
        * @return {HTMLImageElement}
@@ -202,19 +202,19 @@
         context.fillStyle = this.backgroundColor;
         context.fillRect(0, 0, canvas.width, canvas.height);
 
-        let gapX = this.noiseX * window.devicePixelRatio;
-        let gapY = this.noiseY * window.devicePixelRatio;
+        const gapX = this.noiseX * window.devicePixelRatio;
+        const gapY = this.noiseY * window.devicePixelRatio;
 
         for (let x = 0; x < canvas.width; x = x + gapX) {
           for (let y = 0; y < canvas.height; y = y + gapY) {
-            let alpha = (Math.floor(Math.random() * 100) / 100);
+            const alpha = (Math.floor(Math.random() * 100) / 100);
 
             if (alpha >= this.density) {
-              let color = `rgba(255, 255, 255, ${Math.random()})`;
-              let w = this.noiseWidth * window.devicePixelRatio;
-              let blurW = w * 2;
-              let h = this.noiseHeight * window.devicePixelRatio;
-              let blurH = h * 2;
+              const color = `rgba(255, 255, 255, ${Math.random()})`;
+              const w = this.noiseWidth * window.devicePixelRatio;
+              const blurW = w * 2;
+              const h = this.noiseHeight * window.devicePixelRatio;
+              const blurH = h * 2;
 
               context.fillStyle = this.secondaryColor;
               context.fillRect(
@@ -242,7 +242,7 @@
        * @private
        */
       _convertCanvasToImage(canvas) {
-        let image = new Image();
+        const image = new Image();
         image.src = canvas.toDataURL('image/png');
         return image;
       }
@@ -254,7 +254,7 @@
        * @private
        */
       _createIntersectionObserver() {
-        let options = {
+        const options = {
           root: null,
           rootMargin: '0px',
           threshold: 0.3
@@ -271,9 +271,9 @@
        */
       _onObserve(entries) {
         entries.forEach(entry => {
-          let el = entry.target;
-          let ratio = entry.intersectionRatio;
-          let isVisible = ratio > 0.3;
+          const el = entry.target;
+          const ratio = entry.intersectionRatio;
+          const isVisible = ratio > 0.3;
           if (isVisible) {
             this.active = true;
             this.render();
@@ -300,8 +300,8 @@
        * @private
        */
       _onPointerMove(e) {
-        let x = e.clientX || e.clientX === 0 ? e.clientX : e.touches[0].clientX;
-        let y = e.clientY || e.clientX === 0 ? e.clientY : e.touches[0].clientY;
+        const x = e.clientX || e.clientX === 0 ? e.clientX : e.touches[0].clientX;
+        const y = e.clientY || e.clientX === 0 ? e.clientY : e.touches[0].clientY;
         this.pointerX = Math.floor(x * window.devicePixelRatio);
         this.pointerY = Math.floor(y * window.devicePixelRatio);
       }
@@ -332,8 +332,8 @@
        * @private
        */
       _onResize() {
-        let width = this.offsetWidth;
-        let height = this.offsetHeight;
+        const width = this.offsetWidth;
+        const height = this.offsetHeight;
 
         this.input.width = width * window.devicePixelRatio;
         this.input.height = height * window.devicePixelRatio;
@@ -384,18 +384,18 @@
        */
       render() {
         this.time++;
-        let time = this.time * this.timeMultiplier;
-        let timeDetained = time * this.timeEffector;
+        const time = this.time * this.timeMultiplier;
+        const timeDetained = time * this.timeEffector;
 
         for (let distance = 0;
             distance < this.output.height;
             distance = distance + this.sliceSize) {
 
-          let row = distance / this.output.height;
+          const row = distance / this.output.height;
 
-          let a = this._createDistortion(row, time) * this.mixMultiplier;
-          let b = this._createDistortion(row, timeDetained) * this.mixMultiplier;
-          let offset = a + b;
+          const a = this._createDistortion(row, time) * this.mixMultiplier;
+          const b = this._createDistortion(row, timeDetained) * this.mixMultiplier;
+          const offset = a + b;
 
           let srcY = ((distance * this.image.height) / this.output.height) + offset;
           srcY = Math.max(0, Math.min(this.image.height - 1, srcY));
