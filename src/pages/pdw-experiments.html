@@ -31,6 +31,14 @@
         data="{{routeData}}"></app-route>
 
     <h1>[[route.path]]</h1>
+
+    <ul>
+      <li><a name="/pointerstalker" href="experiments/pointerstalker">One</a></li>
+      <li><a name="/curtains" href="experiments/curtains">Two</a></li>
+      <li><a name="/network" href="experiments/network">Three</a></li>
+      <li><a name="/noise-displacer" href="experiments/noise-displacer">Four</a></li>
+    </ul>
+
     <iron-pages 
         selected="[[route.path]]"
         attr-for-selected="name"
@@ -39,6 +47,7 @@
       <pointer-follower name="/pointerstalker" rows="32" columns="32" particle-width="2" particle-height="2" distortion="50" clear></pointer-follower>
       <pointer-follower name="/curtains" rows="8" columns="48" particle-width="48" particle-height="2" distortion="50" clear></pointer-follower>
       <pointer-follower name="/network" rows="48" columns="20" particle-width="2" particle-height="2" distortion="80" tag="0.8" clear></pointer-follower>
+      <noise-displacer name="/noise-displacer"></noise-displacer>
     </iron-pages>
 
   </template>

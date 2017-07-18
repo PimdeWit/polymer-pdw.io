@@ -40,15 +40,15 @@
 
           intersectionObserver: Object,
 
-          input: HTMLElement,
+          input: HTMLCanvasElement,
 
           inputContext: Object,
 
-          output: HTMLElement,
+          output: HTMLCanvasElement,
 
           outputContext: Object,
 
-          image: HTMLElement,
+          image: HTMLImageElement,
 
           time: {
             type: Number,
@@ -151,11 +151,16 @@
         this.inputContext = this.input.getContext('2d');
         this.outputContext = this.output.getContext('2d');
 
+        Polymer.RenderStatus.afterNextRender(this, this._prepare);
+      }
+
+      _prepare() {
         this._onResize();
         this._addEventListeners();
 
         if (!this.image) {
-          this.image = this._generateBaseTexture(this.input, this.inputContext, 'Hello TTR');
+          this.image = this._generateBaseTexture(this.input, this.inputContext,
+              'Hello TTR');
           this.render();
         } else {
           const img = new Image();
@@ -171,8 +176,9 @@
       }
 
       reset(text) {
-        const t = text || 'Hello TTR';
-        this.image = this._generateBaseTexture(this.input, this.inputContext, t);
+        const textToDraw = text || 'Hello TTR';
+        this.image = this._generateBaseTexture(this.input, this.inputContext,
+            textToDraw);
       }
 
       /**
@@ -275,8 +281,7 @@
           const ratio = entry.intersectionRatio;
           const isVisible = ratio > 0.3;
           if (isVisible) {
-            this.active = true;
-            this.render();
+            this._setToActive();
           } else {
             this.active = false;
           }
@@ -340,6 +345,9 @@
 
         this.output.width = width * window.devicePixelRatio;
         this.output.height = height * window.devicePixelRatio;
+
+        this.output.style.width = `${width}px`;
+        this.output.style.height = `${height}px`;
       }
 
       /**
@@ -383,6 +391,7 @@
        * Render the drawing.
        */
       render() {
+        if (!this.image) return;
         this.time++;
         const time = this.time * this.timeMultiplier;
         const timeDetained = time * this.timeEffector;
