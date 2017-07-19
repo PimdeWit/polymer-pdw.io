@@ -59,7 +59,18 @@
         lazyRegister: true,
         dom: 'shadow',
       };
+
+      window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+      ga('create', 'UA-86484170-1', 'auto');
+      ga('require', 'eventTracker');
+      ga('require', 'mediaQueryTracker');
+      ga('require', 'outboundLinkTracker');
+      ga('require', 'pageVisibilityTracker');
+      ga('require', 'urlChangeTracker');
+      ga('send', 'pageview');
     </script>
+    <script async src="https://www.google-analytics.com/analytics.js"></script>
+    <script async src="src/third_party/imports/autotrack.js"></script>
 
     <script async src="src/app.js"></script> 
 
