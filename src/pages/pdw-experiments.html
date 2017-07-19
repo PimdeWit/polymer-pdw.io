@@ -32,6 +32,10 @@
 
     <h1>[[route.path]]</h1>
 
+    <template is="dom-if" if="[[!batterycharging]]">
+      <p>The codelab could contain some battery-draining experiments, You may want to consider checking these out when you're charging your device ([[batterylevel]]%).</p>
+    </template>
+
     <ul>
       <li><a name="/pointerstalker" href="experiments/pointerstalker">One</a></li>
       <li><a name="/curtains" href="experiments/curtains">Two</a></li>
@@ -60,7 +64,9 @@
           assets: Object,
 
           route: Object,
-          routeData: Object
+          routeData: Object,
+          batterycharging: Boolean,
+          batterylevel: String
         }
       }
 
@@ -72,7 +78,31 @@
         super.connectedCallback();
 
         this._addEventListeners();
-        console.log(this.route);
+
+        if (navigator.getBattery) {
+          navigator.getBattery().then(this._battery.bind(this), () => {
+            log('There was an error getting the battery');
+          })
+        } else if (navigator.battery) {
+          this._battery(navigator.battery);
+        } else {
+          log('Battery API not supported');
+        }
+      }
+
+      _battery(battery) {
+        window.battery = battery;
+
+        this.batterycharging = battery.charging;
+        this.batterylevel = battery.level * 100;
+
+        battery.addEventListener('chargingchange', () => {
+          this.batterycharging = battery.charging;
+        }, false);
+
+        battery.addEventListener('levelchange', () => {
+          this.batterylevel = battery.level * 100;
+        })
       }
 
       _addEventListeners() {
