@@ -11,6 +11,7 @@
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../utilities/pdw-icons.html">
+<link rel="import" href="../third_party/imports/import-pep.html">
 
 <link rel="lazy-import" href="../pages/pdw-home.html">
 <link rel="lazy-import" href="../pages/pdw-view2.html">
@@ -28,8 +29,8 @@
         display: block;
       }
 
-      app-drawer-layout:not([narrow]) [drawer-toggle] {
-        display: none;
+      #drawer {
+        z-index: 501;
       }
 
       app-header {
@@ -39,6 +40,13 @@
 
       app-header paper-icon-button {
         --paper-icon-button-ink-color: white;
+      }
+
+      .drawer__toggle {
+        position: absolute;
+        top: 32px;
+        left: 32px;
+        z-index: 101;
       }
 
       .drawer-list {
@@ -66,44 +74,29 @@
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
 
-    <app-drawer-layout fullbleed force-narrow>
-      <!-- Drawer content -->
-      <app-drawer id="drawer" slot="drawer">
-        <app-toolbar>Menu</app-toolbar>
-        <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-          <a name="home" href="home">View One</a>
-          <a name="view2" href="view2">View Two</a>
-          <a name="view3" href="view3">View Three</a>
-          <a name="experiments" href="experiments">Experiments</a>
-        </iron-selector>
-      </app-drawer>
+    <app-drawer id="drawer" slot="drawer">
+      <app-toolbar>Menu</app-toolbar>
+      <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
+        <a name="home" href="home">View One</a>
+        <a name="view2" href="view2">View Two</a>
+        <a name="view3" href="view3">View Three</a>
+        <a name="experiments" href="experiments">Experiments</a>
+      </iron-selector>
+    </app-drawer>
 
-      <!-- Main content -->
-      <app-header-layout has-scrolling-region>
+    <paper-icon-button id="drawertoggle" icon="pdw-icons:menu" drawer-toggle class="drawer__toggle"></paper-icon-button>
 
-        <app-header slot="header" condenses reveals effects="waterfall">
-          <app-toolbar>
-            <paper-icon-button icon="pdw-icons:menu" drawer-toggle></paper-icon-button>
-            <div main-title>Q</div>
-          </app-toolbar>
-        </app-header>
-
-        <iron-pages
-            selected="[[page]]"
-            attr-for-selected="name"
-            fallback-selection="404"
-            role="main">
-          <pdw-home name="home"></pdw-home>
-          <pdw-view2 name="view2"></pdw-view2>
-          <pdw-view3 name="view3"></pdw-view3>
-          <pdw-experiments name="experiments" route="[[subroute]]"></pdw-experiments>
-          <pdw-404 name="404"></pdw-404>
-        </iron-pages>
-      </app-header-layout>
-    </app-drawer-layout>
+    <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="404" role="main">
+      <pdw-home name="home"></pdw-home>
+      <pdw-view2 name="view2"></pdw-view2>
+      <pdw-view3 name="view3"></pdw-view3>
+      <pdw-experiments name="experiments" route="[[subroute]]"></pdw-experiments>
+      <pdw-404 name="404"></pdw-404>
+    </iron-pages>
   </template>
-
+  
   <script>
+
     class PdwApp extends Polymer.Element {
 
       static get is() { return 'pdw-app'; }
@@ -139,6 +132,17 @@
         this.rootPattern = (new URL(this.rootPath)).pathname;
       }
 
+      connectedCallback() {
+        super.connectedCallback();
+        this._addEventListeners();
+      }
+
+      _addEventListeners() {
+        this.$.drawertoggle.addEventListener('pointerdown', () => {
+          this.$.drawer.toggle();
+        });
+      }
+
       _onAssetLoaded(event) {
         console.log(event, this.assets);
       }
@@ -162,7 +166,7 @@
 
       _pageChanged(page) {
         // Load page import on demand. Show 404 page if fails
-        var resolvedPageUrl = this.resolveUrl('../pages/pdw-' + page + '.html');
+        const resolvedPageUrl = this.resolveUrl('../pages/pdw-' + page + '.html');
         Polymer.importHref(
             resolvedPageUrl,
             null,

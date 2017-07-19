@@ -47,7 +47,7 @@
             type: Number,
             value: 0
           },
-          svg: HTMLElement,
+          svg: SVGElement,
           paths: {
             type: Array,
             value: function() {
@@ -72,7 +72,7 @@
        */
       connectedCallback() {
         super.connectedCallback();
-        this.scrollTarget = document.querySelector('pdw-app').shadowRoot.querySelector('app-header').scrollTarget;
+        this.scrollTarget = document.scrollingElement;
 
         this.svg = this.querySelector('svg');
         this.paths = this.svg.querySelectorAll('g > *');;

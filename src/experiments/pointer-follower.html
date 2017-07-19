@@ -127,7 +127,7 @@
 
         this.canvas = this.shadowRoot.querySelector('#canvas');
         this.context = this.canvas.getContext('2d');
-        this.scrollTarget = document.querySelector('pdw-app').shadowRoot.querySelector('app-header').scrollTarget || document.scrollingElement;
+        this.scrollTarget = document.scrollingElement;
 
         Polymer.RenderStatus.afterNextRender(this, this._prepare);
       }

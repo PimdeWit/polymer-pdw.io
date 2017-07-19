@@ -97,12 +97,14 @@
       }
 
       .loader {
-        animation: loading infinite 1s;
+        display: inline-block;
+        animation: loading infinite 1s ease-in-out;
       }
 
       @keyframes loading {
         0% { transform: scale(1); }
-        100% { transform: scale(1.2); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
       }
     </style>
   </head>
