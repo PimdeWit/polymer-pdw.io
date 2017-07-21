@@ -1,0 +1,162 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../third_party/imports/import-intersection-observer.html">
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="steezy-svg">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        position: relative;
+
+        width: 100%;
+        height: 500px;
+      }
+
+      canvas {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+
+        touch-action: none;
+        -ms-touch-action: none;
+        touch-action: none;
+      }
+    </style>
+
+    <canvas id="canvas"></canvas>
+  </template>
+
+  <script>
+    class SteezySVG extends Polymer.Element {
+      static get is() { return 'steezy-svg'; }
+      static get properties() {
+        return {
+          active: {
+            type: Boolean,
+            value: false
+          },
+
+          intersectionObserver: Object,
+
+          canvas: HTMLCanvasElement,
+
+          _context: Object,
+
+          _tool: Object,
+          _pointText: Object,
+
+          _path: Object,
+          _button: HTMLButtonElement
+        }
+      }
+
+      constructor() {
+        super();
+        this._pointText = new Paper.PointText();
+        this._addEventListeners();
+        this._button.setAttribute('disabled', 'disabled');
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.canvas = this.shadowRoot.querySelector('#canvas');
+        this.context = this.canvas.getContext('2d');
+
+        this._onResize();
+        this.render();
+      }
+
+      _createIntersectionObserver() {
+        let options = {
+          root: null,
+          rootMargin: '0px',
+          threshold: 0.3
+        }
+
+        return new IntersectionObserver(this._onObserve.bind(this), options);
+      }
+
+      _onObserve(entries) {
+        entries.forEach(entry => {
+          let el = entry.target;
+          let ratio = entry.intersectionRatio;
+          let isVisible = ratio > 0.3;
+
+          if (isVisible) {
+            this.active = true;
+            this.render();
+          } else {
+            this.active = false;
+          }
+        });
+      }
+
+      _addEventListeners() {
+        window.addEventListener('resize', this._boundResizeListener, { passive: true });
+        this.canvas.addEventListener('mousemove', this._boundPointerMove, { passive: true }); 
+        this.canvas.addEventListener('touchmove', this._boundPointerMove, { passive: true }); 
+      }
+
+      _onPointerMove(e) {
+        let x = e.clientX || e.clientX === 0 ? e.clientX : e.touches[0].clientX;
+        let y = e.clientY || e.clientX === 0 ? e.clientY : e.touches[0].clientY;
+        this.pointerX = Math.floor(x * window.devicePixelRatio);
+        this.pointerY = Math.floor(y * window.devicePixelRatio);
+      }
+
+      _setToActive() {
+        if (!this.active) {
+          this.active = true;
+          this.render();
+        }
+      }
+
+      _onResize() {
+        let width = this.offsetWidth;
+        let height = this.offsetHeight;
+
+        this.canvas.width = this.offsetWidth * window.devicePixelRatio;
+        this.canvas.height = this.offsetHeight * window.devicePixelRatio;
+        this.canvas.style.width = this.offsetWidth;
+        this.canvas.style.height = this.offsetHeight;
+      }
+
+      _createText() {
+        this._pointText = new PointText(view.center);
+        this._pointText.content = 'Hello world.';
+        this._pointText.style = {
+          fontFamily: 'Work Sans',
+          fontWeight: '400',
+          fontSize: 80,
+          fillColor: 'red',
+          justification: 'center'
+        };
+      }
+      _exportToSVG(filename = 'my-custom-font.svg') {
+        Paper.project.exportSVG();
+      }
+
+      render() {
+        if (this.active) {
+          requestAnimationFrame(this.render.bind(this));
+        }
+      }
+
+
+      disconnectedCallback () {
+        super.disconnectedCallback();
+        this._removeEventListeners();
+      }
+
+      _removeEventListeners() {
+        window.removeEventListener('resize', this._boundResizeListener);
+        this.removeEventListener('mousemove', this._boundPointerMove);
+        this.removeEventListener('touchmove', this._boundPointerMove);
+      }
+    }
+
+    window.customElements.define(SteezySVG.is, SteezySVG);
+  </script>
+</dom-module>

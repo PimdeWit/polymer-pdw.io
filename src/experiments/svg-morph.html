@@ -55,6 +55,11 @@
             }
           },
 
+          strokeLength: {
+            type: Number,
+            value: 800
+          },
+
           scrollTarget: HTMLElement,
         }
       }
@@ -75,14 +80,21 @@
         this.scrollTarget = document.scrollingElement;
 
         this.svg = this.querySelector('svg');
-        this.paths = this.svg.querySelectorAll('g > *');;
 
+        const paths = this.svg.querySelectorAll('path');
+        const rects = this.svg.querySelectorAll('rect');
+        const circle = this.svg.querySelectorAll('circle');
+        const ellipse = this.svg.querySelectorAll('ellipse');
+        const line = this.svg.querySelectorAll('line');
+        const polygon = this.svg.querySelectorAll('polygon');
+
+        this.paths = [...paths, ...rects, ...circle, ...ellipse, ...line, ...polygon];
 
         for (let i = 0; i < this.paths.length; i++) {
           let path = this.paths[i];
           path.style.transformOrigin = 'center';
           if (!path.style.strokeDasharray) {
-            path.style.strokeDasharray = '800px';
+            path.style.strokeDasharray = `${this.strokeLength}px`;
           }
         }
 
@@ -180,7 +192,10 @@
           let path = this.paths[index];
 
           path.style.strokeDashoffset = this.scrollTarget.scrollTop - (t * index) + index;
-          path.style.transform = `rotate(${(index * ud * ud2) * Math.PI}deg) scale(${scale})`;
+
+          if (this.rotateObject) {
+            path.style.transform = `rotate(${(index * ud * ud2) * Math.PI}deg) scale(${scale})`;
+          }
         }
 
         if (this.active) requestAnimationFrame(this.render.bind(this));
