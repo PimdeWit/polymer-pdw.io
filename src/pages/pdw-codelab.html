@@ -8,7 +8,7 @@
 <!--<link rel="import" href="../experiments/lorem-ipsum/lorem-ipsum.html">-->
 <link rel="import" href="../shared-styles.html">
 
-<dom-module id="pdw-experiments">
+<dom-module id="pdw-codelab">
   <template>
     <style include="shared-styles">
       :host {
@@ -24,12 +24,23 @@
         justify-content: space-around;
         flex-wrap: wrap;
       }
+
+      steezy-svg {
+        color: rgba(255, 255, 255, .92);
+      }
     </style>
 
     <app-route
         route="[[route]]"
-        pattern="/:experiment"
+        pattern="/:codelab"
         data="{{routeData}}"></app-route>
+
+    <steezy-svg
+        text="The Codelab"
+        font-size="200"
+        strokeWidth="32"
+        stroke-length="100"
+        stroke-space="100"></steezy-svg>
 
     <h1>[[route.path]]</h1>
 
@@ -38,10 +49,10 @@
     </template>
 
     <ul>
-      <li><a name="/pointerstalker" href="experiments/pointerstalker">One</a></li>
-      <li><a name="/curtains" href="experiments/curtains">Two</a></li>
-      <li><a name="/network" href="experiments/network">Three</a></li>
-      <li><a name="/noise-displacer" href="experiments/noise-displacer">Four</a></li>
+      <li><a name="/pointerstalker" href="codelab/pointerstalker">One</a></li>
+      <li><a name="/curtains" href="codelab/curtains">Two</a></li>
+      <li><a name="/network" href="codelab/network">Three</a></li>
+      <li><a name="/noise-displacer" href="codelab/noise-displacer">Four</a></li>
     </ul>
 
     <iron-pages 
@@ -385,14 +396,11 @@
        </div>
     </iron-pages>
 
-    <steezy-svg>
-    </steezy-svg>
-
   </template>
 
   <script>
-    class PdwExperiments extends Polymer.Element {
-      static get is() { return 'pdw-experiments'; }
+    class PdwCodelab extends Polymer.Element {
+      static get is() { return 'pdw-codelab'; }
       static get properties() {
         return {
           assets: Object,
@@ -443,6 +451,6 @@
       }
     }
 
-    window.customElements.define(PdwExperiments.is, PdwExperiments);
+    window.customElements.define(PdwCodelab.is, PdwCodelab);
   </script>
 </dom-module>

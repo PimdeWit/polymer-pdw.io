@@ -40,6 +40,27 @@
 
           canvas: HTMLCanvasElement,
 
+          text: {
+            type: String,
+            value: 'Steezy SVG',
+          },
+
+          strokeWidth: {
+            type: Number,
+            value: 1
+          },
+
+          fontSize: {
+            type: Number,
+            value: 100
+          },
+
+          strokeLength: Number,
+          strokeSpace: Number,
+
+          color: String,
+          fontFamily: String,
+
           _context: Object,
 
           _tool: Object,
@@ -66,6 +87,12 @@
         this._addEventListeners();
         this._onResize();
         paper.setup(this.canvas);
+
+        const styles = window.getComputedStyle(this, null);
+
+        this.color = this.color || styles.getPropertyValue('color');
+        this.fontFamily = this.fontFamily ||
+            styles.fontFamily.replace(/"/g,'')
 
         this._createText();
         this.render();
@@ -128,19 +155,24 @@
 
       _createText() {
         this._pointText = new paper.PointText(paper.view.center);
-        this._pointText.content = 'Concoct Serif';
+        this._pointText.content = this.text;
         this._pointText.style = {
-          fillColor: 'rgba(0, 0, 0, 0)',
-          fontFamily: 'Baskerville, Work Sans, Helvetica Neue, sans-serif',
-          fontSize: 200,
+          fillColor: 'rgba(255, 255, 255, 0)',
+          fontFamily: this.fontFamily,
+          fontSize: this.fontSize,
           justification: 'center'
         };
 
         this._pointText.strokeCap = 'round';
         this._pointText.strokeJoin = 'round';
-        this._pointText.strokeWidth = 34;
-        this._pointText.strokeColor = 'rgba(255, 255, 255, 0.92)';
-        this._pointText.dashArray = [1, 20];
+        this._pointText.strokeWidth = this.strokeWidth;
+        this._pointText.strokeColor = this.color;
+
+        console.log(this.strokeLength, this.strokeSpace);
+
+        if (this.strokeLength && this.strokeSpace) {
+          this._pointText.dashArray = [this.strokeLength, this.strokeSpace];
+        }
       }
 
       _exportToSVG(filename = 'my-custom-font.svg') {
@@ -151,7 +183,7 @@
       render() {
         this._timer++;
 
-        const time = this._timer / 1;
+        const time = this._timer;
 
         this._pointText.position = paper.view.center;
         this._pointText.dashOffset = time;
