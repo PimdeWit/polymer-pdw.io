@@ -23,7 +23,7 @@
         touch-action: none;
       }
     </style>
-    <canvas id="canvas"></canvas>
+    <canvas id="canvas" resize="true"></canvas>
   </template>
 
   <script>
@@ -128,19 +128,19 @@
 
       _createText() {
         this._pointText = new paper.PointText(paper.view.center);
-        this._pointText.content = 'Codelab';
+        this._pointText.content = 'Concoct Serif';
         this._pointText.style = {
-          fillColor: 'white',
-          fontFamily: 'Work Sans, Helvetica Neue, sans-serif',
+          fillColor: 'rgba(0, 0, 0, 0)',
+          fontFamily: 'Baskerville, Work Sans, Helvetica Neue, sans-serif',
           fontSize: 200,
           justification: 'center'
         };
 
-        // this._pointText.strokeCap = 'square';
-        // this._pointText.strokeJoin = 'round';
-        this._pointText.strokeWidth = 100;
-        this._pointText.strokeColor = 'rgba(255, 255, 255, 0.4)';
-        this._pointText.dashArray = [10, 200];
+        this._pointText.strokeCap = 'round';
+        this._pointText.strokeJoin = 'round';
+        this._pointText.strokeWidth = 34;
+        this._pointText.strokeColor = 'rgba(255, 255, 255, 0.92)';
+        this._pointText.dashArray = [1, 20];
       }
 
       _exportToSVG(filename = 'my-custom-font.svg') {
@@ -151,11 +151,11 @@
       render() {
         this._timer++;
 
-        const time = this._timer / 10;
+        const time = this._timer / 1;
 
-        console.log(time);
+        this._pointText.position = paper.view.center;
         this._pointText.dashOffset = time;
-        paper.view.draw();
+
         if (this.active) {
           requestAnimationFrame(this.render.bind(this));
         }
