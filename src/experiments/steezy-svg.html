@@ -94,7 +94,13 @@
         this.fontFamily = this.fontFamily ||
             styles.fontFamily.replace(/"/g,'')
 
-        this._createText();
+        this.pointerTexts = [];
+
+        this._createText(this.text, this.fontFanily, this.fontSize, this.color,
+            this.strokeWidth, this.strokeLength, this.strokeSpace);
+
+        this._createText(this.text, this.fontFamily, this.fontSize, this.color,
+            32, 1, 200);
         this.render();
       }
 
@@ -153,26 +159,26 @@
         this.canvas.style.height = this.offsetHeight;
       }
 
-      _createText() {
-        this._pointText = new paper.PointText(paper.view.center);
-        this._pointText.content = this.text;
-        this._pointText.style = {
+      _createText(text, font, size, color, strokeWidth, strokeLength, strokeSpace) {
+        const textObject = new paper.PointText(paper.view.center);
+        textObject.content = text;
+        textObject.style = {
           fillColor: 'rgba(255, 255, 255, 0)',
-          fontFamily: this.fontFamily,
-          fontSize: this.fontSize,
+          fontFamily: font,
+          fontSize: size,
           justification: 'center'
         };
 
-        this._pointText.strokeCap = 'round';
-        this._pointText.strokeJoin = 'round';
-        this._pointText.strokeWidth = this.strokeWidth;
-        this._pointText.strokeColor = this.color;
+        textObject.strokeCap = 'round';
+        textObject.strokeJoin = 'round';
+        textObject.strokeWidth = strokeWidth;
+        textObject.strokeColor = color;
 
-        console.log(this.strokeLength, this.strokeSpace);
-
-        if (this.strokeLength && this.strokeSpace) {
-          this._pointText.dashArray = [this.strokeLength, this.strokeSpace];
+        if (strokeLength && strokeSpace) {
+          textObject.dashArray = [strokeLength, strokeSpace];
         }
+
+        this.pointerTexts.push(textObject);
       }
 
       _exportToSVG(filename = 'my-custom-font.svg') {
@@ -185,8 +191,12 @@
 
         const time = this._timer;
 
-        this._pointText.position = paper.view.center;
-        this._pointText.dashOffset = time;
+        for (var i = 0; i < this.pointerTexts.length; i++) {
+          const text = this.pointerTexts[i];
+
+          text.position = paper.view.center;
+          text.dashOffset = time * i;
+        }
 
         if (this.active) {
           requestAnimationFrame(this.render.bind(this));
