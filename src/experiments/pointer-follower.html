@@ -34,7 +34,7 @@
         return {
           active: {
             type: Boolean,
-            value: true
+            value: false
           },
 
           intersectionObserver: Object,
@@ -77,16 +77,12 @@
             value: 40
           },
 
-          scrollTarget: HTMLElement,
-
           entities: {
             type: Array,
             value: () => {
               return []
             }
           },
-
-          scrollTarget: HTMLElement,
 
           bcr: Object,
 
@@ -127,7 +123,6 @@
 
         this.canvas = this.shadowRoot.querySelector('#canvas');
         this.context = this.canvas.getContext('2d');
-        this.scrollTarget = document.scrollingElement;
 
         Polymer.RenderStatus.afterNextRender(this, this._prepare);
       }
@@ -190,7 +185,7 @@
         this.addEventListener('touchstart', this._boundPointerDown, { passive: true });
         this.addEventListener('mousemove', this._boundPointerMove, { passive: true });
         this.addEventListener('touchmove', this._boundPointerMove, { passive: true });
-        this.scrollTarget.addEventListener('scroll', this._boundScrollListener, { passive: true });
+        window.addEventListener('scroll', this._boundScrollListener, { passive: true });
       }
 
       /**
@@ -238,7 +233,7 @@
        * @private
        */
       _onScroll() {
-        this.bcr = this.canvas.getBoundingClientRect();
+        if (this.active) this.bcr = this.canvas.getBoundingClientRect();
       }
 
       /**
@@ -401,7 +396,7 @@
         window.removeEventListener('resize', this._boundResizeListener);
         this.removeEventListener('mousemove', this._boundPointerMove);
         this.removeEventListener('touchmove', this._boundPointerMove);
-        this.scrollTarget.removeEventListener('scroll', this._boundScrollListener);
+        window.removeEventListener('scroll', this._boundScrollListener);
       }
     }
 
