@@ -96,11 +96,11 @@
 
         this.pointerTexts = [];
 
-        this._createText(this.text, this.fontFanily, this.fontSize, this.color,
+        this._createText(this.text, this.fontFamily, this.fontSize, this.color,
             this.strokeWidth, this.strokeLength, this.strokeSpace);
 
         this._createText(this.text, this.fontFamily, this.fontSize, this.color,
-            32, 1, 200);
+            2, 100, 200);
         this.render();
       }
 
@@ -169,7 +169,7 @@
           justification: 'center'
         };
 
-        textObject.strokeCap = 'round';
+        textObject.strokeCap = 'butt';
         textObject.strokeJoin = 'round';
         textObject.strokeWidth = strokeWidth;
         textObject.strokeColor = color;
@@ -189,13 +189,13 @@
       render() {
         this._timer++;
 
-        const time = this._timer;
+        const time = this._timer / 10;
 
         for (var i = 0; i < this.pointerTexts.length; i++) {
           const text = this.pointerTexts[i];
 
           text.position = paper.view.center;
-          text.dashOffset = time * i;
+          text.dashOffset = time * (i + 1);
         }
 
         if (this.active) {

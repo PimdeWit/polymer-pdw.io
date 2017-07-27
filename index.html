@@ -91,8 +91,6 @@
       }
 
       body {
-        min-height: 100vh;
-
         margin: 0;
 
         color: #f2f3f4;
@@ -107,24 +105,15 @@
         touch-action: manipulation;
 
       }
-
-      .loader {
-        display: inline-block;
-        animation: loading infinite 1s ease-in-out;
-      }
-
-      @keyframes loading {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1); }
-      }
     </style>
   </head>
   <body>
     <pdw-app></pdw-app>
-    <span class="loader">© Pim de Wit 2017 | MIT Licence</span>
     <noscript>
-      Please enable JavaScript to view this website.
+      <div style="padding: 10vw">
+        <h3>Pim de Wit is a creative technologist exploring the critical relationship between behaviour, art, and information.</h3>
+        <p>This site is heavily dependant on javascript! My apologies!<br>If you're still interested you can visit <a href="http://showcase.pimdewit.nl/" style="color:lightskyblue">my old site</a> instead!</p>
+      </div>
     </noscript>
   </body>
 </html>

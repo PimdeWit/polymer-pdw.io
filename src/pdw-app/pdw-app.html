@@ -19,9 +19,11 @@
 <link rel="lazy-import" href="../pages/pdw-codelab.html">
 <link rel="lazy-import" href="../pages/pdw-404.html">
 
+<link rel="import" href="../shared-styles.html">
+
 <dom-module id="pdw-app">
   <template>
-    <style>
+    <style include="shared-styles">
       :host {
         --app-primary-color: #1a1a1a;
         --app-secondary-color: #4285f4;
@@ -29,41 +31,50 @@
         display: block;
       }
 
-      #drawer {
-        z-index: 501;
+      .menu {
+        list-style: none;
+        padding: 0;
       }
 
-      app-header {
+      .menu__listitem {
+        display: flex;
+        align-items: center;
+
+        font-family: 'Roboto Mono', monospace;
+
         color: #fff;
-        background-color: var(--app-primary-color);
       }
 
-      app-header paper-icon-button {
-        --paper-icon-button-ink-color: white;
-      }
-
-      .drawer__toggle {
-        position: absolute;
-        top: 32px;
-        left: 32px;
-        z-index: 101;
-      }
-
-      .drawer-list {
-        margin: 0 20px;
-      }
-
-      .drawer-list a {
+      .menu__listitem::before {
         display: block;
-        padding: 0 16px;
-        text-decoration: none;
-        color: var(--app-secondary-color);
-        line-height: 40px;
+
+        width: 32px;
+        height: 1px;
+
+        margin: 0 8px;
+
+        color: #fff;
+
+        background-color: #fff;
+
+        transition: .3s transform cubic-bezier(0.645, 0.045, 0.355, 1.000);
+
+        content: '';
       }
 
-      .drawer-list a.iron-selected {
-        color: black;
-        font-weight: bold;
+      .menu__listitem .menu__link {
+        color: inherit;
+        text-decoration: none;
+
+        transition: .3s transform cubic-bezier(0.645, 0.045, 0.355, 1.000);
+      }
+
+      .menu__listitem:hover .menu__link {
+        transform: translateX(16px);
+      }
+
+      .menu__listitem:hover::before {
+        transform: scaleX(1.5) translateX(8px);
       }
     </style>
 
@@ -74,17 +85,14 @@
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
 
-    <app-drawer id="drawer" slot="drawer">
-      <app-toolbar>Menu</app-toolbar>
-      <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-        <a name="home" href="home">View One</a>
-        <a name="view2" href="view2">View Two</a>
-        <a name="view3" href="view3">View Three</a>
-        <a name="codelab" href="codelab">Codelab</a>
-      </iron-selector>
-    </app-drawer>
-
-    <paper-icon-button id="drawertoggle" icon="pdw-icons:menu" drawer-toggle class="drawer__toggle"></paper-icon-button>
+    <iron-selector selected="[[page]]" attr-for-selected="name" role="navigation" class="container">
+      <ul class="menu">
+        <li class="menu__listitem"><a class="menu__link" name="home" href="home">View One</a></li>
+        <li class="menu__listitem"><a class="menu__link" name="view2" href="view2">View Two</a></li>
+        <li class="menu__listitem"><a class="menu__link" name="view3" href="view3">View Three</a></li>
+        <li class="menu__listitem"><a class="menu__link" name="codelab" href="codelab">Codelab</a></li>
+      </ul>
+    </iron-selector>
 
     <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="404" role="main">
       <pdw-home name="home"></pdw-home>
@@ -138,9 +146,6 @@
       }
 
       _addEventListeners() {
-        this.$.drawertoggle.addEventListener('pointerdown', () => {
-          this.$.drawer.toggle();
-        });
       }
 
       _onAssetLoaded(event) {
@@ -157,11 +162,6 @@
         // If no page was found in the route data, page will be an empty string.
         // Deault to 'home' in that case.
         this.page = page || 'home';
-
-        // Close a non-persistent drawer when the page & route are changed.
-        if (!this.$.drawer.persistent) {
-          this.$.drawer.close();
-        }
       }
 
       _pageChanged(page) {

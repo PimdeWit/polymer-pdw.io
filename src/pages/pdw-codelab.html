@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../experiments/pointer-follower.html">
 <link rel="import" href="../experiments/noise-displacer.html">
 <link rel="import" href="../experiments/svg-morph.html">
@@ -27,6 +28,17 @@
 
       steezy-svg {
         color: rgba(255, 255, 255, .92);
+        height: 900px;
+      }
+
+      a[name] {
+        color: white;
+        text-decoration: none;
+      }
+
+      a[name].active {
+        opacity: 0.4;
+        text-decoration: line-through;
       }
     </style>
 
@@ -36,11 +48,11 @@
         data="{{routeData}}"></app-route>
 
     <steezy-svg
-        text="The Codelab"
+        text="codelab"
         font-size="200"
-        stroke-width="1"
-        stroke-length="1"
-        stroke-space="150"></steezy-svg>
+        stroke-width="40"
+        stroke-length="19"
+        stroke-space="100"></steezy-svg>
 
     <h1>[[route.path]]</h1>
 
@@ -48,12 +60,16 @@
       <p>The codelab could contain some battery-draining experiments, You may want to consider checking these out when you're charging your device ([[batterylevel]]%).</p>
     </template>
 
-    <ul>
-      <li><a name="/pointerstalker" href="codelab/pointerstalker">One</a></li>
-      <li><a name="/curtains" href="codelab/curtains">Two</a></li>
-      <li><a name="/network" href="codelab/network">Three</a></li>
-      <li><a name="/noise-displacer" href="codelab/noise-displacer">Four</a></li>
-    </ul>
+    <iron-selector selected="[[route.path]]" attr-for-selected="name" role="navigation">
+      <ul>
+        <template is="dom-repeat" items="[[codelabMenu]]">
+          <li>
+            <a name="[[item.name]]" href="[[item.url]]">[[item.text]]</a>
+            <span>[[item.year]]</span>
+          </li>
+        </template>
+      </ul>
+    </iron-selector>
 
     <iron-pages 
         selected="[[route.path]]"
@@ -62,7 +78,7 @@
         role="main">
       <pointer-follower name="/pointerstalker" rows="32" columns="32" particle-width="2" particle-height="2" distortion="50" clear></pointer-follower>
       <pointer-follower name="/curtains" rows="8" columns="48" particle-width="48" particle-height="2" distortion="50" clear></pointer-follower>
-      <pointer-follower name="/network" rows="48" columns="20" particle-width="2" particle-height="2" distortion="80" tag="0.8" clear></pointer-follower>
+      <pointer-follower name="/node-network" rows="48" columns="20" particle-width="2" particle-height="2" distortion="80" tag="0.8" clear></pointer-follower>
       <noise-displacer name="/noise-displacer"></noise-displacer>
       <div name="/svgmorph">
         <svg-morph style="height: 2067px;" stroke-length="900">
@@ -405,10 +421,49 @@
         return {
           assets: Object,
 
-          route: Object,
+          route: {
+            type: Object,
+            observer: '_routeObserver'
+          },
           routeData: Object,
           batterycharging: Boolean,
-          batterylevel: String
+          batterylevel: String,
+          menuItems: Object,
+          codelabMenu: {
+            type: Array,
+            value: [
+              {
+                name: '/pointerstalker',
+                url: 'codelab/pointerstalker',
+                text: 'Pointer Stalker',
+                year: '2017'
+              },
+              {
+                name: '/curtains',
+                url: 'codelab/curtains',
+                text: 'Curtains',
+                year: '2017'
+              },
+              {
+                name: '/node-network',
+                url: 'codelab/node-network',
+                text: 'Node Network',
+                year: '2017'
+              },
+              {
+                name: '/noise-displacer',
+                url: 'codelab/noise-displacer',
+                text: 'Noise Displacer',
+                year: '2017'
+              },
+              {
+                name: '/svg-morph',
+                url: 'codelab/svg-morph',
+                text: 'SVG Morph',
+                year: '2017'
+              }
+            ]
+          }
         }
       }
 
@@ -432,6 +487,24 @@
         }
       }
 
+      _routeObserver() {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            let path = this.route.path;
+            let selector = `a[name="${path}"]`;
+            this.menuItems = this.shadowRoot.querySelectorAll('a[name]');
+
+            for (var i = this.menuItems.length - 1; i >= 0; i--) {
+              this.menuItems[i].classList.remove('active');
+            }
+
+            const a = this.shadowRoot.querySelector(selector);
+
+            a.classList.add('active');
+          });
+        });
+      }
+
       _battery(battery) {
         window.battery = battery;
 
@@ -444,7 +517,7 @@
 
         battery.addEventListener('levelchange', () => {
           this.batterylevel = battery.level * 100;
-        })
+        });
       }
 
       _addEventListeners() {
