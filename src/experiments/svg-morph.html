@@ -60,7 +60,12 @@
             value: 800
           },
 
-          scrollTarget: HTMLElement,
+          target: String,
+          pulse: Boolean,
+          offset: {
+            type: Number,
+            value: 100
+          }
         }
       }
 
@@ -77,7 +82,7 @@
        */
       connectedCallback() {
         super.connectedCallback();
-        this.scrollTarget = document.scrollingElement;
+        this.scrollTarget = this;
 
         this.svg = this.querySelector('svg');
 
@@ -98,12 +103,11 @@
           }
         }
 
-        this._addEventListeners();
         this.render();
       }
 
       /**
-       * Create and return an IntersectionOBserver instance.
+       * Create and return an IntersectionObserver instance.
        *
        * @return {IntersectionObserver}
        * @private
@@ -131,21 +135,11 @@
           let isVisible = ratio > 0.3;
 
           if (isVisible) {
-            this._addEventListeners();
             this.setToActive();
           } else {
             this.active = false;
-            this._removeEventListeners();
           }
         });
-      }
-
-      /**
-       * Add event listeners to this instance.
-       * @private
-       */
-      _addEventListeners() {
-        this.scrollTarget.addEventListener('scroll', this._boundScrollListener, { passive: true });
       }
 
       /**
@@ -191,9 +185,9 @@
         for (let index = 0; index < this.paths.length; index++) {
           let path = this.paths[index];
 
-          path.style.strokeDashoffset = this.scrollTarget.scrollTop - (t * index) + index;
+          path.style.strokeDashoffset = this.offset - (t * index) + index;
 
-          if (this.rotateObject) {
+          if (this.pulse) {
             path.style.transform = `rotate(${(index * ud * ud2) * Math.PI}deg) scale(${scale})`;
           }
         }

@@ -209,7 +209,6 @@
       _addEventListeners() {
         if (!this.initialised) return;
         window.addEventListener('resize', this._boundResizeListener, { passive: true });
-        console.log(this.pointerScope, this.id);
         this.pointerScope.addEventListener('mousedown', this._boundPointerDown, { passive: true });
         this.pointerScope.addEventListener('touchstart', this._boundPointerDown, { passive: true });
         this.pointerScope.addEventListener('mousemove', this._boundPointerMove, { passive: true });
@@ -241,8 +240,6 @@
         const y = e.clientY || e.clientY === 0 ? e.clientY : e.touches[0].clientY;
         this.pointerX = Math.floor((x - this.bcr.left) * window.devicePixelRatio);
         this.pointerY = Math.floor((y - this.bcr.top) * window.devicePixelRatio);
-
-        console.log(this.pointerX, this.pointerY);
 
         this.setToActive();
         this.render();
@@ -445,7 +442,6 @@
        * @private
        */
       _removeEventListeners() {
-        console.log('removing event listeners');
         if (this.initialised) {
           window.removeEventListener('resize', this._boundResizeListener);
           this.pointerScope.removeEventListener('mousemove', this._boundPointerMove);
