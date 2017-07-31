@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../experiments/pointer-follower.html">
 <link rel="import" href="../experiments/noise-displacer.html">
+<link rel="import" href="../experiments/sketch-import.html">
 <link rel="import" href="../experiments/svg-morph.html">
 <link rel="import" href="../experiments/steezy-svg.html">
 <!--<link rel="import" href="../experiments/lorem-ipsum/lorem-ipsum.html">-->
@@ -14,6 +15,7 @@
     <style include="shared-styles">
       :host {
         display: block;
+        min-height: 50000px;
       }
 
       section {
@@ -28,7 +30,7 @@
 
       steezy-svg {
         color: rgba(255, 255, 255, .92);
-        height: 900px;
+        height: 320px;
       }
 
       a[name] {
@@ -40,6 +42,112 @@
         opacity: 0.4;
         text-decoration: line-through;
       }
+
+      .experiment {
+        width: 100%;
+        height: 100%;
+        background-color: #101111;
+      }
+
+      .background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        
+        width: 100%;
+        height: 100vh;
+
+        pointer-events: none;
+
+        opacity: 0.2;
+
+        z-index: -1;
+
+        user-select: none;
+
+        transition: 0.4s opacity cubic-bezier(0.645, 0.045, 0.355, 1.000);
+
+        will-change: opacity;
+      }
+
+      .background.hidden {
+        opacity: 0;
+      }
+
+      .experiment-menu {
+        font-family: 'Roboto Mono';
+      }
+
+      .experiment-menu__meta {
+        opacity: 0.5;
+        font-weight: 900;
+      }
+
+      .experiment-wrapper {
+        position: absolute;
+        width: 70%;
+        height: 60%;
+        top: 20%;
+        left: 15%;
+      }
+
+      .experiment-wrapper::before {
+        display: block;
+
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+
+        content: '';
+        box-shadow: 0 83px 114px 30px rgba(0,0,0,0.12), 0 5px 30px 0 rgba(0,0,0,0.26);
+
+        pointer-events: none;
+      }
+
+      .experiment-container {
+        position: relative;
+
+        width: 100%;
+        height: 100%;
+
+        overflow: hidden;
+      }
+
+      .experiment__title {
+        position: absolute;
+        transform: translateY(-120%);
+        font-family: 'Roboto Mono';
+      }
+
+      .experiment {
+        user-select: none;
+      }
+
+      .experiment::after {
+        display: block;
+        content: '';
+
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+
+        background-color: #101111;
+        background-color: #212223;
+
+        transition: .8s transform cubic-bezier(0.4, 0.0, 0.2, 1); 
+
+        will-change: transform;
+      }
+
+      .experiment.iron-selected.animate::after {
+        transform: translateX(101%);
+      }
     </style>
 
     <app-route
@@ -47,40 +155,45 @@
         pattern="/:codelab"
         data="{{routeData}}"></app-route>
 
-    <steezy-svg
+    <!-- <steezy-svg
         text="codelab"
-        font-size="200"
+        font-size="100"
         stroke-width="40"
         stroke-length="19"
-        stroke-space="100"></steezy-svg>
+        stroke-space="100"></steezy-svg> -->
 
-    <h1>[[route.path]]</h1>
+
+    <pointer-follower id="background" class="background" rows="24" columns="24" particle-width="2" particle-height="2" distortion="50" target="window" tag="0.99" threshold="0.96" clear></pointer-follower>
 
     <template is="dom-if" if="[[!batterycharging]]">
       <p>The codelab could contain some battery-draining experiments, You may want to consider checking these out when you're charging your device ([[batterylevel]]%).</p>
     </template>
 
     <iron-selector selected="[[route.path]]" attr-for-selected="name" role="navigation">
-      <ul>
+      <ul class="experiment-menu">
         <template is="dom-repeat" items="[[codelabMenu]]">
           <li>
             <a name="[[item.name]]" href="[[item.url]]">[[item.text]]</a>
-            <span>[[item.year]]</span>
+            <span class="experiment-menu__meta">[[item.year]]</span>
           </li>
         </template>
       </ul>
     </iron-selector>
 
-    <iron-pages 
+    <div class="experiment-wrapper">
+      <h1 class="experiment__title">[[route.path]]</h1>
+    <iron-pages
+        id="wrapper"
+        class="experiment-container"
         selected="[[route.path]]"
         attr-for-selected="name"
         fallback-selection="404"
         role="main">
-      <pointer-follower name="/pointerstalker" rows="32" columns="32" particle-width="2" particle-height="2" distortion="50" clear></pointer-follower>
-      <pointer-follower name="/curtains" rows="8" columns="48" particle-width="48" particle-height="2" distortion="50" clear></pointer-follower>
-      <pointer-follower name="/node-network" rows="48" columns="20" particle-width="2" particle-height="2" distortion="80" tag="0.8" clear></pointer-follower>
-      <noise-displacer name="/noise-displacer"></noise-displacer>
-      <div name="/svgmorph">
+      <pointer-follower class="experiment" name="/pointerstalker" rows="16" columns="16" particle-width="2" particle-height="2" distortion="50"></pointer-follower>
+      <pointer-follower class="experiment" name="/curtains" rows="8" columns="96" particle-width="48" particle-height="2" distortion="50" clear></pointer-follower>
+      <pointer-follower class="experiment" name="/node-network" rows="400" columns="2" particle-width="50" particle-height="1" distortion="20"  tag="0.2" clear></pointer-follower>
+      <noise-displacer class="experiment" name="/noise-displacer" text="n o i s e d i s p l a c e r" slice-size="1"></noise-displacer>
+      <div class="experiment" name="/svg-morph">
         <svg-morph style="height: 2067px;" stroke-length="900">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1556 2067">
             <g fill="none" fill-rule="evenodd" stroke="#FFF" stroke-width="2">
@@ -409,8 +522,13 @@
             </g>
           </svg>
         </svg-morph>
-       </div>
+      </div>
+      <div name="/sketch-import">
+        <input type="file" id="upload-sketch">
+        <sketch-import></sketch-import>
+      </div>
     </iron-pages>
+    </div>
 
   </template>
 
@@ -436,31 +554,37 @@
                 name: '/pointerstalker',
                 url: 'codelab/pointerstalker',
                 text: 'Pointer Stalker',
-                year: '2017'
+                year: 2017
               },
               {
                 name: '/curtains',
                 url: 'codelab/curtains',
                 text: 'Curtains',
-                year: '2017'
+                year: 2017
               },
               {
                 name: '/node-network',
                 url: 'codelab/node-network',
                 text: 'Node Network',
-                year: '2017'
+                year: 2017
               },
               {
                 name: '/noise-displacer',
                 url: 'codelab/noise-displacer',
                 text: 'Noise Displacer',
-                year: '2017'
+                year: 2017
               },
               {
                 name: '/svg-morph',
                 url: 'codelab/svg-morph',
                 text: 'SVG Morph',
-                year: '2017'
+                year: 2017
+              },
+              {
+                name: '/sketch-import',
+                url: 'codelab/sketch-import',
+                text: 'Sketch Import',
+                year: 2017
               }
             ]
           }
@@ -478,30 +602,37 @@
 
         if (navigator.getBattery) {
           navigator.getBattery().then(this._battery.bind(this), () => {
-            log('There was an error getting the battery');
+            console.log('There was an error getting the battery');
           })
         } else if (navigator.battery) {
           this._battery(navigator.battery);
         } else {
-          log('Battery API not supported');
+          console.log('Battery API not supported');
         }
       }
 
       _routeObserver() {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            let path = this.route.path;
-            let selector = `a[name="${path}"]`;
-            this.menuItems = this.shadowRoot.querySelectorAll('a[name]');
+        const activeEl = this.shadowRoot.querySelector('.animate');
+        if (activeEl) activeEl.classList.remove('animate');
 
-            for (var i = this.menuItems.length - 1; i >= 0; i--) {
-              this.menuItems[i].classList.remove('active');
-            }
+        Polymer.RenderStatus.afterNextRender(this, () => {
+          const path = this.route.path;
+          const selector = `a[name="${path}"]`;
+          this.menuItems = this.shadowRoot.querySelectorAll('a[name]');
 
-            const a = this.shadowRoot.querySelector(selector);
+          for (let i = this.menuItems.length - 1; i >= 0; i--) {
+            this.menuItems[i].classList.remove('active');
+          }
 
+          const a = this.shadowRoot.querySelector(selector);
+
+          if (a) {
             a.classList.add('active');
-          });
+          }
+
+          const animateElement = this.shadowRoot.querySelector('.experiment.iron-selected');
+          animateElement.classList.add('animate');
+          animateElement.setToActive();
         });
       }
 
@@ -520,7 +651,18 @@
         });
       }
 
+
       _addEventListeners() {
+        const background = this.$.background;
+        const wrapper = this.$.wrapper;
+        wrapper.addEventListener('mouseenter', () => {
+          background.classList.add('hidden');
+        });
+
+        wrapper.addEventListener('mouseleave', () => {
+          background.classList.remove('hidden');
+          
+        });
       }
     }
 

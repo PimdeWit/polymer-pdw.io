@@ -97,7 +97,7 @@
 
           backgroundColor: {
             type: String,
-            value: 'rgb(26, 26, 26)'
+            value: '#101111'
           },
 
           noiseX: {
@@ -126,7 +126,9 @@
           },
 
           pointerX: Number,
-          pointerY: Number
+          pointerY: Number,
+
+          text: String
         }
       }
 
@@ -150,8 +152,7 @@
 
         this.inputContext = this.input.getContext('2d');
         this.outputContext = this.output.getContext('2d');
-
-        Polymer.RenderStatus.afterNextRender(this, this._prepare);
+        //Polymer.RenderStatus.afterNextRender(this, this._prepare);
       }
 
       _prepare() {
@@ -159,8 +160,7 @@
         this._addEventListeners();
 
         if (!this.image) {
-          this.image = this._generateBaseTexture(this.input, this.inputContext,
-              'Hello TTR');
+          this.image = this._generateBaseTexture(this.input, this.inputContext, this.text);
           this.render();
         } else {
           const img = new Image();
@@ -176,7 +176,7 @@
       }
 
       reset(text) {
-        const textToDraw = text || 'Hello TTR';
+        const textToDraw = text || 'Hello World';
         this.image = this._generateBaseTexture(this.input, this.inputContext,
             textToDraw);
       }
@@ -194,7 +194,28 @@
         this._onResize();
         this.inputContext.clearRect(0, 0, this.input.width, this.input.height);
         this._generateNoise(canvas, context);
+        this._drawTextToCanvas(canvas, context, text);
         return this._convertCanvasToImage(canvas);
+      }
+
+
+      _drawTextToCanvas(canvas, context, text) {
+        if (!text) return;
+        let el = canvas;
+        let ctx = context;
+        let size = window.innerWidth / (16 / window.devicePixelRatio);
+        let maxFontSize = 72 * window.devicePixelRatio;
+        if (size > maxFontSize) size = maxFontSize;
+
+        let color = 'rgb(255, 255, 255)';
+        let font = 'Work Sans';
+        let align = 'center';
+
+        ctx.font = `${size}pt ${font}`;
+        ctx.fillStyle = color;
+        ctx.fillText(text, (el.width / 2) - (ctx.measureText(text).width / 2), (el.height / 2));
+        ctx.textAlign = align;
+        canvas.title = text;
       }
 
       /**
@@ -281,7 +302,7 @@
           const ratio = entry.intersectionRatio;
           const isVisible = ratio > 0.3;
           if (isVisible) {
-            this._setToActive();
+            this.setToActive();
           } else {
             this.active = false;
           }
@@ -316,9 +337,11 @@
        *
        * @private
        */
-      _setToActive() {
+      setToActive() {
         if (!this.active) {
           this.active = true;
+          this._onResize();
+          this._prepare();
           this.render();
         }
       }

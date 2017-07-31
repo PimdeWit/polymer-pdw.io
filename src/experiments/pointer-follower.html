@@ -34,7 +34,8 @@
         return {
           active: {
             type: Boolean,
-            value: false
+            value: false,
+            observer: 'stateObserver'
           },
 
           intersectionObserver: Object,
@@ -101,9 +102,22 @@
           distortion: {
             type: Number,
             value: 20
+          },
+
+          target: String,
+          pointerScope: Element,
+
+          lerp: Boolean,
+
+          threshold: Number,
+          forcePerf: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
           }
         }
       }
+
 
       constructor() {
         super();
@@ -115,26 +129,33 @@
         this.intersectionObserver.observe(this);
       }
 
+
       /**
        * Connected callback.
        */
       connectedCallback() {
         super.connectedCallback();
 
+        this.pointerScope = this.target ? window : this;
+
         this.canvas = this.shadowRoot.querySelector('#canvas');
         this.context = this.canvas.getContext('2d');
+
+        this.initialised = true;
+    
 
         Polymer.RenderStatus.afterNextRender(this, this._prepare);
       }
 
+
       _prepare() {
+        this._getBCR();
         this._onResize();
-        this._onScroll();
-        this._prepareEntities();
         this._addEventListeners();
         this._resetPointerPosition();
         this.render();
       }
+
 
       /**
        * Create and return an IntersectionObserver.
@@ -152,6 +173,7 @@
         return new IntersectionObserver(this._onObserve.bind(this), options);
       }
 
+
       /**
        * On Element Into View handler.
        *
@@ -165,14 +187,19 @@
           let isVisible = ratio > 0.3;
 
           this.active = isVisible;
-          
-          if (isVisible) {
-            this._onResize();
-          }
-
-          isVisible ? this._addEventListeners() : this._removeEventListeners();
         });
       }
+
+
+      stateObserver() {
+        if (this.active) {
+          this._onResize();
+          this._addEventListeners();
+        } else {
+          this._removeEventListeners();
+        }
+      }
+
 
       /**
        * Add event listeners to this instance.
@@ -180,21 +207,27 @@
        * @private
        */
       _addEventListeners() {
+        if (!this.initialised) return;
         window.addEventListener('resize', this._boundResizeListener, { passive: true });
-        this.addEventListener('mousedown', this._boundPointerDown, { passive: true });
-        this.addEventListener('touchstart', this._boundPointerDown, { passive: true });
-        this.addEventListener('mousemove', this._boundPointerMove, { passive: true });
-        this.addEventListener('touchmove', this._boundPointerMove, { passive: true });
+        console.log(this.pointerScope, this.id);
+        this.pointerScope.addEventListener('mousedown', this._boundPointerDown, { passive: true });
+        this.pointerScope.addEventListener('touchstart', this._boundPointerDown, { passive: true });
+        this.pointerScope.addEventListener('mousemove', this._boundPointerMove, { passive: true });
+        this.pointerScope.addEventListener('touchmove', this._boundPointerMove, { passive: true });
         window.addEventListener('scroll', this._boundScrollListener, { passive: true });
       }
+
 
       /**
        * Pointer handler (pointer being a general term for any type of cursor).
        *
        * @private
        */
-      _onPointerDown() {
-        this._prepareEntities();
+      _onPointerDown(event) {
+        if (event.which === 1 || event.touches) {
+          this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          this._prepareEntities();
+        }
       }
 
       /**
@@ -205,27 +238,29 @@
        */
       _onPointerMove(e) {
         const x = e.clientX || e.clientX === 0 ? e.clientX : e.touches[0].clientX;
-        const y = e.clientY || e.clientX === 0 ? e.clientY : e.touches[0].clientY;
+        const y = e.clientY || e.clientY === 0 ? e.clientY : e.touches[0].clientY;
         this.pointerX = Math.floor((x - this.bcr.left) * window.devicePixelRatio);
         this.pointerY = Math.floor((y - this.bcr.top) * window.devicePixelRatio);
 
-        this._setToActive();
+        console.log(this.pointerX, this.pointerY);
+
+        this.setToActive();
         this.render();
       }
+
 
       /**
        * Set the component to active and send a rendering tick to start a loop.
        *
        * @private
        */
-      _setToActive() {
+      setToActive() {
         if (!this.active) {
           this.active = true;
           this._onResize();
-          this._prepareEntities();
-          this.render();
         }
       }
+
 
       /**
        * On scroll handler.
@@ -233,8 +268,14 @@
        * @private
        */
       _onScroll() {
-        if (this.active) this.bcr = this.canvas.getBoundingClientRect();
+        if (this.active) this._getBCR();
       }
+
+
+      _getBCR() {
+        this.bcr = this.canvas.getBoundingClientRect();
+      }
+
 
       /**
        * Prepare "entities", and store them for performance reasons.
@@ -257,12 +298,19 @@
               alpha: Math.random()
             };
 
+            if (this.threshold) {
+              if (entity.alpha < this.threshold) {
+                continue;
+              }
+            }
+
             this.entities.push(entity);
           }
         }
 
         this.render();
       }
+
 
       /**
        * Reset the pointer position to the center.
@@ -273,6 +321,7 @@
         this.pointerX = this.canvas.width / 2;
         this.pointerY = this.canvas.height / 2;
       }
+
 
       /**
        * Resize handler.
@@ -295,6 +344,7 @@
         this.render();
       }
 
+
       /**
        * On cursor moved.
        *
@@ -308,6 +358,7 @@
 
         return true;
       }
+
 
       /**
        * Get the radians towards the pointer.
@@ -329,18 +380,17 @@
         );
       }
 
+
       /**
        * The drawing loop.
        */
       render() {
+        if (this.forcePerf) return;
         const x = this.pointerX;
         const y = this.pointerY;
 
         if (this.clear) {
           this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        } else {
-          this.context.fillStyle = 'rgba(26, 26, 26, .5)';
-          this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
         }
 
         this.context.beginPath();
@@ -378,14 +428,16 @@
         this.currentY = y;
       }
 
+
       /**
        * On element removed from DOM handler.
        */
       disconnectedCallback () {
         super.disconnectedCallback();
-
         this._removeEventListeners();
+        this.initialised = false;
       }
+
 
       /**
        * Remove the event listeners of this instance.
@@ -393,10 +445,13 @@
        * @private
        */
       _removeEventListeners() {
-        window.removeEventListener('resize', this._boundResizeListener);
-        this.removeEventListener('mousemove', this._boundPointerMove);
-        this.removeEventListener('touchmove', this._boundPointerMove);
-        window.removeEventListener('scroll', this._boundScrollListener);
+        console.log('removing event listeners');
+        if (this.initialised) {
+          window.removeEventListener('resize', this._boundResizeListener);
+          this.pointerScope.removeEventListener('mousemove', this._boundPointerMove);
+          this.pointerScope.removeEventListener('touchmove', this._boundPointerMove);
+          window.removeEventListener('scroll', this._boundScrollListener);
+        }
       }
     }
 

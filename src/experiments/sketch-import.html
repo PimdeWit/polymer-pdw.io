@@ -1,0 +1,93 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="sketch-import">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        width: 100%;
+        height: 500px;
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+
+        touch-action: none;
+        -ms-touch-action: none;
+        touch-action: none;
+      }
+    </style>
+
+    <canvas id="canvas"></canvas>
+  </template>
+
+  <script>
+    class SketchImport extends Polymer.Element {
+      static get is() { return 'sketch-import'; }
+      static get properties() {
+        return {
+          intersectionObserver: Object,
+
+          canvas: HTMLElement,
+          context: Object
+        }
+      }
+
+      constructor() {
+        super();
+        this._boundResizeListener = this._onResize.bind(this);
+      }
+
+      /**
+       * Connected callback.
+       */
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.canvas = this.shadowRoot.querySelector('#canvas');
+        this.context = this.canvas.getContext('2d');
+      }
+
+      /**
+       * Add event listeners to this instance.
+       *
+       * @private
+       */
+      _addEventListeners() {
+        window.addEventListener('resize', this._boundResizeListener, { passive: true });
+      }
+
+      /**
+       * Resize handler.
+       *
+       * @private
+       */
+      _onResize() {
+        this.canvas.style.width = `${this.offsetWidth}px`;
+        this.canvas.style.height = `${this.offsetHeight}px`;
+      }
+
+      /**
+       * On element removed from DOM handler.
+       */
+      disconnectedCallback () {
+        super.disconnectedCallback();
+        this._removeEventListeners();
+      }
+
+      /**
+       * Remove the event listeners of this instance.
+       *
+       * @private
+       */
+      _removeEventListeners() {
+        window.removeEventListener('resize', this._boundResizeListener);
+      }
+    }
+
+    window.customElements.define(SketchImport.is, SketchImport);
+  </script>
+</dom-module>

@@ -69,7 +69,8 @@
         transition: .3s transform cubic-bezier(0.645, 0.045, 0.355, 1.000);
       }
 
-      .menu__listitem:hover .menu__link {
+      .menu__listitem:hover .menu__link,
+      .menu__listitem:focus .menu__link {
         transform: translateX(16px);
       }
 
@@ -86,12 +87,12 @@
         tail="{{subroute}}"></app-route>
 
     <iron-selector selected="[[page]]" attr-for-selected="name" role="navigation" class="container">
-      <ul class="menu">
-        <li class="menu__listitem"><a class="menu__link" name="home" href="home">View One</a></li>
-        <li class="menu__listitem"><a class="menu__link" name="view2" href="view2">View Two</a></li>
-        <li class="menu__listitem"><a class="menu__link" name="view3" href="view3">View Three</a></li>
-        <li class="menu__listitem"><a class="menu__link" name="codelab" href="codelab">Codelab</a></li>
-      </ul>
+      <div class="menu">
+        <a class="menu__listitem" name="home" href="home"><span class="menu__link">View One</span></a>
+        <a class="menu__listitem" name="view2" href="view2"><span class="menu__link">View Two</span></a>
+        <a class="menu__listitem" name="view3" href="view3"><span class="menu__link">View Three</span></a>
+        <a class="menu__listitem" name="codelab" href="codelab"><span class="menu__link">Codelab</span></a>
+      </div>
     </iron-selector>
 
     <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="404" role="main">
