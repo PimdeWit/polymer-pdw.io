@@ -201,15 +201,15 @@
 
       _drawTextToCanvas(canvas, context, text) {
         if (!text) return;
-        let el = canvas;
-        let ctx = context;
-        let size = window.innerWidth / (16 / window.devicePixelRatio);
-        let maxFontSize = 72 * window.devicePixelRatio;
+        const el = canvas;
+        const ctx = context;
+        const size = window.innerWidth / (16 / window.devicePixelRatio);
+        const maxFontSize = 72 * window.devicePixelRatio;
         if (size > maxFontSize) size = maxFontSize;
 
-        let color = 'rgb(255, 255, 255)';
-        let font = 'Work Sans';
-        let align = 'center';
+        const color = 'rgb(255, 255, 255)';
+        const font = 'Work Sans';
+        const align = 'center';
 
         ctx.font = `${size}pt ${font}`;
         ctx.fillStyle = color;
@@ -293,7 +293,7 @@
       /**
        * On Element Into View handler.
        *
-       * @param {Array[Object]} entries
+       * @param {Array[IntersectionObserverEntry]} entries
        * @private
        */
       _onObserve(entries) {
