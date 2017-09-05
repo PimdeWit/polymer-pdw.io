@@ -45,7 +45,8 @@
       .experiment {
         width: 100%;
         height: 100%;
-        background-color: #101111;
+
+        overflow: hidden;
       }
 
       .background {
@@ -122,8 +123,13 @@
       }
 
       .experiment {
+        width: 100%;
+        height: 100%;
+
         user-select: none;
-        overflow: auto;
+
+        overflow: hidden;
+
         display: flex;
         align-items: center;
         justify-content: center;
@@ -209,7 +215,7 @@
       <pointer-follower id="pointerstalker" class="experiment" name="/pointerstalker" rows="16" columns="16" particle-width="2" particle-height="2" distortion="50" threshold="0.5"></pointer-follower>
       <pointer-follower id="curtains" class="experiment" name="/curtains" rows="8" columns="96" particle-width="48" particle-height="2" distortion="50" clear></pointer-follower>
       <pointer-follower id="nodenetwork" class="experiment" name="/node-network" rows="400" columns="2" particle-width="50" particle-height="1" distortion="20"  tag="0.2" clear></pointer-follower>
-      <noise-displacer id="noisedisplacer" class="experiment" name="/noise-displacer" text="" slice-size="1"></noise-displacer>
+      <noise-displacer id="noisedisplacer" class="experiment" name="/noise-displacer" text="" slice-size="1" noise-x="8" noise-y="8"></noise-displacer>
       <div id="svgmorph" class="experiment svg-morph" name="/svg-morph">
         <svg-morph stroke-length="900" pulse offset="[[svgOffset]]">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 690 855">

@@ -1,17 +1,9 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
-<link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
-<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
-<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
-<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
-<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
-<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../utilities/pdw-icons.html">
-<link rel="import" href="../third_party/imports/import-pep.html">
 
 <link rel="lazy-import" href="../pages/pdw-home.html">
 <link rel="lazy-import" href="../pages/pdw-view2.html">
@@ -29,6 +21,42 @@
         --app-secondary-color: #4285f4;
 
         display: block;
+
+        opacity: 0;
+      }
+
+      :host([active]) {
+        opacity: 1;
+
+        transition: .5s opacity cubic-bezier(0.645, 0.045, 0.355, 1.000);
+      }
+
+      .a11y-skip {
+        position: absolute;
+        top: -1000px;
+        left: -1000px;
+
+        padding: .75rem 1.25rem;
+        overflow: hidden;
+        text-align: left;
+        text-decoration: none;
+      }
+
+      .a11y-skip:focus {
+        top: 0;
+        left: 0;
+
+        padding: 24px 32px;
+
+        background-color: #bdbdbd;
+
+        color: #111;
+
+        font-size: 20px;
+
+        text-decoration: none;
+
+        z-index: 1;
       }
 
       .menu {
@@ -86,6 +114,8 @@
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
 
+    <a id="a11y-skip" class="a11y-skip" href="#a11y-contentskiptarget">Skip to main content</a>
+
     <iron-selector selected="[[page]]" attr-for-selected="name" role="navigation" class="container">
       <div class="menu">
         <a class="menu__listitem" name="home" href="home"><span class="menu__link">View One</span></a>
@@ -95,6 +125,7 @@
       </div>
     </iron-selector>
 
+    <div id="maincontent" tabindex="-1"></div>
     <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="404" role="main">
       <pdw-home name="home"></pdw-home>
       <pdw-view2 name="view2"></pdw-view2>
@@ -122,8 +153,8 @@
           subroute: String,
           assets: {
             type: Object,
-            observer: '_onAssetLoaded'
-          }
+            observer: '_onAssetLoaded',
+          },
         };
       }
 
@@ -136,17 +167,23 @@
       constructor() {
         super();
 
-        // Get root pattern for app-route, for more info about `rootPath` see:
-        // https://www.polymer-project.org/2.0/docs/upgrade#urls-in-templates
-        this.rootPattern = (new URL(this.rootPath)).pathname;
+        Polymer.RenderStatus.afterNextRender(this, () => {
+          // Get root pattern for app-route, for more info about `rootPath` see:
+          // https://www.polymer-project.org/2.0/docs/upgrade#urls-in-templates
+          this.rootPattern = (new URL(this.rootPath)).pathname;
+
+          this.setAttribute('active', '');
+        });
       }
 
       connectedCallback() {
         super.connectedCallback();
+
         this._addEventListeners();
       }
 
       _addEventListeners() {
+        this.$['a11y-skip'].addEventListener('click', () => this.$.maincontent.focus());
       }
 
       _onAssetLoaded(event) {
@@ -161,7 +198,7 @@
         }
 
         // If no page was found in the route data, page will be an empty string.
-        // Deault to 'home' in that case.
+        // Default to 'home' in that case.
         this.page = page || 'home';
       }
 

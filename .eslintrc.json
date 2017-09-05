@@ -1,4 +1,5 @@
 {
+  "max-len": 120,
   "extends": ["eslint:recommended", "google"],
   "parserOptions": {
     "ecmaVersion": 6

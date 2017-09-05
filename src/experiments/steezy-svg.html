@@ -131,8 +131,8 @@
 
       _addEventListeners() {
         window.addEventListener('resize', this._boundResizeListener, { passive: true });
-        this.canvas.addEventListener('mousemove', this._boundPointerMove, { passive: true }); 
-        this.canvas.addEventListener('touchmove', this._boundPointerMove, { passive: true }); 
+        this.canvas.addEventListener('mousemove', this._boundPointerMove, { passive: true });
+        this.canvas.addEventListener('touchmove', this._boundPointerMove, { passive: true });
       }
 
       _onPointerMove(e) {

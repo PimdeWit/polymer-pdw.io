@@ -203,7 +203,7 @@
         if (!text) return;
         const el = canvas;
         const ctx = context;
-        const size = window.innerWidth / (16 / window.devicePixelRatio);
+        let size = window.innerWidth / (16 / window.devicePixelRatio);
         const maxFontSize = 72 * window.devicePixelRatio;
         if (size > maxFontSize) size = maxFontSize;
 
@@ -303,8 +303,10 @@
           const isVisible = ratio > 0.3;
           if (isVisible) {
             this.setToActive();
+            console.log('noise displacer is visible;');
           } else {
             this.active = false;
+            console.log('noise displacer is not visible;');
           }
         });
       }
@@ -369,8 +371,8 @@
         this.output.width = width * window.devicePixelRatio;
         this.output.height = height * window.devicePixelRatio;
 
-        this.output.style.width = `${width}px`;
-        this.output.style.height = `${height}px`;
+//        this.output.style.width = `${width}px`;
+//        this.output.style.height = `${height}px`;
       }
 
       /**

@@ -38,35 +38,35 @@
         return {
           active: {
             type: Boolean,
-            value: false
+            value: false,
           },
 
           intersectionObserver: Object,
 
           time: {
             type: Number,
-            value: 0
+            value: 0,
           },
           svg: SVGElement,
           paths: {
             type: Array,
             value: function() {
-              return []
-            }
+              return [];
+            },
           },
 
           strokeLength: {
             type: Number,
-            value: 800
+            value: 800,
           },
 
           target: String,
           pulse: Boolean,
           offset: {
             type: Number,
-            value: 100
-          }
-        }
+            value: 100,
+          },
+        };
       }
 
       constructor() {
@@ -113,11 +113,11 @@
        * @private
        */
       _createIntersectionObserver() {
-        let options = {
+        const options = {
           root: null,
           rootMargin: '0px',
-          threshold: 0.3
-        }
+          threshold: 0.3,
+        };
 
         return new IntersectionObserver(this._onObserve.bind(this), options);
       }
@@ -125,14 +125,13 @@
       /**
        * On Element Into View handler.
        *
-       * @param {Array[Object]} entries
+       * @param {Array} entries
        * @private
        */
       _onObserve(entries) {
         entries.forEach(entry => {
-          let el = entry.target;
-          let ratio = entry.intersectionRatio;
-          let isVisible = ratio > 0.3;
+          const ratio = entry.intersectionRatio;
+          const isVisible = ratio > 0.3;
 
           if (isVisible) {
             this.setToActive();
@@ -166,6 +165,7 @@
       /**
        * Make a number go up and down.
        *
+       * @param {Number} value
        * @private
        */
       _upDown(value) {
@@ -177,10 +177,10 @@
        */
       render() {
         this.time++;
-        let t = this.time * 0.01;
-        let ud = this._upDown(t);
-        let ud2 = this._upDown(t / 4);
-        let scale = Math.abs(Math.cos(ud2));
+        const t = this.time * 0.01;
+        const ud = this._upDown(t);
+        const ud2 = this._upDown(t / 4);
+        const scale = Math.abs(Math.cos(ud2));
 
         for (let index = 0; index < this.paths.length; index++) {
           let path = this.paths[index];
