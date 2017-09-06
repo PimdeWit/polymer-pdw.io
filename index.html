@@ -69,20 +69,11 @@
       ga('require', 'urlChangeTracker');
       ga('send', 'pageview');
     </script>
-    <script async src="https://www.google-analytics.com/analytics.js"></script>
-    <script async src="src/third_party/imports/autotrack.js"></script>
+    <script async defer src="https://www.google-analytics.com/analytics.js"></script>
+    <script async defer src="src/third_party/imports/autotrack.js"></script>
 
-    <script defer src="src/app.js"></script>
+    <script async src="src/app.js"></script>
 
-
-
-    <!-- Load webcomponents-loader.js to check and load any polyfills your browser needs -->
-    <!-- <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script> -->
-
-    <!-- Load your application shell -->
-    <!-- <link rel="import" href="src/pdw-app/pdw-app.html"> -->
-
-    <!-- Add any global styles for body, document, etc. -->
     <style>
       *, *:before, *:after {
         box-sizing: border-box;

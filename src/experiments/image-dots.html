@@ -1,0 +1,92 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="image-dots">
+  <template>
+    <style include="shared-styles">
+      :host {
+        position: relative;
+
+        display: inline-lock;
+      }
+    </style>
+
+    <slot></slot>
+  </template>
+
+  <script>
+    class ImageDots extends Polymer.Element {
+      static get is() { return 'image-dots'; }
+      static get properties() {
+        return {
+          image: String
+        };
+      }
+
+      constructor(grid = {columns: 40, rows: 40}, dimensions = {width: 400, height: 400}) {
+        super();
+
+        this.grid = grid;
+        this.dimensions = dimensions;
+      }
+
+      _proceed(texture) {
+        this._image = texture;
+        this.imageCanvas = this._createCanvas(this.dimensions);
+        this.imageCtx = this.imageCanvas.getContext('2d');
+        this.appendChild(this.imageCanvas);
+
+        this.drawCanvas = this._createCanvas(this.dimensions);
+        this.drawCtx = this.drawCanvas.getContext('2d');
+        this.appendChild(this.drawCanvas);
+
+        this.drawImage(this._image);
+        this.drawPoints(this.drawCtx);
+      }
+
+      /**
+       * Element attached to the DOM.
+       */
+      connectedCallback() {
+        super.connectedCallback();
+
+        const img = new Image();
+        img.onload = (texture) => {
+          this._proceed(texture.target);
+        }
+        img.src = this.image
+      }
+
+      _createCanvas() {
+        const canvas = document.createElement('canvas');
+        canvas.width = this.width = this.dimensions.width || 100;
+        canvas.height = this.height = this.dimensions.height || 100;
+        canvas.style.width = `${this.width}px`;
+        canvas.style.height = `${this.height}px`;
+        return canvas;
+      }
+
+      drawImage(image) {
+        this.imageCtx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight);
+      }
+
+      drawPoints(canvas) {
+        const column = this.width / this.grid.columns;
+        const row = this.height / this.grid.rows;
+        for(var i = 0; i <= column; i++) {
+          for(var j = 0; j <= row; j++) {
+            const pos = {
+              x: i * column,
+              y: j * row
+            };
+            const data = this.imageCtx.getImageData(pos.x, pos.y, 1, 1).data;
+            canvas.fillStyle = `rgb(${data[0]},${data[1]},${data[2]})`;
+            canvas.fillRect(pos.x, pos.y, 1, 1);
+          }
+        }
+      }
+    }
+
+    window.customElements.define(ImageDots.is, ImageDots);
+  </script>
+</dom-module>

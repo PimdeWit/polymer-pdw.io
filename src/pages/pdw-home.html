@@ -1,5 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
-<!--<link rel="import" href="../experiments/lorem-ipsum/lorem-ipsum.html">-->
+<!--<link rel="import" href="../experiments/image-dots.html">-->
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="pdw-home">
@@ -8,13 +8,13 @@
       :host {
         display: block;
       }
+
     </style>
 
     <section>
-      <div class="container">
-         <p>Pim de Wit <em>is a creative technologist exploring the critical relationship between behaviour, art, and information.</em></p>
-         <p></p>
-      </div>
+      <h2>Pim de Wit is a creative technologist exploring the critical relationship between behaviour, art, and information.</h2>
+
+      <!--<image-dots image="./images/test/random.jpg"></image-dots>-->
     </section>
   </template>
 
@@ -23,8 +23,7 @@
       static get is() { return 'pdw-home'; }
       static get properties() {
         return {
-          assets: Object
-        }
+        };
       }
 
       constructor() {
@@ -33,11 +32,6 @@
 
       connectedCallback() {
         super.connectedCallback();
-
-        this._addEventListeners();
-      }
-
-      _addEventListeners() {
       }
     }
 
