@@ -2,7 +2,11 @@
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../experiments/pointer-follower.html">
 <link rel="import" href="../utilities/pdw-icons.html">
 
 <link rel="lazy-import" href="../pages/pdw-home.html">
@@ -68,42 +72,58 @@
         display: flex;
         align-items: center;
 
-        font-family: 'Roboto Mono', monospace;
+        font-size: 4em;
 
-        color: #fff;
-      }
-
-      .menu__listitem::before {
-        display: block;
-
-        width: 32px;
-        height: 1px;
-
-        margin: 0 8px;
-
-        color: #fff;
-
-        background-color: #fff;
-
-        transition: .3s transform cubic-bezier(0.645, 0.045, 0.355, 1.000);
-
-        content: '';
-      }
-
-      .menu__listitem .menu__link {
-        color: inherit;
         text-decoration: none;
 
-        transition: .3s transform cubic-bezier(0.645, 0.045, 0.355, 1.000);
+        outline: none;
+
+        color: currentColor;
       }
 
-      .menu__listitem:hover .menu__link,
-      .menu__listitem:focus .menu__link {
-        transform: translateX(16px);
+      .drawer {
+        contain: strict;
+
+        --app-drawer-content-container: {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          width: 80vw;
+
+          transition-timing-function: cubic-bezier(0.710, 0.000, 0.285, 1.000);
+
+          user-select: none;
+
+          background-color: #1a1a1a;
+        }
       }
 
-      .menu__listitem:hover::before {
-        transform: scaleX(1.5) translateX(8px);
+      .overlay {
+        position: absolute;
+        top: 0;
+        left:0;
+
+        width: 100%;
+        height: 100%;
+
+        user-select: none;
+        pointer-events: none;
+
+        opacity: 0;
+
+        transition: .3s opacity cubic-bezier(0.710, 0.000, 0.285, 1.000);
+      }
+
+      .drawer[opened] .overlay {
+        opacity: 1;
+
+        transition-duration: .8s;
+        transition-delay: 1s;
+      }
+
+      .drawer__toggle {
+        contain: strict;
       }
     </style>
 
@@ -116,14 +136,18 @@
 
     <a id="a11y-skip" class="a11y-skip" href="#a11y-contentskiptarget">Skip to main content</a>
 
-    <iron-selector selected="[[page]]" attr-for-selected="name" role="navigation">
-      <div class="menu">
-        <a class="menu__listitem" name="home" href="home"><span class="menu__link">View One</span></a>
-        <a class="menu__listitem" name="view2" href="view2"><span class="menu__link">View Two</span></a>
-        <a class="menu__listitem" name="view3" href="view3"><span class="menu__link">View Three</span></a>
-        <a class="menu__listitem" name="codelab" href="codelab"><span class="menu__link">Codelab</span></a>
-      </div>
-    </iron-selector>
+    <paper-icon-button class="drawer__toggle" icon="menu" on-tap="toggleDrawer"></paper-icon-button>
+    <app-drawer id="drawer" class="drawer" transition-duration="600" narrow>
+      <iron-selector selected="[[page]]" attr-for-selected="name" role="navigation">
+        <div class="menu">
+          <a class="menu__listitem" name="home" href="home" on-tap="closeDrawer"><span class="menu__link">View One</span></a>
+          <a class="menu__listitem" name="view2" href="view2" on-tap="closeDrawer"><span class="menu__link">View Two</span></a>
+          <a class="menu__listitem" name="view3" href="view3" on-tap="closeDrawer"><span class="menu__link">View Three</span></a>
+          <a class="menu__listitem" name="codelab" href="codelab" on-tap="closeDrawer"><span class="menu__link">Codelab</span></a>
+        </div>
+      </iron-selector>
+      <pointer-follower class="overlay" rows="400" columns="2" particle-width="2" particle-height="2" distortion="200" target="window" tag="0.99" threshold="0.29" clear></pointer-follower>
+    </app-drawer>
 
     <div id="maincontent" tabindex="-1"></div>
     <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="404" role="main">
@@ -180,6 +204,14 @@
         super.connectedCallback();
 
         this._addEventListeners();
+      }
+
+      toggleDrawer() {
+        this.$.drawer.toggle();
+      }
+
+      closeDrawer() {
+        this.$.drawer.close();
       }
 
       _addEventListeners() {

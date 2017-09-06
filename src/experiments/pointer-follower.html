@@ -35,7 +35,7 @@
           active: {
             type: Boolean,
             value: false,
-            observer: 'stateObserver'
+            observer: 'stateObserver',
           },
 
           intersectionObserver: Object,
@@ -45,44 +45,44 @@
 
           rows: {
             type: Number,
-            value: 8
+            value: 8,
           },
 
           columns: {
             type: Number,
-            value: 8
+            value: 8,
           },
 
           color: {
             type: String,
-            value: 'rgb(255, 255, 255)'
+            value: 'rgb(255, 255, 255)',
           },
 
           particleWidth: {
             type: Number,
-            value: 1
+            value: 1,
           },
 
           particleHeight: {
             type: Number,
-            value: 1
+            value: 1,
           },
 
           gapX: {
             type: Number,
-            value: 40
+            value: 40,
           },
-          
+
           gapY: {
             type: Number,
-            value: 40
+            value: 40,
           },
 
           entities: {
             type: Array,
             value: () => {
-              return []
-            }
+              return [];
+            },
           },
 
           bcr: Object,
@@ -109,7 +109,16 @@
 
           lerp: Boolean,
 
+          clickable: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
+          },
+
           threshold: Number,
+
+          lineWidth: Number,
+
           forcePerf: {
             type: Boolean,
             value: false,
@@ -142,7 +151,7 @@
         this.context = this.canvas.getContext('2d');
 
         this.initialised = true;
-    
+
 
         Polymer.RenderStatus.afterNextRender(this, this._prepare);
       }
@@ -209,8 +218,10 @@
       _addEventListeners() {
         if (!this.initialised) return;
         window.addEventListener('resize', this._boundResizeListener, { passive: true });
-        this.pointerScope.addEventListener('mousedown', this._boundPointerDown, { passive: true });
-        this.pointerScope.addEventListener('touchstart', this._boundPointerDown, { passive: true });
+        if (this.clickable) {
+          this.pointerScope.addEventListener('mousedown', this._boundPointerDown, {passive: true});
+          this.pointerScope.addEventListener('touchstart', this._boundPointerDown, {passive: true});
+        }
         this.pointerScope.addEventListener('mousemove', this._boundPointerMove, { passive: true });
         this.pointerScope.addEventListener('touchmove', this._boundPointerMove, { passive: true });
         window.addEventListener('scroll', this._boundScrollListener, { passive: true });
@@ -232,7 +243,7 @@
       /**
        * Pointer move handler.
        *
-       * @param {MouseEvent|TouchEvent} 
+       * @param {MouseEvent|TouchEvent}
        * @private
        */
       _onPointerMove(e) {
@@ -368,7 +379,7 @@
        * @param {Number} object.w The width of the object.
        * @param {Number} object.h The height of the object.
        * @return {Number}
-       * @private 
+       * @private
        */
       _getRadiansTowardsPointer(pointerX, pointerY, object) {
         return Math.atan2(
@@ -391,6 +402,8 @@
         }
 
         this.context.beginPath();
+
+        if (this.lineWidth) this.context.lineWidth = this.lineWidth;
 
         for (var i = 0; i < this.entities.length; i++) {
           const entity = this.entities[i];
