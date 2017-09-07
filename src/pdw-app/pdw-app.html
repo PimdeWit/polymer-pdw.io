@@ -76,9 +76,11 @@
 
         text-decoration: none;
 
-        outline: none;
-
         color: currentColor;
+      }
+
+      .menu__listitem:not(:focus) {
+        outline: none;
       }
 
       .drawer {
@@ -146,7 +148,7 @@
           <a class="menu__listitem" name="codelab" href="codelab" on-tap="closeDrawer"><span class="menu__link">Codelab</span></a>
         </div>
       </iron-selector>
-      <pointer-follower class="overlay" rows="400" columns="2" particle-width="2" particle-height="2" distortion="200" target="window" tag="0.99" threshold="0.29" clear></pointer-follower>
+      <pointer-follower class="overlay" rows="10" columns="10" particle-width="200" particle-height="1" distortion="256" target="window" tag="0.8" threshold="0.29" clear></pointer-follower>
     </app-drawer>
 
     <div id="maincontent" tabindex="-1"></div>
