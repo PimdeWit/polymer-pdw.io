@@ -66,6 +66,32 @@
       .menu {
         list-style: none;
         padding: 0;
+
+        opacity: 0;
+
+        transform: scale(1.1) skewY(10deg);
+
+        transition-property: transform, opacity;
+        transition-duration: 1s;
+        transition-timing-function: cubic-bezier(0.710, 0.000, 0.285, 1.000);
+
+        will-change: auto;
+      }
+
+      .menu__close {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+
+        width: 32px;
+        height: 32px;
+
+        padding: 8px;
+      }
+
+      .drawer[opened] .menu {
+        opacity: 1;
+        transform: scale(1);
       }
 
       .menu__listitem {
@@ -76,12 +102,20 @@
 
         text-decoration: none;
 
+        outline: none;
+        opacity: 0.6;
+
         color: currentColor;
       }
 
-      .menu__listitem:not(:focus) {
-        outline: none;
+      .menu__listitem:hover,
+      .menu__listitem:focus {
+        opacity: 1;
       }
+
+      /*.menu__listitem:not(:focus) {*/
+        /*outline: none;*/
+      /*}*/
 
       .drawer {
         contain: strict;
@@ -125,7 +159,17 @@
       }
 
       .drawer__toggle {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+
+        width: 48px;
+        height: 48px;
+
+        padding: 8px;
+
         contain: strict;
+        --paper-icon-button-ink-color: #fff;
       }
     </style>
 
@@ -136,15 +180,14 @@
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
 
-    <a id="a11y-skip" class="a11y-skip" href="#a11y-contentskiptarget">Skip to main content</a>
+    <button id="a11y-skip" class="a11y-skip" on-tap="focusContent">Skip to main content</button>
 
-    <paper-icon-button class="drawer__toggle" icon="menu" on-tap="toggleDrawer"></paper-icon-button>
-    <app-drawer id="drawer" class="drawer" transition-duration="600" narrow>
+    <app-drawer id="drawer" class="drawer" transition-duration="600" narrow on-opened-changed="myEvent" swipe-open>
       <iron-selector selected="[[page]]" attr-for-selected="name" role="navigation">
         <div class="menu">
           <a class="menu__listitem" name="home" href="home" on-tap="closeDrawer"><span class="menu__link">View One</span></a>
-          <a class="menu__listitem" name="view2" href="view2" on-tap="closeDrawer"><span class="menu__link">View Two</span></a>
-          <a class="menu__listitem" name="view3" href="view3" on-tap="closeDrawer"><span class="menu__link">View Three</span></a>
+          <a class="menu__listitem" name="view2" href="view2" on-tap="closeDrawer"><span class="menu__link">About</span></a>
+          <a class="menu__listitem" name="view3" href="view3" on-tap="closeDrawer"><span class="menu__link">Illustrations</span></a>
           <a class="menu__listitem" name="codelab" href="codelab" on-tap="closeDrawer"><span class="menu__link">Codelab</span></a>
         </div>
       </iron-selector>
@@ -159,6 +202,8 @@
       <pdw-codelab name="codelab" route="[[subroute]]"></pdw-codelab>
       <pdw-404 name="404"></pdw-404>
     </iron-pages>
+
+    <paper-icon-button class="drawer__toggle" icon="menu" on-tap="toggleDrawer"></paper-icon-button>
   </template>
   
   <script>
@@ -204,8 +249,6 @@
 
       connectedCallback() {
         super.connectedCallback();
-
-        this._addEventListeners();
       }
 
       toggleDrawer() {
@@ -216,8 +259,12 @@
         this.$.drawer.close();
       }
 
-      _addEventListeners() {
-        this.$['a11y-skip'].addEventListener('click', () => this.$.maincontent.focus());
+      myEvent(event) {
+        event.detail.value ? document.body.classList.add('drawer-open') : document.body.classList.remove('drawer-open');
+      }
+
+      focusContent() {
+        this.$.maincontent.focus();
       }
 
       _onAssetLoaded(event) {
