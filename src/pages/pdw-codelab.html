@@ -2,9 +2,9 @@
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../experiments/pointer-follower.html">
 <link rel="import" href="../experiments/noise-displacer.html">
-<link rel="import" href="../experiments/sketch-import.html">
 <link rel="import" href="../experiments/svg-morph.html">
 <link rel="import" href="../experiments/steezy-svg.html">
 <!--<link rel="import" href="../experiments/lorem-ipsum/lorem-ipsum.html">-->
@@ -15,124 +15,54 @@
     <style include="shared-styles">
       :host {
         display: block;
-      }
 
-      section {
         position: relative;
+
         width: 100%;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: space-around;
-        flex-wrap: wrap;
-      }
-
-      steezy-svg {
-        color: rgba(255, 255, 255, .92);
-        height: 320px;
-      }
-
-      a[name] {
-        color: white;
-        text-decoration: none;
-      }
-
-      a[name].active {
-        opacity: 0.4;
-        text-decoration: line-through;
       }
 
       .experiment {
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
         width: 100%;
         height: 100%;
 
         overflow: hidden;
-      }
 
-      .background {
-        position: fixed;
-        top: 0;
-        left: 0;
-        
-        width: 100%;
-        height: 100vh;
-
-        pointer-events: none;
-
-        opacity: 0.2;
-
-        z-index: -1;
+        background-color: #101111;
 
         user-select: none;
-
-        transition: 0.4s opacity cubic-bezier(0.645, 0.045, 0.355, 1.000);
-
-        will-change: opacity;
       }
 
-      .background.hidden {
-        opacity: 0;
-      }
+      .experiment::before {
+        content: '';
 
-      .experiment-menu {
-        font-family: 'Roboto Mono';
-      }
-
-      .experiment-menu__meta {
-        opacity: 0.5;
-        font-weight: 900;
-      }
-
-      .experiment-wrapper {
-        position: absolute;
-        width: 70%;
-        height: 60%;
-        top: 20%;
-        left: 15%;
-      }
-
-      .experiment-wrapper::before {
         display: block;
 
         position: absolute;
+        z-index: 1;
         top: 0;
         left: 0;
 
         width: 100%;
         height: 100%;
 
-        content: '';
-        box-shadow: 0 83px 114px 30px rgba(0,0,0,0.12), 0 5px 30px 0 rgba(0,0,0,0.26);
+        transform: translate3d(0, 0, 0);
 
-        pointer-events: none;
+        box-shadow: inset 0 10vh 0 0 #1a1a1a, inset 0 -10vh 0 0 #1a1a1a;
+
+
+        transition-property: transform;
+        transition-duration: 4s;
+        transition-delay: 1s;
+        transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
       }
 
-      .experiment-container {
-        position: relative;
-
-        width: 100%;
-        height: 100%;
-
-        overflow: hidden;
-      }
-
-      .experiment__title {
-        position: absolute;
-        transform: translateY(-120%);
-        font-family: 'Roboto Mono';
-      }
-
-      .experiment {
-        width: 100%;
-        height: 100%;
-
-        user-select: none;
-
-        overflow: hidden;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      .experiment.iron-selected.animate::before {
+        transform: scale(1.4);
       }
 
       .experiment::after {
@@ -140,6 +70,7 @@
         content: '';
 
         position: absolute;
+        z-index: 2;
         top: 0;
         left: 0;
 
@@ -147,9 +78,10 @@
         height: 100%;
 
         background-color: #101111;
-        background-color: #212223;
 
-        transition: .8s transform cubic-bezier(0.4, 0.0, 0.2, 1); 
+        transition-property: transform;
+        transition-duration: 2s;
+        transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
 
         will-change: transform;
       }
@@ -158,10 +90,48 @@
         transform: translateX(101%);
       }
 
+      .experiment-menu__link {
+        color: white;
+        text-decoration: none;
+      }
+
+      .experiment-menu__link.active {
+        opacity: 0.4;
+
+        text-decoration: line-through;
+      }
+
+      .experiment-menu__meta {
+        opacity: 0.5;
+      }
+
+      .experiment-container {
+        position: relative;
+
+        width: 100%;
+        height: 90vh;
+
+        contain: strict;
+
+        overflow: hidden;
+      }
+
+      .experiment__title--mask {
+        position: absolute;
+        overflow: hidden;
+      }
+
+      .experiment__title {
+        margin: 0;
+
+        //transform: translateX(-100%);
+
+        font-size: 3em;
+      }
+
       .experiment.svg-morph {
         background-color: #fad961;
-        background-image: linear-gradient(270deg, #FAD961 0%, #F76B1C 99%);
-        background-image: linear-gradient(-225deg, #AC32E4 0%, #7918F2 48%, #4801FF 100%);
+        background-image: linear-gradient(-225deg, #ac32e4 0%, #7918f2 48%, #4801ff 100%);
       }
 
       #svgrange {
@@ -170,6 +140,21 @@
         left: 0;
 
         width: 100%;
+        height: 100%;
+      }
+
+
+      .toast {}
+
+      .toast__dismiss {
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+
+        opacity: 0;
       }
     </style>
 
@@ -186,25 +171,6 @@
         stroke-space="100"></steezy-svg> -->
 
 
-    <pointer-follower id="background" class="background" rows="24" columns="24" particle-width="2" particle-height="2" distortion="50" target="window" tag="0.99" threshold="0.96" clear></pointer-follower>
-
-    <template is="dom-if" if="[[!batterycharging]]">
-      <p>The codelab could contain some battery-draining experiments, You may want to consider checking these out when you're charging your device ([[batterylevel]]%).</p>
-    </template>
-
-    <iron-selector selected="[[route.path]]" attr-for-selected="name" role="navigation">
-      <ul class="experiment-menu">
-        <template is="dom-repeat" items="[[codelabMenu]]">
-          <li>
-            <a name="[[item.name]]" href="[[item.url]]">[[item.text]]</a>
-            <span class="experiment-menu__meta">[[item.year]]</span>
-          </li>
-        </template>
-      </ul>
-    </iron-selector>
-
-    <div class="experiment-wrapper">
-      <h1 class="experiment__title">[[route.path]]</h1>
     <iron-pages
         id="wrapper"
         class="experiment-container"
@@ -217,124 +183,55 @@
       <pointer-follower id="nodenetwork" class="experiment" name="/node-network" rows="400" columns="2" particle-width="50" particle-height="1" distortion="20"  tag="0.2" clear></pointer-follower>
       <noise-displacer id="noisedisplacer" class="experiment" name="/noise-displacer" text="" slice-size="1" noise-x="16" noise-y="20"></noise-displacer>
       <div id="svgmorph" class="experiment svg-morph" name="/svg-morph">
-        <svg-morph stroke-length="900" pulse offset="[[svgOffset]]">
+        <svg-morph stroke-length="900" offset="[[svgOffset]]">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 690 855">
             <g fill="none" fill-rule="evenodd">
               <path d="M474.6 122c240.7 245.8 278 370.7 112.4 374.5l-28.5-54C236.2 857.8 67 940 51.3 689c-23.8-376.4 62.2-936 423.3-567z"/>
-              <path d="M449.3 119.4c253.2 225 298.6 345 136 360.2l-31.6-51c-288 429.8-448.4 522-481.2 276.8-49-368-3-923.5 376.8-586z"/>
               <path d="M424.3 118.7C688.3 322.2 741 437 582.7 463L548 415.3C294.8 857 143.6 958.6 94.6 720 21 362 28.2-186.5 424.3 118.7z"/>
-              <path d="M399.7 120c273 181.5 332.8 290.6 179 327l-37.2-44.6C323.2 853.6 182 963.7 117.5 732.8c-97-346.4-127.5-885.4 282-613z" opacity=".9"/>
               <path d="M375.6 122.8C656 282.3 722 385.3 573.8 431.6L534 390.3C351 848 220 966 140.8 743.7 22 410.4-45-116.5 375.8 122.7z" opacity=".9"/>
-              <path d="M352.2 127.4c286 137.3 358 233.8 215.5 289.4L526 379C377.7 840.7 257 965.3 164.3 752.7 25 433.7-77-78.5 352.3 127.4z" opacity=".9"/>
               <path d="M329.5 133.6c290 115 367 204.8 231.2 269l-43.5-34c-113.7 463-223.4 593.4-329 391.2C29.7 456.6-105.4-39 329.5 133.6z" opacity=".9"/>
-              <path d="M307.7 141.4c292 93 374 175.6 245.2 248l-45-30.6C428 820.8 329 956 212 765 36 478.7-130.4 2 307.8 141.5z" opacity=".9"/>
               <path d="M287 150.5C579.5 221.7 665.2 297 544 377l-46-27c-46.5 458.2-134 597.7-262 418.5C43.7 499.8-152.2 44 287 150.5z" opacity=".8"/>
-              <path d="M267 161c292 49.8 381 118 267.8 204.3l-47-23c-14.2 452-90.2 594.8-228 428-207-250.3-430-683.6 7.4-609z" opacity=".8"/>
               <path d="M248.5 172.8c289 28.7 381 89.3 276 181.7L477 335c17 444-47.6 589-194 435-220-231-468-640.2-34.6-597.2z" opacity=".8"/>
-              <path d="M231 185.7c285 8.3 379.4 61.4 283 159L466 329c47 433.6-6.2 580-160.2 439.2-231-211.2-502.2-595-74.7-582.5z" opacity=".8"/>
               <path d="M215 199.6c279.5-11.3 375.5 34.2 287.7 136.4l-48-12.2c76 421.3 33.7 568.2-126.7 441-240.6-191-532.3-548.2-113-565.2z" opacity=".8"/>
-              <path d="M200.2 214.4c272.8-30.2 369.8 7.8 291 113.8l-48-8.6c103.3 407 72 553.7-93.6 440-248.6-170.2-558.6-500-149.4-545z" opacity=".7"/>
               <path d="M187 230c264.6-48.2 362-17.7 292.2 91.5l-47.5-5.2c129 391 108.5 536.7-61.4 437C115.6 603.3-210.2 302 187 230z" opacity=".7"/>
-              <path d="M175 246.2c255.4-65 352.8-42 292 69.5l-46.8-1.8c153 373 143 517-30 431C130.8 616-208.4 343 175 246z" opacity=".7"/>
               <path d="M164.4 263c245.3-81 342-65 290.3 48l-46 1.4c175 354.8 175.2 496 .3 423.7-262.3-108-612.5-351-244.6-473z" opacity=".7"/>
-              <path d="M155.4 280.2c234-96 329.7-87 287 27l-44.8 4.6c195.2 334.6 205 472.6 29 414C163 637.5-195.7 424 155.6 280z" opacity=".7"/>
               <path d="M147.8 297.6c222-109.6 316-107.2 282 7l-43.3 7.4C600 625.5 619 759.6 443.3 714.2c-263.6-68-628.5-252.2-295.5-416.6z" opacity=".6"/>
-              <path d="M141.7 315.3C351 193.3 443 189 417.5 303l-41.8 10c230 291.5 257.6 421 83 388.7-262-48.4-631-203.3-317-386.4z" opacity=".6"/>
               <path d="M137 333c196-133.3 285.3-143.6 268.3-31l-40 13c244.2 268.5 280 393 107.4 373.4C214 659-156.6 533 137 333z" opacity=".6"/>
-              <path d="M134 350.7c181.6-143.3 268-159.5 259.2-48.4L355 317.5c256.7 245.3 300 364.2 130.5 356.8C231 663.3-139 565.6 134 350.7z" opacity=".6"/>
               <path d="M132 368c167.5-152 250.7-173.4 249.6-64.6l-36.2 17.4c267 221.5 317.4 334.5 151.5 338.8C248 666-120 596 132 368z" opacity=".6"/>
-              <path d="M131.6 385.3c152.8-159.4 232.4-186 238.7-80l-34 19.4c275 197.6 332 304.2 170.6 319.7-242 23.2-605-20-376-259z" opacity=".5"/>
               <path d="M132.4 402.2c138-165.6 213.6-197 227-94l-31.8 21C609 503 671.6 602.8 515.6 629c-234 39-590 21.7-383.2-226.6z" opacity=".5"/>
-              <path d="M134.5 418.5c123-170.4 194.5-206 214.5-107l-29.5 23C605 484 672.8 576.8 522.8 612.8c-225 53.8-572.6 61-388.3-194.5z" opacity=".5"/>
               <path d="M137.8 434.3c108-174 175-213.5 201.4-118.5l-27.2 24c288 126.3 360 212 216.6 257C313.4 664.5-24 695.3 137.8 434.3z" opacity=".5"/>
-              <path d="M142.2 449.4C235.2 273 298 230.2 330 320.6L305 346c288.5 103 364.5 181 228 234.7C328.6 661 2.7 713.7 142.3 449.4z" opacity=".5"/>
               <path d="M147.7 463.8C226.2 286.4 284 240.5 321.2 326l-22.4 26.3c287 80.4 366.2 151.2 237.4 212.5C343 656.8 30 730 147.7 463.8z" opacity=".4"/>
-              <path d="M154 477.4C218.3 300 271.3 251.4 313 332l-19.8 27c284 58.5 365.6 121.8 244.8 190-181.3 102-480 194.5-384-71.7z" opacity=".4"/>
               <path d="M161.4 490.2c50.2-176.3 98.3-227 144.4-151.7L288.3 366c279.4 37.3 362.8 93 250.2 167.4-169 111.4-452.3 221.2-377-43.2z" opacity=".4"/>
-              <path d="M169.5 502c36.7-174 80-226.3 129.6-156.7L284 373c273.3 17.4 358 65.8 254 145.3-156 119.4-423.3 245-368.3-16.2z" opacity=".4"/>
               <path d="M178.3 513c23.8-171 62-224.5 115-160.5l-12.8 28c265.6-2 350.7 39 255.4 123-143 126-394 265.7-358 9.4z" opacity=".4"/>
-              <path d="M187.8 522.7c11.4-166.8 45-221 100.3-162.8l-10 27c257-20 342 14 256 101.2C403 621 170.8 773 188 522.2z" opacity=".3"/>
               <path d="M197.7 531.5c0-161.8 28.5-216.5 86-164l-8.3 27.6c246.7-36 331-9 253.4 81-116.5 136-331 299-331 56z" opacity=".3"/>
-              <path d="M208 539.3c-11-156 13-210.8 72-164l-6 27c235.4-52 318.7-31.7 249.8 61-103.3 138.7-299.4 310-315.8 76z" opacity=".3"/>
               <path d="M218.6 546c-21-149.7-1.5-204 58.4-163l-4 26.7c223.5-66.2 305.2-52.3 245 41.6C427.5 592 250 770.5 218.5 546z" opacity=".3"/>
-              <path d="M229.5 551.6c-30.2-142.6-15-196.2 45.3-160.8l-2 26c210.6-79 290.2-71 238.5 23.4C433.7 582 274.8 765.5 229.5 551.6z" opacity=".3"/>
               <path d="M240.5 556.2c-38.6-135-27.6-187.6 32.8-157.6l-.3 25c197.3-90 274.3-88 231 6.4-65.2 141.4-205.7 328.7-263.5 126.2z" opacity=".2"/>
-              <path d="M251.5 559.7c-46-127-39-178.2 21-153.5l1.4 24c183-99.8 257-103 222-9.5-54 140.3-176 329.5-245 139z" opacity=".2"/>
               <path d="M262.4 562c-52.5-118.5-49.2-168 10-148.4l3 23c169-108 239.7-116 212-24.2-41.6 138-146.2 327.7-225 149.7z" opacity=".2"/>
-              <path d="M273.2 563.6c-58-110-58.2-157.6-.3-142.8l4 21.8c154-115 221-127.3 201-37.6-31 135-118 323.8-205 159z" opacity=".2"/>
               <path d="M283.7 564c-62.7-101-66-146.5-9.7-136.3l5.5 20.5c140-120 203.2-136.6 189.7-49.3-20.2 130-91.4 316-185.5 165z" opacity=".2"/>
-              <path d="M294 563.7c-66.4-92.3-72.5-135.4-18.3-129.5l6.6 19.2c125.4-124 184.5-144 177.4-59.8-10.7 126-66.2 308.4-165.7 170z" opacity=".1"/>
               <path d="M303.8 562.3c-69.2-83.3-77.8-124-26-122l7.6 18c111-126.5 166-149.4 164.7-69-1 120.8-42 298-146 173z" opacity=".1"/>
-              <path d="M313 560.2c-71-74.5-81.8-112.5-32.5-114l8.4 16.3c96-127.4 147-153 151-76.3 6 114.8-21 285.8-127 174z" opacity=".1"/>
               <path d="M322 557.3c-72-65.8-85-101-38.4-106l9 15c83.2-127 129.3-154.6 138.2-82.3 13.4 108.3-.8 272-109 173.3z" opacity=".1"/>
-              <path d="M330 553.7c-72-57.4-86.4-90-43-97.5l9.6 13.6c70-125.7 111.6-154.7 124.8-87 19.7 101.3 17 257-91.3 171z" opacity=".1"/>
-            </g>
-          </svg>
-        </svg-morph>
-        <svg-morph stroke-length="900" pulse offset="[[svgOffset]]">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 679 800">
-            <g fill="none" fill-rule="evenodd">
-              <path class="rotatepath" d="M159 641.3C-34.7 357-50 227.5 114 252.7l18.6 58C522.6-41.3 703.4-92.7 675 157c-42.3 374.7-225 910.6-516 484.3z" opacity=".8"/>
-              <path class="rotatepath" d="M167 639.4c-195.6-276.7-212.6-404-51-381.8l19.3 57C513.7-38.7 691-92 667 154.3c-35.8 369.5-207 900-500 485z"/>
-              <path class="rotatepath" d="M174.5 637.3C-22.2 368-40.8 243 118.5 262.3l20 55.8C505-35 678.5-91 659 152c-29.4 364.2-189.4 889-484.5 485.3z" opacity=".3"/>
-              <path class="rotatepath" d="M182 635C-15.8 373.3-36 250.6 121 267l20.5 54.5c355-353.7 525-411 509.5-171.7-23.2 359-172.4 877.7-469 485.2z" opacity=".3"/>
-              <path class="rotatepath" d="M189.3 632.5C-9.3 378-31 257.8 123.7 271.5l21 53.3C488.3-28.7 654.4-87.6 643 147.8 625.8 501.4 487 1014 189.3 632.6z" opacity=".1"/>
-              <path class="rotatepath" d="M196.4 629.8c-199-247-222.5-365-70-354l21.4 52C480.4-25 642.8-85.4 635 146.4c-11.4 347.8-140 854-438.6 483.5z" opacity=".4"/>
-              <path class="rotatepath" d="M203.3 627C4 387-20.7 271.5 129.3 280l21.7 51C472.6-21 631.4-83 627.3 145c-6.2 342-125 841.8-424 482z" opacity=".5"/>
-              <path class="rotatepath" d="M210 624C10.5 391.2-15.5 278 132 284l22.2 49.7C465-17 620.2-80.3 619.5 144c-1 336-110.2 829-409.5 480z"/>
-              <path class="rotatepath" d="M216.6 620.8C17.2 395-10 284 135 288l22.5 48.5C457.7-12.8 609.2-77.3 611.8 143c4 330.5-96 816.5-395.2 477.8z" opacity=".4"/>
-              <path class="rotatepath" d="M223 617.5C23.7 398.5-4.6 290 138 291.8l22.8 47.2C450.6-8.4 598.4-74 604.2 142.4 613 467 521.5 945.8 223 617.4z" opacity=".8"/>
-              <path class="rotatepath" d="M229 614C30.7 402 1.3 295.8 141 295.4l23.2 46C443.8-3.6 588-70.2 596.7 142.2c13 318.6-69.8 790-367.6 472z" opacity=".9"/>
-              <path class="rotatepath" d="M235 610.4C37.4 405 7 301.2 144.4 299l23.3 44.8C437.2.8 577.7-66.4 589.3 142c17.3 312.5-57.5 776.5-354.2 468.4z" opacity=".9"/>
-              <path class="rotatepath" d="M240.8 606.7C44 408 12.8 306.4 147.5 302.2L171 346C430.8 5.8 567.8-62.2 582 142c21.2 306.5-46 763-341.2 464.7z" opacity=".1"/>
-              <path class="rotatepath" d="M246.4 602.8C50.7 410.4 18.8 311.3 150.8 305.4l23.6 42.6C424.7 10.8 558-57.8 574.7 142.4c25 300.3-34.7 749-328.3 460.4z" opacity=".4"/>
-              <path class="rotatepath" d="M251.8 598.8c-194.4-186-227-282.8-97.6-290.4L178 350C418.7 16 548.6-53 567.5 143c28.4 294.2-24.2 734.8-315.8 455.8z" opacity=".4"/>
-              <path class="rotatepath" d="M257 594.6C64 414.8 31 320.4 157.6 311.3l23.8 40.3C413 21 539.4-48.2 560.6 143.8c31.6 288-14.3 720.6-303.6 450.8z" opacity=".1"/>
-              <path class="rotatepath" d="M262 590.4C70.8 416.7 37.2 324.4 161 314l23.8 39.3c223-326.8 346-396.3 369-208.5 34.5 281.8-5 706.2-291.8 445.6z" opacity=".8"/>
-              <path class="rotatepath" d="M266.7 586C77.4 418.4 43.4 328.5 164.7 316.7l23.6 38C402.5 32 522-37.6 547 146c37.2 275.5 3.7 691.7-280.3 440z" opacity=".3"/>
-              <path class="rotatepath" d="M271.3 581.6C84 419.6 49.7 332 168 319l23.8 37c205.8-318.5 322-388 348.5-208.6 39.8 269.3 12 677.2-269 434.2z" opacity=".3"/>
-              <path class="rotatepath" d="M275.7 577C90.7 421 56 335.6 171.7 321.5l23.6 36C393 43 505.7-26.5 533.8 149c42 263 19.5 662.5-258 428z" opacity=".4"/>
-              <path class="rotatepath" d="M280 572.4C97 421.7 62.2 338.7 175.2 323.4l23.5 35C388.5 49 498-20.3 527.4 151c44 256.6 26.6 647.6-247.5 421.4z" opacity=".6"/>
-              <path class="rotatepath" d="M287.7 563C110 423 75 344.4 182.7 327.5l23 32.8C380.4 60.5 483.4-8 515 155c47.4 244.3 39 618-227.3 408z" opacity=".1"/>
-              <path class="rotatepath" d="M291.3 558c-174.7-135-209.7-211-105-228.7l23 31.8C376.5 67 476.3-1 509 158c48.8 238 44.5 603.2-217.7 400.8z" opacity=".5"/>
-              <path class="rotatepath" d="M294.8 553.2c-172-130-206.8-204-104.7-222.4l23 31C373 72.4 470 5 503 159.8c50 232 49.5 588.2-208.2 393.3z" opacity=".9"/>
-              <path class="rotatepath" d="M298 548.2c-168.8-125-203.5-197-104.2-216l22.4 30c153.4-283.6 247-350.2 281-199.7 51 225.7 54 573.3-199.2 385.7z" opacity=".2"/>
-              <path class="rotatepath" d="M301 543.2C135.6 422.8 101 353 197.6 333.7l22.2 29c146.8-278 237.5-343.8 272-197.4 51.8 219.5 57.8 558.4-190.6 378z" opacity=".6"/>
-              <path class="rotatepath" d="M304 538C141.5 422.4 107.3 354.7 201.2 335l21.8 28C363.7 90.7 451.4 26 486.3 168c52.4 213.5 61.2 543.5-182.3 370z" opacity=".2"/>
-              <path class="rotatepath" d="M306.7 533C147.7 421.5 114 356 205 336l21.5 27C361 97 445.7 33 481 171.4 533.5 378.6 545 700 306.6 533z" opacity=".6"/>
-              <path class="rotatepath" d="M309.2 527.7C153.8 420.7 120.4 357.2 208.8 337l21 26.2c128.6-260 210.5-322.8 245.8-188.7 53 201.3 66.7 513.7-166.4 353.2z" opacity=".3"/>
-              <path class="rotatepath" d="M311.6 522.5c-151.8-102.7-184.8-164.3-99-184.5l20.7 25.2C356 109.5 435.3 47.8 470.5 178c53 195 68.8 498.7-159 344.5z" opacity=".3"/>
-              <path class="rotatepath" d="M313.8 517.3c-148-98.7-180.5-158.2-97.4-178.5l20.2 24.3C354 116 430.3 56 465.6 182c52.8 189.2 70.3 484-151.8 336z" opacity=".2"/>
-              <path class="rotatepath" d="M316 512c-144.5-94.7-176.4-152.2-96-172.5l20 23.5C352 122 425.6 62.7 460.7 185c52.6 183.2 71.6 469-144.8 327z" opacity=".8"/>
-              <path class="rotatepath" d="M317.8 506.7C177.5 415.7 146.2 360.3 224 340l19.3 22.7C350.3 128.5 421 70.5 456 188.7c52 177.2 72.4 454.3-138.2 318z" opacity=".6"/>
-              <path class="rotatepath" d="M319.6 501.3c-136.4-87-167-140.7-91.8-160.8l18.8 21.8c102-227.5 170.3-284 204.7-170 51.6 171.5 73 439.7-131.7 309z" opacity=".8"/>
-              <path class="rotatepath" d="M321.3 496C189 412.5 159 360.8 231.5 341l18.4 21c97-221 162-276 196-165.8 50.2 165.6 73 425-126 299.7z" opacity=".4"/>
-              <path class="rotatepath" d="M322.8 490.6c-128.3-80-157.4-129.8-87.5-149.4l17.8 20.2c93-213.8 156-267.4 190-161 50 159.6 73 410.2-119 290.2z"/>
-              <path class="rotatepath" d="M324.2 485.2c-124-76.6-152.4-124.5-85-143.7l17.2 19.3c88.4-207 149-259 181.6-156.4 49 154 72.2 395.6-113.8 280.8z" opacity=".9"/>
-              <path class="rotatepath" d="M325.4 479.8C205.6 406.5 178 360.5 243 341.6l16.6 18.6c84.2-200 142.3-250.4 174.2-151.7 48 148.2 71.3 381-108.4 271.3z" opacity=".6"/>
-              <path class="rotatepath" d="M326.6 474.3c-115.5-70-142.2-114.2-80-132.6l16.2 17.8c80-192.8 135.7-241.7 167-146.7 46.5 142.4 70 366.6-103.2 261.5z" opacity=".9"/>
-              <path class="rotatepath" d="M327.7 469c-111.2-67-137-109.4-77.3-127.3l15.6 17C342.2 173.2 395.4 126 425.6 217.2c45.3 136.8 68.8 352.2-98 252z" opacity=".7"/>
-              <path class="rotatepath" d="M328.6 463.5C222 399.7 197 359 254 341.5l15 16.4c72.5-179 123.4-224 152.6-137 44 131 67 337-93 242z" opacity=".8"/>
-              <path class="rotatepath" d="M329.5 458c-102.3-60.8-126.2-99.7-71.6-116.5l14 15.5c69-171 117-214.6 145-131 42 125.5 65 323.4-88.7 232.2z" opacity=".3"/>
-              <path class="rotatepath" d="M330.3 452.5c-97.8-58-120.7-95-68.7-111.2l13.8 15c65.2-164 111.4-206 138.5-126 40 120 63 309-84 222.2z" opacity=".7"/>
-              <path class="rotatepath" d="M331 447c-93.3-55-115-90.3-65.6-106l13 14.2c62-156.4 105.8-196.6 131.8-120.4C449.2 349 470.8 529.6 331 447z" opacity=".8"/>
-              <path class="rotatepath" d="M331.6 441.6C243 389.3 222 355.6 269 340.8l12.6 13.4c58.4-149 100-187.3 125-114.8 37.2 108.7 58 280.5-75 202.2z" opacity=".9"/>
-              <path class="rotatepath" d="M332.2 436c-84-49.4-104-81.3-59.4-95.6l12 12.8c55-141.6 94.4-178 118-109.2 35.6 103.2 55.5 266.3-70.6 192z" opacity=".1"/>
-              <path class="rotatepath" d="M332.7 430.6c-79.5-46.8-98.2-77-56-90.5l11 13c52-134 89.3-169 111.6-104 33.6 98 52.5 252-66.6 182z" opacity=".8"/>
-              <path class="rotatepath" d="M333 425c-74.7-44-92.3-72.5-52.7-85.3l10.5 11.4c49-126 84-159 105-97 31.6 92 49.5 238-62.7 172z" opacity=".8"/>
-              <path class="rotatepath" d="M333.5 419.6c-70-41.5-86.6-68.3-49.5-80.4l10 10.8c45.7-119 78.5-149.8 98.3-92 29.6 86.8 46.4 223.8-58.8 161.6z" opacity=".8"/>
             </g>
           </svg>
         </svg-morph>
         <input id="svgrange" type="range" min="1" max="1000" step="1">
       </div>
-      <div name="/sketch-import">
-        <input type="file" id="upload-sketch">
-        <sketch-import></sketch-import>
-      </div>
     </iron-pages>
-    </div>
 
+    <iron-selector selected="[[route.path]]" attr-for-selected="name" role="navigation">
+
+      <ul class="experiment-menu">
+        <template is="dom-repeat" items="[[codelabMenu]]">
+          <li class="experiment-menu__listitem">
+            <a class="experiment-menu__link" name="[[item.name]]" href="[[item.url]]">[[item.text]]</a>
+            <span class="experiment-menu__meta">[[item.year]]</span>
+          </li>
+        </template>
+      </ul>
+    </iron-selector>
+
+    <paper-toast id="toast" class="toast" text="The codelab could contain some battery-draining experiments, You may want to check back later when you are charging your device ([[batteryLevel]]%) 😳" duration="30000">
+      <button class="toast__dismiss" on-tap="_closeToast">DISMISS</button>
+    </paper-toast>
   </template>
 
   <script>
@@ -349,8 +246,8 @@
             observer: '_routeObserver'
           },
           routeData: Object,
-          batterycharging: Boolean,
-          batterylevel: String,
+          batteryCharging: Boolean,
+          batteryLevel: String,
           menuItems: Object,
           codelabMenu: {
             type: Array,
@@ -441,9 +338,6 @@
 
             if (animateElement.setToActive) {
               animateElement.setToActive();
-            } else {
-              animateElement.children[0].setToActive();
-              animateElement.children[1].setToActive();
             }
           }
         });
@@ -452,38 +346,48 @@
       _battery(battery) {
         window.battery = battery;
 
-        this.batterycharging = battery.charging;
-        this.batterylevel = battery.level * 100;
+        this.batteryCharging = battery.charging;
+        this.batteryLevel = this._getBatteryLevel(battery.level);
+
+        if (!battery.charging) this._openToast();
 
         battery.addEventListener('chargingchange', () => {
-          this.batterycharging = battery.charging;
+          this.batteryCharging = battery.charging;
+
+          battery.charging ? this._closeToast() : this._openToast();
         }, false);
 
         battery.addEventListener('levelchange', () => {
-          this.batterylevel = battery.level * 100;
+          this.batteryLevel = this._getBatteryLevel(battery.level);
         });
       }
 
+      _getBatteryLevel(value) {
+        return Math.round(value * 100);
+      }
 
       _addEventListeners() {
-        const background = this.$.background;
-        const wrapper = this.$.wrapper;
-
-        const svgMorph = this.$.svgmorph;
         const svgRange = this.$.svgrange;
-        wrapper.addEventListener('mouseenter', () => {
-          background.classList.add('hidden');
-          background.forcePerf = true;
-        }, { passive: true });
-
-        wrapper.addEventListener('mouseleave', () => {
-          background.classList.remove('hidden');
-          background.forcePerf = false;
-        }, { passive: true });
 
         svgRange.addEventListener('input', (event) => {
           this.svgOffset = svgRange.value;
-        }, { passice: true })
+        }, { passive: true })
+      }
+
+      /**
+       * Open a small dismissible message for the user.
+       * @private
+       */
+      _openToast() {
+        this.$.toast.show();
+      }
+
+      /**
+       * Close the toast!
+       * @private
+       */
+      _closeToast() {
+        this.$.toast.hide();
       }
     }
 

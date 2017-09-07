@@ -26,6 +26,10 @@
 
         display: block;
 
+        position: relative;
+
+        width: 100%;
+
         opacity: 0;
       }
 
@@ -89,11 +93,6 @@
         padding: 8px;
       }
 
-      .drawer[opened] .menu {
-        opacity: 1;
-        transform: scale(1);
-      }
-
       .menu__listitem {
         display: flex;
         align-items: center;
@@ -120,6 +119,8 @@
       .drawer {
         contain: strict;
 
+        z-index: 9001;
+
         --app-drawer-content-container: {
           display: flex;
           align-items: center;
@@ -135,7 +136,27 @@
         }
       }
 
-      .overlay {
+      .drawer[opened] .menu {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .drawer__toggle {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+
+        width: 48px;
+        height: 48px;
+
+        padding: 8px;
+
+        contain: strict;
+        z-index: 9002;
+        --paper-icon-button-ink-color: #fff;
+      }
+
+      .menu__overlay {
         position: absolute;
         top: 0;
         left:0;
@@ -151,25 +172,11 @@
         transition: .3s opacity cubic-bezier(0.710, 0.000, 0.285, 1.000);
       }
 
-      .drawer[opened] .overlay {
+      .drawer[opened] .menu__overlay {
         opacity: 1;
 
         transition-duration: .8s;
         transition-delay: 1s;
-      }
-
-      .drawer__toggle {
-        position: absolute;
-        top: 16px;
-        left: 16px;
-
-        width: 48px;
-        height: 48px;
-
-        padding: 8px;
-
-        contain: strict;
-        --paper-icon-button-ink-color: #fff;
       }
     </style>
 
@@ -180,9 +187,16 @@
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
 
-    <button id="a11y-skip" class="a11y-skip" on-tap="focusContent">Skip to main content</button>
+    <button id="a11y-skip" class="a11y-skip" on-tap="_focusMainContent">Skip to main content</button>
 
-    <app-drawer id="drawer" class="drawer" transition-duration="600" narrow on-opened-changed="myEvent" swipe-open>
+    <app-drawer
+        id="drawer"
+        class="drawer"
+        transition-duration="600"
+        on-opened-changed="_onDrawerStateChange"
+        on-app-drawer-transitioned="_onDrawerTransitionEnd"
+        narrow
+        swipe-open>
       <iron-selector selected="[[page]]" attr-for-selected="name" role="navigation">
         <div class="menu">
           <a class="menu__listitem" name="home" href="home" on-tap="closeDrawer"><span class="menu__link">View One</span></a>
@@ -191,7 +205,7 @@
           <a class="menu__listitem" name="codelab" href="codelab" on-tap="closeDrawer"><span class="menu__link">Codelab</span></a>
         </div>
       </iron-selector>
-      <pointer-follower class="overlay" rows="10" columns="10" particle-width="200" particle-height="1" distortion="256" target="window" tag="0.8" threshold="0.29" clear></pointer-follower>
+      <pointer-follower id="menugraphics" class="menu__overlay" rows="10" columns="10" particle-width="200" particle-height="1" distortion="256" target="window" tag="0.8" threshold="0.29" clear></pointer-follower>
     </app-drawer>
 
     <div id="maincontent" tabindex="-1"></div>
@@ -221,11 +235,7 @@
           },
           rootPattern: String,
           routeData: Object,
-          subroute: String,
-          assets: {
-            type: Object,
-            observer: '_onAssetLoaded',
-          },
+          subroute: String
         };
       }
 
@@ -259,18 +269,43 @@
         this.$.drawer.close();
       }
 
-      myEvent(event) {
-        event.detail.value ? document.body.classList.add('drawer-open') : document.body.classList.remove('drawer-open');
+      /**
+       * Triggers when the drawer changes it's "opened" state.
+       * @param {Event} event
+       * @private
+       */
+      _onDrawerStateChange(event) {
+        const drawerOpen = event.detail.value;
+        if (drawerOpen) {
+          document.body.classList.add('drawer-open');
+        } else {
+          document.body.classList.remove('drawer-open');
+        }
       }
 
-      focusContent() {
+      /**
+       * Triggers when the drawer is fully done animating to its final state.
+       * @private
+       */
+      _onDrawerTransitionEnd() {
+        if (this.$.drawer.opened) {
+          this.$.menugraphics.update();
+        }
+      }
+
+      /**
+       * Accessibility: Focus the main content, to skip the main navigation.
+       * @private
+       */
+      _focusMainContent() {
         this.$.maincontent.focus();
       }
 
-      _onAssetLoaded(event) {
-        console.log(event, this.assets);
-      }
-
+      /**
+       *
+       * @param {String} page
+       * @private
+       */
       _routePageChanged(page) {
         // Polymer 2.0 will call with `undefined` on initialization.
         // Ignore until we are properly called with a string.
@@ -283,6 +318,11 @@
         this.page = page || 'home';
       }
 
+      /**
+       * Request the page or go to the 404.
+       * @param {String} page
+       * @private
+       */
       _pageChanged(page) {
         // Load page import on demand. Show 404 page if fails
         const resolvedPageUrl = this.resolveUrl('../pages/pdw-' + page + '.html');

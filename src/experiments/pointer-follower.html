@@ -269,7 +269,6 @@
         }
       }
 
-
       /**
        * On scroll handler.
        *
@@ -357,6 +356,7 @@
        * On cursor moved.
        *
        * @private
+       * @return {Boolean}
        */
       _cursorMoved() {
         if (Math.round(this.currentX) === this.pointerX &&
@@ -394,12 +394,11 @@
        */
       render() {
         if (this.forcePerf) return;
+
         const x = this.pointerX;
         const y = this.pointerY;
 
-        if (this.clear) {
-          this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        }
+        if (this.clear) this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.context.beginPath();
 
@@ -438,11 +437,14 @@
         this.currentY = y;
       }
 
+      update() {
+        this._onResize();
+      }
 
       /**
        * On element removed from DOM handler.
        */
-      disconnectedCallback () {
+      disconnectedCallback() {
         super.disconnectedCallback();
         this._removeEventListeners();
         this.initialised = false;

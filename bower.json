@@ -21,7 +21,8 @@
     "Matter": "matter-js#^0.12.0",
     "webfontloader": "^1.6.28",
     "paper-drawer": "^2.0.2",
-    "paper-drawer-panel": "^2.0.0"
+    "paper-drawer-panel": "^2.0.0",
+    "paper-toast": "^2.0.0"
   },
   "resolutions": {
     "polymer": "^2.0.0-rc.3",
