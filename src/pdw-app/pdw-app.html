@@ -76,7 +76,7 @@
         transform: scale(1.4) skewY(10deg);
 
         transition-property: transform, opacity;
-        transition-duration: 1s;
+        transition-duration: 1400ms;
         transition-timing-function: cubic-bezier(0.710, 0.000, 0.285, 1.000);
 
         will-change: auto;
@@ -159,7 +159,7 @@
       .menu__overlay {
         position: absolute;
         top: 0;
-        left:0;
+        left: 0;
 
         width: 100%;
         height: 100%;
@@ -169,13 +169,15 @@
 
         opacity: 0;
 
-        transition: .3s opacity cubic-bezier(0.710, 0.000, 0.285, 1.000);
+        transition-property: opacity;
+        transition-duration: 300ms;
+        transition-timing-function: cubic-bezier(0.710, 0.000, 0.285, 1.000);
       }
 
       .drawer[opened] .menu__overlay {
         opacity: 1;
 
-        transition-duration: .8s;
+        transition-duration: 800ms;
         transition-delay: 1s;
       }
     </style>
@@ -188,13 +190,13 @@
         tail="{{subroute}}"></app-route>
 
     <button id="a11y-skip" class="a11y-skip" on-tap="_focusMainContent">Skip to main content</button>
-    
+
     <paper-icon-button class="drawer__toggle" icon="menu" on-tap="toggleDrawer"></paper-icon-button>
 
     <app-drawer
         id="drawer"
         class="drawer"
-        transition-duration="600"
+        transition-duration="700"
         on-opened-changed="_onDrawerStateChange"
         on-app-drawer-transitioned="_onDrawerTransitionEnd"
         narrow
