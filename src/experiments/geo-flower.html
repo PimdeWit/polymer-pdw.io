@@ -59,6 +59,7 @@
             type: Object,
             value: {},
           },
+          _sides: Array,
 
           iterations: {
             type: Number,
@@ -121,11 +122,11 @@
           },
           cameraZ: {
             type: Number,
-            value: 120,
+            value: 80,
           },
           cameraFov: {
             type: Number,
-            value: 65,
+            value: 120,
           },
           cameraNear: {
             type: Number,
@@ -140,6 +141,8 @@
 
       constructor() {
         super();
+
+        this._sides = [THREE.DoubleSide, THREE.BackSide];
 
         this._boundResizeListener = this._onResize.bind(this);
         this._boundPointerMove = this._onPointerMove.bind(this);
@@ -229,10 +232,11 @@
 
           const geometry = new THREE.TetrahedronBufferGeometry(i, this.detail);
 
+          const side = this._sides[Math.floor(Math.random() * this._sides.length)];
           const material = new THREE.MeshStandardMaterial({
             color: color,
-            shading: THREE.FlatShading,
-            side: THREE.DoubleSide,
+            flatShading: true,
+            side: side,
             clippingPlanes: clipPlanes,
             clipIntersection: true,
           });
@@ -257,28 +261,6 @@
         this._renderer.shadowMap.enabled = this.shadowMap;
         this._renderer.shadowMap.soft = this.shadowMap;
         this._renderer.localClippingEnabled = true;
-      }
-
-      /**
-       * Element is attached to the DOM.
-       */
-      connectedCallback() {
-        super.connectedCallback();
-
-        this.canvas = this.$.c;
-
-        this._width = this.parentNode.offsetWidth;
-        this._height = this.parentNode.offsetHeight;
-
-        this._createCamera();
-        this._scene = new THREE.Scene();
-        this._createEnvironment();
-        this._createSubject();
-        this._createRenderer();
-
-        this._addEventListeners();
-
-        this._render();
       }
 
       /**
@@ -322,26 +304,11 @@
       _addEventListeners() {
         window.addEventListener('resize', this._boundResizeListener, {passive: true});
         this.addEventListener('mousedown', this._boundPointerDown, {passive: true});
-        this.addEventListener('touchdown', this._boundPointerDoen, {passive: true});
-        this.addEventListener('mousemove', this._boundPointerMove, {passive: true});
-        this.addEventListener('touchmove', this._boundPointerMove, {passive: true});
+        this.addEventListener('touchdown', this._boundPointerDown, {passive: true});
       }
 
-      _onPointerDown() {
-        this.reset();
-      }
-
-      /**
-       * Pointer handler (pointer being a general term for any type of cursor).
-       *
-       * @param {Event} e
-       * @private
-       */
-      _onPointerMove(e) {
-        const x = e.clientX || e.clientX === 0 ? e.clientX : e.touches[0].clientX;
-        const y = e.clientY || e.clientX === 0 ? e.clientY : e.touches[0].clientY;
-        this._pointerX = Math.floor(x * window.devicePixelRatio);
-        this._pointerY = Math.floor(y * window.devicePixelRatio);
+      _onPointerDown(event) {
+        if (event.button === 0 || event.button === 1 || event.touches && event.touches[0]) this.reset();
       }
 
       /**
@@ -399,6 +366,11 @@
       disconnectedCallback() {
         super.disconnectedCallback();
 
+        this._scene.remove(this._group);
+        this._scene = null;
+        this._camera = null;
+        this._renderer = null;
+
         this._removeEventListeners();
       }
 
@@ -433,8 +405,8 @@
        */
       _removeEventListeners() {
         window.removeEventListener('resize', this._boundResizeListener);
-        this.removeEventListener('mousemove', this._boundPointerMove);
-        this.removeEventListener('touchmove', this._boundPointerMove);
+        this.removeEventListener('click', this._boundPointerDown);
+        this.removeEventListener('touchdown', this._boundPointerDown);
       }
     }
 
