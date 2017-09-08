@@ -1,0 +1,443 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../third_party/imports/import-intersection-observer.html">
+<link rel="import" href="../third_party/imports/import-three.html">
+
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="geo-flower">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        position: relative;
+
+        width: 100%;
+        height: 500px;
+      }
+
+      canvas {
+        position: absolute;
+
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+
+    <canvas id="c"></canvas>
+  </template>
+
+  <script>
+    /* eslint-disable no-undef */
+
+    class GeoFlower extends Polymer.Element {
+      static get is() { return 'geo-flower'; }
+      static get properties() {
+        return {
+          active: {
+            type: Boolean,
+            value: false,
+          },
+
+          intersectionObserver: Object,
+
+          canvas: HTMLCanvasElement,
+
+          _width: Number,
+          _height: Number,
+          _time: {
+            type: Number,
+            value: Math.random() * 100000,
+          },
+
+          _scene: Object,
+          _camera: Object,
+          _renderer: Object,
+          _group: Object,
+          _mode: {
+            type: Object,
+            value: {},
+          },
+
+          iterations: {
+            type: Number,
+            value: 40,
+          },
+          startIteration: {
+            type: Number,
+            value: 35,
+          },
+          morphTime: {
+            type: Number,
+            value: 200,
+          },
+          detail: {
+            type: Number,
+            value: Math.floor(Math.random() * 3),
+          },
+
+          floorY: {
+            type: Number,
+            value: 0,
+          },
+          lightX: {
+            type: Number,
+            value: 10,
+          },
+          lightY: {
+            type: Number,
+            value: 100,
+          },
+          lightZ: {
+            type: Number,
+            value: 200,
+          },
+          groundColor: {
+            type: String,
+            value: '#111',
+          },
+
+          shadowMap: {
+            type: Boolean,
+            value: false,
+          },
+          antialias: {
+            type: Boolean,
+            value: true,
+          },
+          clearColor: {
+            type: String,
+            value: '#101111',
+          },
+
+          cameraX: {
+            type: Number,
+            value: -40,
+          },
+          cameraY: {
+            type: Number,
+            value: 40,
+          },
+          cameraZ: {
+            type: Number,
+            value: 120,
+          },
+          cameraFov: {
+            type: Number,
+            value: 65,
+          },
+          cameraNear: {
+            type: Number,
+            value: 1,
+          },
+          cameraFar: {
+            type: Number,
+            value: 1600,
+          },
+        };
+      }
+
+      constructor() {
+        super();
+
+        this._boundResizeListener = this._onResize.bind(this);
+        this._boundPointerMove = this._onPointerMove.bind(this);
+        this._boundPointerDown = this._onPointerDown.bind(this);
+
+        this.intersectionObserver = this._createIntersectionObserver();
+        this.intersectionObserver.observe(this);
+      }
+
+       /**
+       * Element is attached to the DOM.
+       */
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.canvas = this.$.c;
+
+        this._width = this.parentNode.offsetWidth;
+        this._height = this.parentNode.offsetHeight;
+
+        this._createCamera();
+        this._scene = new THREE.Scene();
+        this._createEnvironment();
+        this._createSubject();
+        this._createRenderer();
+
+        this._addEventListeners();
+
+        this._render();
+      }
+
+      _startScene() {
+        this._scene = new THREE.Scene();
+      }
+
+      _createCamera() {
+        this._camera = new THREE.PerspectiveCamera(
+            this.cameraFov,
+            this._width / this._height,
+            this.cameraNear,
+            this.cameraFar);
+
+        this._camera.position.set(this.cameraX, this.cameraY, this.cameraZ);
+        this._camera.lookAt(new THREE.Vector3(this.cameraX, this.cameraY, 0));
+      }
+
+      _createEnvironment() {
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1);
+        hemiLight.position.set(0, 200, 0);
+        this._scene.add(hemiLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.3);
+        dirLight.position.set(this.lightX, this.lightY, this.lightZ);
+        dirLight.position.multiplyScalar(50);
+        this._scene.add(dirLight);
+
+        if (this.shadowMap) {
+          dirLight.castShadow = this.shadowMap;
+          dirLight.shadow.mapSize.width = 2048;
+          dirLight.shadow.mapSize.height = 2048;
+
+          const d = 50;
+          dirLight.shadow.camera.left = -d;
+          dirLight.shadow.camera.right = d;
+          dirLight.shadow.camera.top = d;
+          dirLight.shadow.camera.bottom = -d;
+          dirLight.shadow.camera.far = 3500;
+          dirLight.shadow.bias = -0.0001;
+        }
+
+      }
+
+      _createSubject() {
+        this._mode.clipIntersection = true;
+
+        const clipPlanes = [
+          new THREE.Plane(new THREE.Vector3(1, 0, 0), 0),
+          new THREE.Plane(new THREE.Vector3(0, -1, 0), 0),
+          new THREE.Plane(new THREE.Vector3(0, 0, -1), 0),
+        ];
+
+        this._group = new THREE.Object3D();
+        let mesh = {};
+
+        for (let i = this.startIteration; i < this.iterations; i++) {
+          const color = new THREE.Color(Math.random(), Math.random(), Math.random());
+
+          const geometry = new THREE.TetrahedronBufferGeometry(i, this.detail);
+
+          const material = new THREE.MeshStandardMaterial({
+            color: color,
+            shading: THREE.FlatShading,
+            side: THREE.DoubleSide,
+            clippingPlanes: clipPlanes,
+            clipIntersection: true,
+          });
+
+          mesh = new THREE.Mesh(geometry, material);
+          this._group.add(mesh);
+        }
+
+        mesh.castShadow = this.shadowMap;
+        mesh.receiveShadow = this.shadowMap;
+        this._group.position.x = -this.iterations;
+        this._group.position.y = this.iterations;
+
+        this._scene.add(this._group);
+      }
+
+      _createRenderer() {
+        this._renderer = new THREE.WebGLRenderer({canvas: this.canvas, antialias: this.antialias});
+        this._renderer.setPixelRatio(window.devicePixelRatio);
+        this._renderer.setSize(this._width, this._height);
+        this._renderer.setClearColor(this.clearColor);
+        this._renderer.shadowMap.enabled = this.shadowMap;
+        this._renderer.shadowMap.soft = this.shadowMap;
+        this._renderer.localClippingEnabled = true;
+      }
+
+      /**
+       * Element is attached to the DOM.
+       */
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.canvas = this.$.c;
+
+        this._width = this.parentNode.offsetWidth;
+        this._height = this.parentNode.offsetHeight;
+
+        this._createCamera();
+        this._scene = new THREE.Scene();
+        this._createEnvironment();
+        this._createSubject();
+        this._createRenderer();
+
+        this._addEventListeners();
+
+        this._render();
+      }
+
+      /**
+       * Create and return an IntersectionObserver instance.
+       *
+       * @return {IntersectionObserver}
+       * @private
+       */
+      _createIntersectionObserver() {
+        const options = {
+          root: null,
+          rootMargin: '0px',
+          threshold: 0.3,
+        };
+
+        return new IntersectionObserver(this._onObserve.bind(this), options);
+      }
+
+      /**
+       * On Element Into View handler.
+       *
+       * @param {Array} entries
+       * @private
+       */
+      _onObserve(entries) {
+        entries.forEach(entry => {
+          const ratio = entry.intersectionRatio;
+          const isVisible = ratio > 0.3;
+          if (isVisible) {
+            this.setToActive();
+          } else {
+            this.active = false;
+          }
+        });
+      }
+
+      /**
+       * Add event listeners to this instance.
+       * @private
+       */
+      _addEventListeners() {
+        window.addEventListener('resize', this._boundResizeListener, {passive: true});
+        this.addEventListener('mousedown', this._boundPointerDown, {passive: true});
+        this.addEventListener('touchdown', this._boundPointerDoen, {passive: true});
+        this.addEventListener('mousemove', this._boundPointerMove, {passive: true});
+        this.addEventListener('touchmove', this._boundPointerMove, {passive: true});
+      }
+
+      _onPointerDown() {
+        this.reset();
+      }
+
+      /**
+       * Pointer handler (pointer being a general term for any type of cursor).
+       *
+       * @param {Event} e
+       * @private
+       */
+      _onPointerMove(e) {
+        const x = e.clientX || e.clientX === 0 ? e.clientX : e.touches[0].clientX;
+        const y = e.clientY || e.clientX === 0 ? e.clientY : e.touches[0].clientY;
+        this._pointerX = Math.floor(x * window.devicePixelRatio);
+        this._pointerY = Math.floor(y * window.devicePixelRatio);
+      }
+
+      /**
+       * Set the component to active and send a rendering tick to start a loop.
+       *
+       * @private
+       */
+      setToActive() {
+        if (!this.active) {
+          this.active = true;
+          this._onResize();
+          this.reset();
+          this._render();
+        }
+      }
+
+      _animate() {
+        const openingSpeed = (Math.sin((this._time / this.morphTime)) * (this.iterations / 2) + 1);
+
+        this._camera.position.z = this.cameraZ - (Math.sin((this._time / 20)) * 1);
+
+        this._mode.clipPosition = openingSpeed;
+        const children = this._group.children;
+
+        if (children) {
+          for (let i = 0; i < children.length - 1; i++) {
+
+            const current = children[i].material;
+            children[i].rotation.z = this._time * (0.001 * i);
+
+            for (let j = 0; j < current.clippingPlanes.length; j++) {
+              const plane = current.clippingPlanes[j];
+              plane.constant = (this.iterations * plane.constant + this._mode.clipPosition) / (this.iterations + 1);
+            }
+          }
+        }
+      }
+
+      /**
+       * Render the drawing.
+       */
+      _render() {
+        if (this.active) requestAnimationFrame(this._render.bind(this));
+
+        if (this._renderer) {
+          this._time++;
+          this._animate();
+          this._renderer.render(this._scene, this._camera);
+        }
+      }
+
+      /**
+       * Disconnected callback.
+       */
+      disconnectedCallback() {
+        super.disconnectedCallback();
+
+        this._removeEventListeners();
+      }
+
+      reset() {
+        this._scene.remove(this._group);
+        this._group = null;
+        this.detail = Math.floor(Math.random() * 3);
+        this._time = Math.floor(Math.random() * 100000) + 1;
+
+        this._createSubject();
+      }
+
+      /**
+       * On resize handler.
+       *
+       * @private
+       */
+      _onResize() {
+        this._width = this.parentNode.offsetWidth;
+        this._height = this.parentNode.offsetHeight;
+
+        this._camera.aspect = this._width / this._height;
+        this._camera.updateProjectionMatrix();
+
+        this._renderer.setSize(this._width, this._height);
+      }
+
+      /**
+       * Remove event handlers.
+       *
+       * @private
+       */
+      _removeEventListeners() {
+        window.removeEventListener('resize', this._boundResizeListener);
+        this.removeEventListener('mousemove', this._boundPointerMove);
+        this.removeEventListener('touchmove', this._boundPointerMove);
+      }
+    }
+
+    window.customElements.define(GeoFlower.is, GeoFlower);
+  </script>
+</dom-module>

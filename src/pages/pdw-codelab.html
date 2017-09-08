@@ -3,11 +3,12 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
 <link rel="import" href="../experiments/pointer-follower.html">
 <link rel="import" href="../experiments/noise-displacer.html">
+<link rel="import" href="../experiments/geo-flower.html">
 <link rel="import" href="../experiments/svg-morph.html">
 <link rel="import" href="../experiments/steezy-svg.html">
-<!--<link rel="import" href="../experiments/lorem-ipsum/lorem-ipsum.html">-->
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="pdw-codelab">
@@ -56,8 +57,8 @@
 
 
         transition-property: transform;
-        transition-duration: 4s;
-        transition-delay: 1s;
+        transition-duration: 2s;
+        transition-delay: 0.5s;
         transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
       }
 
@@ -124,7 +125,7 @@
       .experiment__title {
         margin: 0;
 
-        //transform: translateX(-100%);
+        /*transform: translateX(-100%);*/
 
         font-size: 3em;
       }
@@ -163,14 +164,6 @@
         pattern="/:codelab"
         data="{{routeData}}"></app-route>
 
-    <!-- <steezy-svg
-        text="codelab"
-        font-size="100"
-        stroke-width="40"
-        stroke-length="19"
-        stroke-space="100"></steezy-svg> -->
-
-
     <iron-pages
         id="wrapper"
         class="experiment-container"
@@ -178,6 +171,7 @@
         attr-for-selected="name"
         fallback-selection="404"
         role="main">
+      <geo-flower id="geoflower" class="experiment" name="/geoflower"></geo-flower>
       <pointer-follower id="pointerstalker" class="experiment" name="/pointerstalker" rows="160" columns="16" particle-width="2" particle-height="2" distortion="5" threshold="0.99" tag="0.99" clickable></pointer-follower>
       <pointer-follower id="curtains" class="experiment" name="/curtains" rows="8" columns="96" particle-width="48" particle-height="2" distortion="50" clear></pointer-follower>
       <pointer-follower id="nodenetwork" class="experiment" name="/node-network" rows="400" columns="2" particle-width="50" particle-height="1" distortion="20"  tag="0.2" clear></pointer-follower>
@@ -242,7 +236,7 @@
 
           route: {
             type: Object,
-            observer: '_routeObserver'
+            observer: '_routeObserver',
           },
           routeData: Object,
           batteryCharging: Boolean,
@@ -251,6 +245,12 @@
           codelabMenu: {
             type: Array,
             value: [
+              {
+                name: '/geoflower',
+                url: 'codelab/geoflower',
+                text: 'Geo Flower',
+                year: 2017
+              },
               {
                 name: '/pointerstalker',
                 url: 'codelab/pointerstalker',
