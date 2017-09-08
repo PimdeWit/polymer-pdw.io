@@ -109,7 +109,7 @@
           },
           clearColor: {
             type: String,
-            value: '#101111',
+            value: '#424446',
           },
 
           cameraX: {
@@ -122,7 +122,7 @@
           },
           cameraZ: {
             type: Number,
-            value: 80,
+            value: 50,
           },
           cameraFov: {
             type: Number,
@@ -145,7 +145,6 @@
         this._sides = [THREE.DoubleSide, THREE.BackSide];
 
         this._boundResizeListener = this._onResize.bind(this);
-        this._boundPointerMove = this._onPointerMove.bind(this);
         this._boundPointerDown = this._onPointerDown.bind(this);
 
         this.intersectionObserver = this._createIntersectionObserver();
@@ -379,6 +378,9 @@
         this._group = null;
         this.detail = Math.floor(Math.random() * 3);
         this._time = Math.floor(Math.random() * 100000) + 1;
+        const iterationPlanes = ['34', '35', '36'];
+        const newIteration = iterationPlanes[Math.floor(Math.random() * iterationPlanes.length)];
+        this._startIteration = newIteration;
 
         this._createSubject();
       }
