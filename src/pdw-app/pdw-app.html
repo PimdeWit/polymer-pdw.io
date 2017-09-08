@@ -188,6 +188,8 @@
         tail="{{subroute}}"></app-route>
 
     <button id="a11y-skip" class="a11y-skip" on-tap="_focusMainContent">Skip to main content</button>
+    
+    <paper-icon-button class="drawer__toggle" icon="menu" on-tap="toggleDrawer"></paper-icon-button>
 
     <app-drawer
         id="drawer"
@@ -217,7 +219,6 @@
       <pdw-404 name="404"></pdw-404>
     </iron-pages>
 
-    <paper-icon-button class="drawer__toggle" icon="menu" on-tap="toggleDrawer"></paper-icon-button>
   </template>
   
   <script>
