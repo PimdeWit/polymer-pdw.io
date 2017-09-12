@@ -35,7 +35,7 @@
         return {
           active: {
             type: Boolean,
-            value: false
+            value: false,
           },
 
           intersectionObserver: Object,
@@ -87,49 +87,49 @@
 
           primaryColor: {
             type: String,
-            value: 'rgb(255, 255, 255)'
+            value: 'rgb(255, 255, 255)',
           },
 
           secondaryColor: {
             type: String,
-            value: 'rgba(255, 255, 255, 0.1)'
+            value: 'rgba(255, 255, 255, 0.1)',
           },
 
           backgroundColor: {
             type: String,
-            value: '#101111'
+            value: '#101111',
           },
 
           noiseX: {
             type: Number,
-            value: 128 / window.devicePixelRatio
+            value: 128 / window.devicePixelRatio,
           },
-          
+
           noiseY: {
             type: Number,
-            value: 128 / window.devicePixelRatio
+            value: 128 / window.devicePixelRatio,
           },
 
           noiseWidth: {
             type: Number,
-            value: 2
+            value: 2,
           },
 
           noiseHeight: {
             type: Number,
-            value: 32
+            value: 32,
           },
 
           sliceSize: {
             type: Number,
-            value: 10
+            value: 1,
           },
 
           pointerX: Number,
           pointerY: Number,
 
-          text: String
-        }
+          text: String,
+        };
       }
 
       constructor() {
@@ -175,7 +175,7 @@
         this.input.style.display = 'none';
       }
 
-      reset(text) {
+      reset(text){
         const textToDraw = text || 'Hello World';
         this.image = this._generateBaseTexture(this.input, this.inputContext,
             textToDraw);
@@ -199,6 +199,12 @@
       }
 
 
+      /**
+       * Draw some text to the canvas.
+       * @param {HTMLCanvasElement} canvas
+       * @param {Object} context
+       * @param {String} text
+       */
       _drawTextToCanvas(canvas, context, text) {
         if (!text) return;
         const el = canvas;
@@ -239,9 +245,7 @@
             if (alpha >= this.density) {
               const color = `rgba(255, 255, 255, ${Math.random()})`;
               const w = this.noiseWidth * window.devicePixelRatio;
-              const blurW = w * 2;
               const h = this.noiseHeight * window.devicePixelRatio;
-              const blurH = h * 2;
 
               context.fillStyle = this.secondaryColor;
               context.fillRect(
@@ -284,7 +288,7 @@
         const options = {
           root: null,
           rootMargin: '0px',
-          threshold: 0.3
+          threshold: 0.3,
         }
 
         return new IntersectionObserver(this._onObserve.bind(this), options);
@@ -293,20 +297,17 @@
       /**
        * On Element Into View handler.
        *
-       * @param {Array[IntersectionObserverEntry]} entries
+       * @param {Array} entries
        * @private
        */
       _onObserve(entries) {
         entries.forEach(entry => {
-          const el = entry.target;
           const ratio = entry.intersectionRatio;
           const isVisible = ratio > 0.3;
           if (isVisible) {
             this.setToActive();
-            console.log('noise displacer is visible;');
           } else {
             this.active = false;
-            console.log('noise displacer is not visible;');
           }
         });
       }
@@ -316,7 +317,7 @@
        * @private
        */
       _addEventListeners() {
-        window.addEventListener('resize', this._boundResizeListener, { passive: true });
+        window.addEventListener('resize', this._boundResizeListener, {passive: true});
         // this.addEventListener('mousemove', this._boundPointerMove, { passive: true });
         // this.addEventListener('touchmove', this._boundPointerMove, { passive: true });
       }
@@ -405,6 +406,7 @@
        * @param {Number} row The row which to affect.
        * @param {Number} time The current timer of the rendering loop.
        * @private
+       * @return {Number}
        */
       _createDistortion(row, time) {
         return Math.sin((row + 0.5) *
@@ -420,11 +422,11 @@
         this.time++;
         const time = this.time * this.timeMultiplier;
         const timeDetained = time * this.timeEffector;
+        const sliceSize = parseInt(this.sliceSize);
 
         for (let distance = 0;
             distance < this.output.height;
-            distance = distance + this.sliceSize) {
-
+            distance = distance + sliceSize) {
           const row = distance / this.output.height;
 
           const a = this._createDistortion(row, time) * this.mixMultiplier;
@@ -436,8 +438,8 @@
 
           this.outputContext.drawImage(
               this.image,
-              0, srcY, this.image.width, this.sliceSize,
-              0, distance, this.output.width, this.sliceSize);
+              0, srcY, this.image.width, sliceSize,
+              0, distance, this.output.width, sliceSize);
         }
 
         if (this.active) {

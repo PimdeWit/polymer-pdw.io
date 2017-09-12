@@ -24,6 +24,19 @@
         width: 100%;
       }
 
+      .experiment-container {
+        position: relative;
+
+        width: 100%;
+        height: 90vh;
+
+        contain: strict;
+
+        overflow: hidden;
+
+        will-change: auto;
+      }
+
       .experiment {
         display: flex;
 
@@ -40,37 +53,15 @@
         user-select: none;
       }
 
+      .experiment::before,
+      .experiment::after {
+        pointer-events: none;
+      }
+
       .experiment::before {
         content: '';
 
         display: block;
-
-        position: absolute;
-        z-index: 1;
-        top: 0;
-        left: 0;
-
-        width: 100%;
-        height: 100%;
-
-        transform: translate3d(0, 0, 0);
-
-        box-shadow: inset 0 10vh 0 0 #1a1a1a, inset 0 -10vh 0 0 #1a1a1a;
-
-
-        transition-property: transform;
-        transition-duration: 2s;
-        transition-delay: 0.5s;
-        transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
-      }
-
-      .experiment.iron-selected.animate::before {
-        transform: scale(1.4);
-      }
-
-      .experiment::after {
-        display: block;
-        content: '';
 
         position: absolute;
         z-index: 2;
@@ -80,17 +71,43 @@
         width: 100%;
         height: 100%;
 
-        background-color: #101111;
+        transform: translate3d(0, 0, 0);
+
+        box-shadow: inset 0 20vh 0 0 #1a1a1a, inset 0 -20vh 0 0 #1a1a1a;
+
 
         transition-property: transform;
-        transition-duration: 2s;
+        transition-duration: 3s;
+        transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+      }
+
+      .experiment.iron-selected.animate::before {
+        transform: scaleY(1.8);
+      }
+
+      .experiment::after {
+        display: block;
+        content: '';
+
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+
+        background-color: #000;
+
+        transition-property: opacity;
+        transition-duration: 3s;
         transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
 
-        will-change: transform;
+        pointer-events: none;
       }
 
       .experiment.iron-selected.animate::after {
-        transform: translateX(101%);
+        opacity: 0;
       }
 
       .experiment-menu__tabs {
@@ -125,17 +142,6 @@
         opacity: 0.5;
       }
 
-      .experiment-container {
-        position: relative;
-
-        width: 100%;
-        height: 90vh;
-
-        contain: strict;
-
-        overflow: hidden;
-      }
-
       .experiment__title--mask {
         position: absolute;
         overflow: hidden;
@@ -152,6 +158,23 @@
       .experiment.svg-morph {
         background-color: #fad961;
         background-image: linear-gradient(-225deg, #ac32e4 0%, #7918f2 48%, #4801ff 100%);
+      }
+
+      .experiment.noise-displacer noise-displacer {
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+      }
+
+      .experiment.noise-displacer #noisedisplacerrange {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+
+        width: 100%;
       }
 
       .toast {}
@@ -184,7 +207,19 @@
       <pointer-follower id="pointerstalker" class="experiment" name="/pointerstalker" rows="160" columns="16" particle-width="2" particle-height="2" distortion="5" threshold="0.99" tag="0.99" clickable></pointer-follower>
       <pointer-follower id="curtains" class="experiment" name="/curtains" rows="8" columns="96" particle-width="48" particle-height="2" distortion="50" clear></pointer-follower>
       <pointer-follower id="nodenetwork" class="experiment" name="/node-network" rows="400" columns="2" particle-width="50" particle-height="1" distortion="20"  tag="0.2" clear></pointer-follower>
-      <noise-displacer id="noisedisplacer" class="experiment" name="/noise-displacer" text="" slice-size="1" noise-x="16" noise-y="20"></noise-displacer>
+      <div id="noisedisplacer" class="experiment noise-displacer" name="/noise-displacer">
+        <noise-displacer
+            class="noise-displacer"
+            text="😟😥🤢"
+            slice-size="[[_displacementSlice]]"
+            noise-x="16"
+            noise-y="20"
+            noise-width="2"
+            noise-height="16"
+            density="0.8"
+          ></noise-displacer>
+        <input id="noisedisplacerrange" type="range" value="100" min="1" max="256" step="1">
+      </div>
       <div id="svgmorph" class="experiment svg-morph" name="/svg-morph">
         <svg-morph stroke-length="900" offset="[[svgOffset]]">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 690 855">
@@ -294,11 +329,15 @@
                 name: '/sketch-import',
                 url: 'codelab/sketch-import',
                 text: 'Sketch Import',
-                year: 2017
-              }
-            ]
-          }
-        }
+                year: 2017,
+              },
+            ],
+          },
+          _displacementSlice: {
+            type: Number,
+            value: 100,
+          },
+        };
       }
 
       constructor() {
@@ -377,9 +416,15 @@
       _addEventListeners() {
         const svgRange = this.$.svgrange;
 
-        svgRange.addEventListener('input', (event) => {
+        svgRange.addEventListener('input', () => {
           this.svgOffset = svgRange.value;
-        }, { passive: true })
+        }, {passive: true});
+
+        const rangeNoise = this.$.noisedisplacerrange;
+
+        rangeNoise.addEventListener('input', () => {
+          this._displacementSlice = rangeNoise.value;
+        }, {passive: true});
       }
 
       /**
