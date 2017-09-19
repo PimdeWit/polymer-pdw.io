@@ -148,11 +148,16 @@
       }
 
       .experiment__title {
+
+        display: block;
+
         margin: 0;
 
-        /*transform: translateX(-100%);*/
+        transform: translateY(-100%);
 
-        font-size: 3em;
+        font-size: 10vw;
+
+        pointer-events: none;
       }
 
       .experiment.svg-morph {
@@ -203,10 +208,12 @@
         attr-for-selected="name"
         fallback-selection="404"
         role="main">
+
       <geo-flower id="geoflower" class="experiment" name="/geoflower"></geo-flower>
+
       <pointer-follower id="pointerstalker" class="experiment" name="/pointerstalker" rows="160" columns="16" particle-width="2" particle-height="2" distortion="5" threshold="0.99" tag="0.99" clickable></pointer-follower>
       <pointer-follower id="curtains" class="experiment" name="/curtains" rows="8" columns="96" particle-width="48" particle-height="2" distortion="50" clear></pointer-follower>
-      <pointer-follower id="nodenetwork" class="experiment" name="/node-network" rows="400" columns="2" particle-width="50" particle-height="1" distortion="20"  tag="0.2" clear></pointer-follower>
+      <pointer-follower id="nodenetwork" class="experiment" name="/node-network" rows="400" columns="3" particle-width="10" particle-height="1" distortion="100"  tag="0.7" clear></pointer-follower>
       <div id="noisedisplacer" class="experiment noise-displacer" name="/noise-displacer">
         <noise-displacer
             class="noise-displacer"
@@ -218,43 +225,25 @@
             noise-height="16"
             density="0.8"
           ></noise-displacer>
-        <input id="noisedisplacerrange" type="range" value="100" min="1" max="256" step="1">
+        <input id="noisedisplacerrange" type="range" value="8" min="1" max="256" step="1">
       </div>
       <div id="svgmorph" class="experiment svg-morph" name="/svg-morph">
-        <svg-morph stroke-length="900" offset="[[svgOffset]]">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 690 855">
-            <g fill="none" fill-rule="evenodd">
-              <path d="M474.6 122c240.7 245.8 278 370.7 112.4 374.5l-28.5-54C236.2 857.8 67 940 51.3 689c-23.8-376.4 62.2-936 423.3-567z"/>
-              <path d="M424.3 118.7C688.3 322.2 741 437 582.7 463L548 415.3C294.8 857 143.6 958.6 94.6 720 21 362 28.2-186.5 424.3 118.7z"/>
-              <path d="M375.6 122.8C656 282.3 722 385.3 573.8 431.6L534 390.3C351 848 220 966 140.8 743.7 22 410.4-45-116.5 375.8 122.7z" opacity=".9"/>
-              <path d="M329.5 133.6c290 115 367 204.8 231.2 269l-43.5-34c-113.7 463-223.4 593.4-329 391.2C29.7 456.6-105.4-39 329.5 133.6z" opacity=".9"/>
-              <path d="M287 150.5C579.5 221.7 665.2 297 544 377l-46-27c-46.5 458.2-134 597.7-262 418.5C43.7 499.8-152.2 44 287 150.5z" opacity=".8"/>
-              <path d="M248.5 172.8c289 28.7 381 89.3 276 181.7L477 335c17 444-47.6 589-194 435-220-231-468-640.2-34.6-597.2z" opacity=".8"/>
-              <path d="M215 199.6c279.5-11.3 375.5 34.2 287.7 136.4l-48-12.2c76 421.3 33.7 568.2-126.7 441-240.6-191-532.3-548.2-113-565.2z" opacity=".8"/>
-              <path d="M187 230c264.6-48.2 362-17.7 292.2 91.5l-47.5-5.2c129 391 108.5 536.7-61.4 437C115.6 603.3-210.2 302 187 230z" opacity=".7"/>
-              <path d="M164.4 263c245.3-81 342-65 290.3 48l-46 1.4c175 354.8 175.2 496 .3 423.7-262.3-108-612.5-351-244.6-473z" opacity=".7"/>
-              <path d="M147.8 297.6c222-109.6 316-107.2 282 7l-43.3 7.4C600 625.5 619 759.6 443.3 714.2c-263.6-68-628.5-252.2-295.5-416.6z" opacity=".6"/>
-              <path d="M137 333c196-133.3 285.3-143.6 268.3-31l-40 13c244.2 268.5 280 393 107.4 373.4C214 659-156.6 533 137 333z" opacity=".6"/>
-              <path d="M132 368c167.5-152 250.7-173.4 249.6-64.6l-36.2 17.4c267 221.5 317.4 334.5 151.5 338.8C248 666-120 596 132 368z" opacity=".6"/>
-              <path d="M132.4 402.2c138-165.6 213.6-197 227-94l-31.8 21C609 503 671.6 602.8 515.6 629c-234 39-590 21.7-383.2-226.6z" opacity=".5"/>
-              <path d="M137.8 434.3c108-174 175-213.5 201.4-118.5l-27.2 24c288 126.3 360 212 216.6 257C313.4 664.5-24 695.3 137.8 434.3z" opacity=".5"/>
-              <path d="M147.7 463.8C226.2 286.4 284 240.5 321.2 326l-22.4 26.3c287 80.4 366.2 151.2 237.4 212.5C343 656.8 30 730 147.7 463.8z" opacity=".4"/>
-              <path d="M161.4 490.2c50.2-176.3 98.3-227 144.4-151.7L288.3 366c279.4 37.3 362.8 93 250.2 167.4-169 111.4-452.3 221.2-377-43.2z" opacity=".4"/>
-              <path d="M178.3 513c23.8-171 62-224.5 115-160.5l-12.8 28c265.6-2 350.7 39 255.4 123-143 126-394 265.7-358 9.4z" opacity=".4"/>
-              <path d="M197.7 531.5c0-161.8 28.5-216.5 86-164l-8.3 27.6c246.7-36 331-9 253.4 81-116.5 136-331 299-331 56z" opacity=".3"/>
-              <path d="M218.6 546c-21-149.7-1.5-204 58.4-163l-4 26.7c223.5-66.2 305.2-52.3 245 41.6C427.5 592 250 770.5 218.5 546z" opacity=".3"/>
-              <path d="M240.5 556.2c-38.6-135-27.6-187.6 32.8-157.6l-.3 25c197.3-90 274.3-88 231 6.4-65.2 141.4-205.7 328.7-263.5 126.2z" opacity=".2"/>
-              <path d="M262.4 562c-52.5-118.5-49.2-168 10-148.4l3 23c169-108 239.7-116 212-24.2-41.6 138-146.2 327.7-225 149.7z" opacity=".2"/>
-              <path d="M283.7 564c-62.7-101-66-146.5-9.7-136.3l5.5 20.5c140-120 203.2-136.6 189.7-49.3-20.2 130-91.4 316-185.5 165z" opacity=".2"/>
-              <path d="M303.8 562.3c-69.2-83.3-77.8-124-26-122l7.6 18c111-126.5 166-149.4 164.7-69-1 120.8-42 298-146 173z" opacity=".1"/>
-              <path d="M322 557.3c-72-65.8-85-101-38.4-106l9 15c83.2-127 129.3-154.6 138.2-82.3 13.4 108.3-.8 272-109 173.3z" opacity=".1"/>
+        <svg-morph stroke-length="900" offset="[[svgOffset]]" style="width: 50vw; height: 50vw;" stroke-length="100">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320">
+            <g fill="none" fill-rule="evenodd" stroke="#fff" stroke-width="4">
+              <path d="M160 2.1L62.32 32.27 2 111.23v97.54l60.32 78.95 97.68 30.2 97.68-30.2L318 208.77v-97.54l-60.32-78.95L160 2.08z"/>
+              <path d="M160 50.16L82.33 82.33 50.16 160l32.17 77.67L160 269.84l77.67-32.17L269.84 160l-32.17-77.67L160 50.16z"/>
+              <path d="M160 2.16L48.4 48.4 2.15 160 48.4 271.6 160 317.85l111.6-46.23L317.85 160 271.6 48.4 160 2.15z"/>
+              <path d="M160 2.83L2.83 160 160 317.17 317.17 160 160 2.83z"/>
+              <path d="M160 50.83L50.83 160 160 269.17 269.17 160 160 50.83z"/>
+              <path d="M160 117.2L142.17 160 160 202.8l17.83-42.8L160 117.2z"/>
             </g>
           </svg>
-        </svg-morph>
         <input id="svgrange" type="range" min="1" max="1000" step="1">
       </div>
     </iron-pages>
 
+    <!--<h3 class="experiment__title">[[route.path]]</h3>-->
     <paper-tabs class="experiment-menu__tabs" selected="[[route.path]]" attr-for-selected="name" role="navigation" scrollable fit-container>
       <template is="dom-repeat" items="[[codelabMenu]]">
         <paper-tab link class="experiment-menu__tab">
@@ -335,7 +324,7 @@
           },
           _displacementSlice: {
             type: Number,
-            value: 100,
+            value: 8,
           },
         };
       }
@@ -352,7 +341,7 @@
         if (navigator.getBattery) {
           navigator.getBattery().then(this._battery.bind(this), () => {
             console.log('There was an error getting the battery');
-          })
+          });
         } else if (navigator.battery) {
           this._battery(navigator.battery);
         } else {
@@ -409,10 +398,19 @@
         });
       }
 
+      /**
+       * @param {Number} value
+       * @private
+       * @returns {Number}
+       **/
       _getBatteryLevel(value) {
         return Math.round(value * 100);
       }
 
+      /**
+       * Add event listeners
+       * @private
+       **/
       _addEventListeners() {
         const svgRange = this.$.svgrange;
 
