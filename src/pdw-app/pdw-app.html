@@ -3,7 +3,7 @@
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
-<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../experiments/pointer-follower.html">
@@ -25,7 +25,6 @@
         --app-secondary-color: #4285f4;
 
         display: block;
-
         position: relative;
 
         width: 100%;
@@ -112,10 +111,6 @@
         opacity: 1;
       }
 
-      /*.menu__listitem:not(:focus) {*/
-        /*outline: none;*/
-      /*}*/
-
       .drawer {
         contain: strict;
 
@@ -148,12 +143,56 @@
 
         width: 48px;
         height: 48px;
+        min-width: 0;
 
         padding: 8px;
+
+        border-radius: 100%;
 
         contain: strict;
         z-index: 9002;
         --paper-icon-button-ink-color: #fff;
+      }
+
+      .drawer__toggle.keyboard-focus {
+        background-color: rgba(242, 243, 244, .25);
+      }
+
+      .drawer__toggle .lines { width: 24px; }
+
+      .drawer__toggle .line {
+
+        position: absolute;
+        top: 0;
+
+        width: 24px;
+        height: 2px;
+
+        background-color: white;
+
+        transform-origin: center;
+
+        transition-property: transform;
+        transition-duration: .8s;
+        transition-timing-function: cubic-bezier(0.710, 0.000, 0.285, 1.000);
+      }
+
+      .drawer__toggle .line:first-child {
+        top: 40%;
+      }
+
+      .drawer__toggle .line:last-child {
+        top: 60%;
+
+        transform: scaleX(0.5) translateX(-12px);
+      }
+
+      .drawer__toggle--open .line:first-child {
+        transform: rotate(45deg) translate(3px, 3px);
+      }
+
+      .drawer__toggle--open .line:last-child {
+        transform: rotate(-45deg) translate(4px, -4px);
       }
 
       .menu__overlay {
@@ -191,12 +230,17 @@
 
     <button id="a11y-skip" class="a11y-skip" on-tap="_focusMainContent">Skip to main content</button>
 
-    <paper-icon-button class="drawer__toggle" icon="menu" on-tap="toggleDrawer"></paper-icon-button>
+    <paper-button id="drawertoggle" class="drawer__toggle" icon="menu" on-tap="toggleDrawer">
+      <div class="lines">
+        <div class="line"></div>
+        <div class="line"></div>
+      </div>
+    </paper-button>
 
     <app-drawer
         id="drawer"
         class="drawer"
-        transition-duration="700"
+        transition-duration="400"
         on-opened-changed="_onDrawerStateChange"
         on-app-drawer-transitioned="_onDrawerTransitionEnd"
         narrow
@@ -209,7 +253,7 @@
           <a class="menu__listitem" name="codelab" href="codelab" on-tap="closeDrawer"><span class="menu__link">Codelab</span></a>
         </div>
       </iron-selector>
-      <pointer-follower id="menugraphics" class="menu__overlay" rows="10" columns="10" particle-width="200" particle-height="1" distortion="256" target="window" tag="0.8" threshold="0.29" clear></pointer-follower>
+      <pointer-follower id="menugraphics" class="menu__overlay" rows="10" columns="10" particle-width="20" particle-height="1" distortion="32" target="window" tag="0.8" threshold="0.29" clear></pointer-follower>
     </app-drawer>
 
     <div id="maincontent" tabindex="-1"></div>
@@ -280,9 +324,9 @@
       _onDrawerStateChange(event) {
         const drawerOpen = event.detail.value;
         if (drawerOpen) {
-          document.body.classList.add('drawer-open');
+          this.$.drawertoggle.classList.add('drawer__toggle--open');
         } else {
-          document.body.classList.remove('drawer-open');
+          this.$.drawertoggle.classList.remove('drawer__toggle--open');
         }
       }
 
