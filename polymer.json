@@ -4,7 +4,7 @@
   "fragments": [
     "src/pages/pdw-home.html",
     "src/pages/pdw-view2.html",
-    "src/pages/pdw-view3.html",
+    "src/pages/pdw-illustrations.html",
     "src/pages/pdw-codelab.html",
     "src/pages/pdw-404.html"
   ],
