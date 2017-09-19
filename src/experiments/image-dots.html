@@ -19,7 +19,7 @@
       static get is() { return 'image-dots'; }
       static get properties() {
         return {
-          image: String
+          image: String,
         };
       }
 
@@ -51,9 +51,7 @@
         super.connectedCallback();
 
         const img = new Image();
-        img.onload = (texture) => {
-          this._proceed(texture.target);
-        }
+        img.onload = (texture) => this._proceed(texture.target);
         img.src = this.image;
       }
 
@@ -73,14 +71,14 @@
       drawPoints(canvas) {
         const column = this.width / this.grid.columns;
         const row = this.height / this.grid.rows;
-        for(var i = 0; i <= column; i++) {
-          for(var j = 0; j <= row; j++) {
+        for(let i = 0; i <= column; i++) {
+          for(let j = 0; j <= row; j++) {
             const pos = {
               x: i * column,
-              y: j * row
+              y: j * row,
             };
             const data = this.imageCtx.getImageData(pos.x, pos.y, 1, 1).data;
-            canvas.fillStyle = `rgb(${data[0]},${data[1]},${data[2]})`;
+            canvas.fillStyle = `rgb(${data[0]}, ${data[1]}, ${data[2]})`;
             canvas.fillRect(pos.x, pos.y, 1, 1);
           }
         }
