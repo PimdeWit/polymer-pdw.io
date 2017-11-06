@@ -1,0 +1,223 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="rare-numbers">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        width: 100%;
+        height: 500px;
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+
+        touch-action: none;
+        -ms-touch-action: none;
+        touch-action: none;
+      }
+      
+      
+      #grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+
+        width: 100%;
+        height: 100%;
+      }
+      
+      canvas {
+        color: #fff;
+      }
+    </style>
+
+    <div id="grid">
+    </div>
+  </template>
+
+  <script>
+    /**
+     * @typedef {Object} GridCanvas
+     * @property {HTMLCanvasElement} canvas
+     * @property {CanvasRenderingContext2D} context
+     */
+
+    const CONFIG = {
+      COLUMNS: 4
+    };
+
+    /**
+     * @author Pim de Wit / https://pdw.io
+     * @desc An interactive experiment for learning purposes.
+     * @class
+     */
+    class RareNumbers extends Polymer.Element {
+      static get is() { return 'rare-numbers'; }
+      static get properties() {
+        return {
+          intersectionObserver: Object,
+
+          _container: HTMLElement,
+
+          rows: {
+            type: Number,
+            value: 4
+          },
+          columns: {
+            type: Number,
+            value: 4
+          },
+          gridItems: Array
+        }
+      }
+
+      constructor() {
+        super();
+        this._boundResizeListener = this._onResize.bind(this);
+      }
+
+      /**
+       * Connected callback.
+       */
+      async connectedCallback() {
+        super.connectedCallback();
+
+        /**
+         * @type {HTMLElement}
+         * @private
+         */
+        this._container = this.$.grid;
+
+        /** @type {Array<GridCanvas>} */
+        this.gridItems = await this._createGridItems();
+        this.to = null;
+        this.chosenIteration = 0;
+
+        this._addEventListeners();
+
+        this.render();
+      }
+
+      _createGridItems() {
+        const gridItems = [];
+        const amount = this.rows * this.columns;
+        const componentParent = this.parentNode;
+        this.chosenIteration = Math.floor(Math.random() * amount) + 1;
+        let i = 0;
+
+        for (i; i < amount; i++) {
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          const gridItem = {
+            canvas: canvas,
+            context: context
+          };
+
+          canvas.width = (componentParent.offsetWidth * window.devicePixelRatio) / CONFIG.COLUMNS;
+          canvas.height = (componentParent.offsetHeight * window.devicePixelRatio) / CONFIG.COLUMNS;
+
+          context.font = `${canvas.width / 10}px Roboto Mono`;
+          context.textBaseline = 'middle';
+
+          context.fillStyle = 'rgba(0, 0, 0, .4)';
+
+          if (this.chosenIteration === i) {
+            context.fillStyle = 'white';
+          }
+
+          this._container.appendChild(canvas);
+
+          gridItems.push(gridItem);
+        }
+
+        return gridItems;
+      }
+
+      _createSound() {
+        
+      }
+
+      _animate() {
+        let item;
+        let randomBoolean;
+        let numberToDisplay;
+        let i = 0;
+
+        for (i; i < this.gridItems.length; i++) {
+          item = this.gridItems[i];
+          randomBoolean = Math.random() >= 0.3;
+          numberToDisplay = parseFloat(Math.random() * 10).toFixed(3);
+
+          if (randomBoolean || this.chosenIteration === i) {
+            item.context.clearRect(0, 0, item.canvas.width / 2, item.canvas.height);
+          }
+
+
+          item.context.fillText(`${numberToDisplay}`, 0, item.canvas.height / 2);
+        }
+      }
+
+      render() {
+        clearTimeout(this.to);
+        this._animate();
+
+        requestAnimationFrame(() => this.render());
+//        this.to = setTimeout(() => this.render(), 1000 / Math.floor(Math.random() * 30) + 30);
+      }
+
+      /**
+       * Add event listeners to this instance.
+       * @private
+       */
+      _addEventListeners() {
+        window.addEventListener('resize', this._boundResizeListener, { passive: true });
+      }
+
+      /**
+       * Resize handler.
+       * @listens window.resize
+       * @private
+       */
+      _onResize() {
+        const amount = this.rows * this.columns;
+        const componentParent = this.parentNode;
+        let i = 0;
+
+        for (i; i < amount; i++) {
+          this.gridItems[i].canvas.width = (componentParent.offsetWidth * window.devicePixelRatio) / CONFIG.COLUMNS;
+          this.gridItems[i].canvas.height = (componentParent.offsetHeight * window.devicePixelRatio) / CONFIG.COLUMNS;
+
+          this.gridItems[i].context.font = `${this.gridItems[i].canvas.width / 10}px Roboto Mono`;
+
+          this.gridItems[i].context.fillStyle = 'rgba(0, 0, 0, .4)';
+
+          if (this.chosenIteration === i) {
+            this.gridItems[i].context.fillStyle = 'white';
+          }
+        }
+      }
+
+      /**
+       * On element removed from DOM handler.
+       */
+      disconnectedCallback () {
+        super.disconnectedCallback();
+        this._removeEventListeners();
+      }
+
+      /**
+       * Remove the event listeners of this instance.
+       *
+       * @private
+       */
+      _removeEventListeners() {
+        window.removeEventListener('resize', this._boundResizeListener);
+      }
+    }
+
+    window.customElements.define(RareNumbers.is, RareNumbers);
+  </script>
+</dom-module>

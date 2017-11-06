@@ -11,6 +11,8 @@
 <link rel="import" href="../experiments/geo-flower.html">
 <link rel="import" href="../experiments/svg-morph.html">
 <link rel="import" href="../experiments/steezy-svg.html">
+<link rel="import" href="../experiments/rare-numbers.html">
+
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="pdw-codelab">
@@ -241,6 +243,7 @@
           </svg>
         <input id="svgrange" type="range" min="1" max="1000" step="1">
       </div>
+      <rare-numbers id="rarenumbers" class="experiment" name="/rare-numbers"></rare-numbers>
     </iron-pages>
 
     <!--<h3 class="experiment__title">[[route.path]]</h3>-->
@@ -318,6 +321,12 @@
                 name: '/sketch-import',
                 url: 'codelab/sketch-import',
                 text: 'Sketch Import',
+                year: 2017,
+              },
+              {
+                name: '/rare-numbers',
+                url: 'codelab/rare-numbers',
+                text: 'Numbers',
                 year: 2017,
               },
             ],

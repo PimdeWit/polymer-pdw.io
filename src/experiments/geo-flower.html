@@ -374,12 +374,12 @@
       }
 
       reset() {
+        const iterationPlanes = ['34', '35', '36'];
+        const newIteration = iterationPlanes[Math.floor(Math.random() * iterationPlanes.length)];
         this._scene.remove(this._group);
         this._group = null;
         this.detail = Math.floor(Math.random() * 3);
         this._time = Math.floor(Math.random() * 100000) + 1;
-        const iterationPlanes = ['34', '35', '36'];
-        const newIteration = iterationPlanes[Math.floor(Math.random() * iterationPlanes.length)];
         this._startIteration = newIteration;
 
         this._createSubject();
