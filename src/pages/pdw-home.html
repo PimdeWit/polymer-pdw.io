@@ -11,21 +11,42 @@
 
       .intro {
         width: 100%;
+        min-width: 320px;
         height: 90vh;
 
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
+        flex-direction: column;
+
+        padding: 10vw;
+
+        box-sizing: border-box;
       }
 
-      .intro__title {
-        padding: 10vw;
+      @media (min-width: 720px) {
+        .intro {
+          width: 80%;
+        }
+      }
+
+      .menu {}
+
+      .menu__listitem {
+        display: inline-block;
+
+        color: #fff;
       }
 
     </style>
 
     <section class="intro">
       <h2 class="intro__title">Pim de Wit is a creative technologist exploring the critical relationship between behaviour, art, and information.</h2>
+      <div class="menu">
+        <a class="menu__listitem" name="view2" href="view2" on-tap="closeDrawer"><span class="menu__link">About</span></a>
+        <a class="menu__listitem" name="illustrations" href="illustrations" on-tap="closeDrawer"><span class="menu__link">Illustrations</span></a>
+        <a class="menu__listitem" name="codelab" href="codelab" on-tap="closeDrawer"><span class="menu__link">Codelab</span></a>
+      </div>
     </section>
   </template>
 

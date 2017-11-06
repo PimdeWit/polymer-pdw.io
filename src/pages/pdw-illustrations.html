@@ -1,4 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+
+<link rel="import" href="../third_party/imports/import-intersection-observer.html">
+
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="pdw-illustrations">
@@ -6,22 +10,339 @@
     <style include="shared-styles">
       :host {
         display: block;
+      }
 
-        padding: 10px;
+      .intro {
+        width: 100%;
+        min-width: 320px;
+        height: 90vh;
+
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        flex-direction: column;
+
+        padding: 10vw;
+
+        border-bottom: 1px solid rgba(255, 255, 255, .1);
+
+        box-sizing: border-box;
+      }
+
+      h2 {
+        font-weight: 300;
+      }
+
+      .header {
+        position: sticky;
+        top: 0;
+
+        padding-top: 48px;
+      }
+
+      .header__content {
+        position: relative;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .header__background {
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+      }
+
+      .header__background--solid {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+
+        width: 100%;
+        height: 70%;
+
+        background-color: #1a1a1a;
+      }
+
+      .header__background--gradient {
+        position: absolute;
+        bottom: 70%;
+
+        width: 100%;
+        height: 80vh;
+
+        background-image: linear-gradient(-180deg, rgba(26, 26, 26, 0) 0%, rgba(26, 26, 26, 1) 100%);
+      }
+
+      iron-image {
+        display: block;
+
+        width: 100%;
+        height: 80vh;
+
+        transform: scale(0.9);
+        transform-origin: top;
+        opacity: 0;
+
+        z-index: 1;
+      }
+
+      iron-image.fade-in {
+        animation: polygons 1.2s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+      }
+
+      iron-image[sizing="contain"] {
+        margin: 48px 0;
+      }
+
+      @keyframes polygons {
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
       }
     </style>
 
-    <div class="card">
-      <div class="circle">3</div>
-      <h1>View Three</h1>
-      <p>Modus commodo minimum eum te, vero utinam assueverit per eu.</p>
-      <p>Ea duis bonorum nec, falli paulo aliquid ei eum.Has at minim mucius aliquam, est id tempor laoreet.Pro saepe pertinax ei, ad pri animal labores suscipiantur.</p>
-    </div>
+    <section class="intro">
+
+      <h1>Illustrations</h1>
+      <p>Selected artworks from 2010 - present.</p>
+    </section>
+    <template is="dom-repeat" items="[[images]]">
+      <!--<header class="header">-->
+        <!--<div class="header__background">-->
+          <!--<div class="header__background&#45;&#45;gradient"></div>-->
+          <!--<div class="header__background&#45;&#45;solid"></div>-->
+        <!--</div>-->
+        <!--<div class="header__content">-->
+          <!--<h2>[[item.title]]</h2>-->
+          <!--<span>[[item.year]]</span>-->
+        <!--</div>-->
+      <!--</header>-->
+      <iron-image preload fade sizing="cover" data-src$="[[item.image]]"></iron-image>
+    </template>
   </template>
 
   <script>
     class PdwIllustrations extends Polymer.Element {
       static get is() { return 'pdw-illustrations'; }
+
+      static get properties() {
+        return {
+          images: {
+            type: Array,
+            value: [
+              {
+                title: 'Untitled',
+                image: 'images/illustrations/1.jpg',
+                year: 2017,
+              },
+              {
+                title: 'Freestyle',
+                image: 'images/illustrations/2.jpg',
+                year: 2017,
+              },
+              {
+                title: 'Untitled i',
+                image: 'images/illustrations/3.jpg',
+                year: 2017,
+              },
+              {
+                title: 'Perish',
+                image: 'images/illustrations/4-1.jpg',
+                year: 2017,
+              },
+              {
+                title: 'Untitled ii',
+                image: 'images/illustrations/4.jpg',
+                year: 2017,
+              },
+              {
+                title: 'Ljubav',
+                image: 'images/illustrations/5.jpg',
+                year: 2017,
+              },
+              {
+                title: 'Untitled iii',
+                image: 'images/illustrations/6.jpg',
+                year: 2017,
+              },
+              {
+                title: 'Untitled iiii',
+                image: 'images/illustrations/6.png',
+                year: 2017,
+              },
+              {
+                title: 'Untitled iiiii',
+                image: 'images/illustrations/8-1.jpg',
+                year: 2017,
+              },
+              {
+                title: '',
+                image: 'images/illustrations/8.jpg',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/10.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/12.jpg',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/13.jpg',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/16.jpg',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/19.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/darkness.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/excuse_me.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/kulta.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/kulta2.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/next_level.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/next_level2.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/perish2.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/simplicity.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/untitled.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/untitled2.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/untitled3.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/vector.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/vector2.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/vision.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/why_not.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/x.png',
+                year: 2017,
+              },
+              {
+                title: 'One',
+                image: 'images/illustrations/x2.png',
+                year: 2017,
+              },
+            ],
+          },
+        };
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        Polymer.RenderStatus.afterNextRender(this, () => {
+          this.imageElements = this.shadowRoot.querySelectorAll('iron-image');
+
+          const options = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.3,
+          };
+
+          this.interSectionObserver = new IntersectionObserver(this._onObserve.bind(this), options);
+
+          this.imageElements.forEach(image => {
+            this.interSectionObserver.observe(image);
+          });
+
+          this._onResize();
+        });
+
+        window.addEventListener('resize', this._onResize.bind(this));
+      }
+
+      _onResize() {
+        this.imageElements.forEach(image => {
+          if (window.innerWidth < 720) {
+            image.sizing = 'cover';
+          } else {
+            image.sizing = 'contain';
+          }
+        });
+      }
+
+      _onObserve(entry) {
+        const element = entry[0].target;
+
+        if (element.src) return;
+
+        element.src = element.dataset.src;
+        element.classList.add('fade-in');
+      }
     }
 
     window.customElements.define(PdwIllustrations.is, PdwIllustrations);

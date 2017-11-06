@@ -96,7 +96,7 @@
         display: flex;
         align-items: center;
 
-        font-size: 4em;
+        font-size: 2em;
 
         text-decoration: none;
 
@@ -104,6 +104,12 @@
         opacity: 0.6;
 
         color: currentColor;
+      }
+
+      @media (min-width: 720px) {
+        .menu__listitem {
+          font-size: 4em;
+        }
       }
 
       .menu__listitem:hover,
@@ -121,14 +127,16 @@
           align-items: center;
           justify-content: center;
 
-          width: 40vw;
+          width: 100%;
 
-          transition-timing-function: cubic-bezier(0.710, 0.000, 0.285, 1.000);
+          transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
 
           user-select: none;
 
           background-color: #1a1a1a;
-        }
+        };
+
+        --app-drawer-scrim-background: rgba(0, 0, 0, .9);
       }
 
       .drawer[opened] .menu {
@@ -137,7 +145,7 @@
       }
 
       .drawer__toggle {
-        position: absolute;
+        position: fixed;
         top: 16px;
         left: 16px;
 
@@ -236,24 +244,23 @@
         <div class="line"></div>
       </div>
     </paper-button>
-
     <app-drawer
         id="drawer"
         class="drawer"
-        transition-duration="400"
+        transition-duration="1200"
         on-opened-changed="_onDrawerStateChange"
         on-app-drawer-transitioned="_onDrawerTransitionEnd"
         narrow
         swipe-open>
       <iron-selector selected="[[page]]" attr-for-selected="name" role="navigation">
         <div class="menu">
-          <a class="menu__listitem" name="home" href="home" on-tap="closeDrawer"><span class="menu__link">View One</span></a>
+          <a class="menu__listitem" name="home" href="home" on-tap="closeDrawer"><span class="menu__link">Home</span></a>
           <a class="menu__listitem" name="view2" href="view2" on-tap="closeDrawer"><span class="menu__link">About</span></a>
           <a class="menu__listitem" name="illustrations" href="illustrations" on-tap="closeDrawer"><span class="menu__link">Illustrations</span></a>
           <a class="menu__listitem" name="codelab" href="codelab" on-tap="closeDrawer"><span class="menu__link">Codelab</span></a>
         </div>
       </iron-selector>
-      <pointer-follower id="menugraphics" class="menu__overlay" rows="10" columns="10" particle-width="20" particle-height="1" distortion="32" target="window" tag="0.8" threshold="0.29" clear></pointer-follower>
+      <pointer-follower id="menugraphics" class="menu__overlay" rows="2" columns="32" particle-width="20" particle-height="1" distortion="200" target="window" tag="0.2" threshold="0.1" clear></pointer-follower>
     </app-drawer>
 
     <div id="maincontent" tabindex="-1"></div>
@@ -372,6 +379,8 @@
        */
       _pageChanged(page) {
         // Load page import on demand. Show 404 page if fails
+        if (page === 'index.html') return;
+
         const resolvedPageUrl = this.resolveUrl('../pages/pdw-' + page + '.html');
         Polymer.importHref(
             resolvedPageUrl,
