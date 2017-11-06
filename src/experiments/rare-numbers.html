@@ -28,9 +28,10 @@
         width: 100%;
         height: 100%;
       }
-      
+
       canvas {
-        color: #fff;
+        border-right: 1px solid rgba(255, 255, 255, .1);
+        border-bottom: 1px solid rgba(255, 255, 255, .1);
       }
     </style>
 
@@ -98,6 +99,8 @@
 
         this._addEventListeners();
 
+        this._createSound();
+
         this.render();
       }
 
@@ -121,8 +124,9 @@
 
           context.font = `${canvas.width / 10}px Roboto Mono`;
           context.textBaseline = 'middle';
+          context.textAlign = 'center';
 
-          context.fillStyle = 'rgba(0, 0, 0, .4)';
+          context.fillStyle = 'rgba(255, 255, 255, .1)';
 
           if (this.chosenIteration === i) {
             context.fillStyle = 'white';
@@ -136,8 +140,19 @@
         return gridItems;
       }
 
+      // Quick and dirty baybee.
       _createSound() {
-        
+        this.audioContext = new AudioContext();
+        this.oscillator1 = this.audioContext.createOscillator();
+        this.oscillator1.type = 'triangle';
+        this.oscillator1.frequency.value = 1;
+        this.oscillator1.connect(this.audioContext.destination);
+        this.oscillator1.start();
+        this.oscillator2 = this.audioContext.createOscillator();
+        this.oscillator2.type = 'square';
+        this.oscillator2.frequency.value = 1;
+        this.oscillator2.connect(this.audioContext.destination);
+        this.oscillator2.start();
       }
 
       _animate() {
@@ -152,20 +167,24 @@
           numberToDisplay = parseFloat(Math.random() * 10).toFixed(3);
 
           if (randomBoolean || this.chosenIteration === i) {
-            item.context.clearRect(0, 0, item.canvas.width / 2, item.canvas.height);
+            item.context.clearRect(item.canvas.width / 4, 0, item.canvas.width / 2, item.canvas.height);
           }
 
 
-          item.context.fillText(`${numberToDisplay}`, 0, item.canvas.height / 2);
+          item.context.fillText(`${numberToDisplay}`, item.canvas.width / 2, item.canvas.height / 2);
         }
+
+        this.oscillator1.frequency.value = numberToDisplay * 15;
+        this.oscillator2.frequency.value = numberToDisplay * 1;
+
       }
 
       render() {
         clearTimeout(this.to);
         this._animate();
 
-        requestAnimationFrame(() => this.render());
-//        this.to = setTimeout(() => this.render(), 1000 / Math.floor(Math.random() * 30) + 30);
+//        requestAnimationFrame(() => this.render());
+        this.to = setTimeout(() => this.render(), 1000 / (Math.floor(Math.random() * 60) + 1));
       }
 
       /**
