@@ -12,9 +12,6 @@
       }
 
       canvas {
-        width: 100%;
-        height: 100%;
-
         touch-action: none;
         -ms-touch-action: none;
         touch-action: none;
@@ -30,13 +27,16 @@
       }
 
       canvas {
-        border-right: 1px solid rgba(255, 255, 255, .1);
-        border-bottom: 1px solid rgba(255, 255, 255, .1);
+        border-right: 1px dashed rgba(255, 255, 255, .1);
+        border-bottom: 1px dashed rgba(255, 255, 255, .1);
+
+        touch-action: none;
+        -ms-touch-action: none;
+        touch-action: none;
       }
     </style>
 
-    <div id="grid">
-    </div>
+    <div id="grid"></div>
   </template>
 
   <script>
@@ -47,7 +47,8 @@
      */
 
     const CONFIG = {
-      COLUMNS: 4
+      COLUMNS: 4,
+      VOLUME: 0.2
     };
 
     /**
@@ -59,6 +60,12 @@
       static get is() { return 'rare-numbers'; }
       static get properties() {
         return {
+          active: {
+            type: Boolean,
+            value: false,
+            observer: '_audioToggle'
+          },
+
           intersectionObserver: Object,
 
           _container: HTMLElement,
@@ -71,13 +78,68 @@
             type: Number,
             value: 4
           },
-          gridItems: Array
+          gridItems: Array,
+
+          staggerMode: {
+            type: Boolean,
+            value: false,
+          },
         }
       }
 
       constructor() {
         super();
         this._boundResizeListener = this._onResize.bind(this);
+        this._boundBlurListener = this._onBlur.bind(this);
+        this._boundFocusListener = this._onFocus.bind(this);
+
+        /** @type {IntersectionObserver} */
+        this.intersectionObserver = this._createIntersectionObserver();
+        this.intersectionObserver.observe(this);
+      }
+
+      /**
+       * Create and return an IntersectionOBserver instance.
+       * @return {IntersectionObserver}
+       * @private
+       */
+      _createIntersectionObserver() {
+        const options = {
+          root: null,
+          rootMargin: '0px',
+          threshold: 0.3,
+        }
+
+        return new IntersectionObserver(this._onObserve.bind(this), options);
+      }
+
+      /**
+       * On Element Into View handler.
+       * @param {Array} entries
+       * @private
+       */
+      _onObserve(entries) {
+        entries.forEach(entry => {
+          const ratio = entry.intersectionRatio;
+          const isVisible = ratio > 0.3;
+          if (isVisible) {
+            this.setToActive();
+          } else {
+            this.active = false;
+          }
+        });
+      }
+
+      /**
+       * Set the component to active and send a rendering tick to start a loop.
+       * @private
+       */
+      setToActive() {
+        if (!this.active) {
+          this.active = true;
+          this._onResize();
+          this.render();
+        }
       }
 
       /**
@@ -95,20 +157,53 @@
         /** @type {Array<GridCanvas>} */
         this.gridItems = await this._createGridItems();
         this.to = null;
-        this.chosenIteration = 0;
+
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.volume = this.audioContext.createGain();
+        this.volume.gain.value = 0;
+        this.volume.connect(this.audioContext.destination);
+
+        this.chosenIteration = this.chosenIteration = Math.floor(Math.random() * (this.rows * this.columns)) + 1;
 
         this._addEventListeners();
 
         this._createSound();
 
+        this._setStaggerMode(5000);
+
         this.render();
+        if (this.active) this._audioToggle();
       }
 
+      /**
+       * Set a timeout that triggers randomly.
+       * @private
+       */
+      _setStaggerMode(timeout) {
+        clearTimeout(this.staggerTimeout);
+
+        this.staggerTimeout = setTimeout(() => {
+          this.staggerMode = !this.staggerMode;
+
+          if (this.staggerMode) {
+            this.oscillator2.detune.value = -3000;
+          } else {
+            this.oscillator2.frequency.value = 3;
+            this.oscillator2.detune.value = 0;
+          }
+
+          this._setStaggerMode(Math.random() * 10000);
+        }, timeout);
+      }
+
+      /**
+       * @private
+       * @returns {GridCanvas}
+       */
       _createGridItems() {
         const gridItems = [];
         const amount = this.rows * this.columns;
         const componentParent = this.parentNode;
-        this.chosenIteration = Math.floor(Math.random() * amount) + 1;
         let i = 0;
 
         for (i; i < amount; i++) {
@@ -140,25 +235,39 @@
         return gridItems;
       }
 
-      // Quick and dirty baybee.
+      /**
+       * Create oscillators.
+       * @private
+       */
       _createSound() {
-        this.audioContext = new AudioContext();
         this.oscillator1 = this.audioContext.createOscillator();
         this.oscillator1.type = 'triangle';
         this.oscillator1.frequency.value = 1;
-        this.oscillator1.connect(this.audioContext.destination);
+        this.oscillator1.connect(this.volume);
         this.oscillator1.start();
         this.oscillator2 = this.audioContext.createOscillator();
         this.oscillator2.type = 'square';
-        this.oscillator2.frequency.value = 1;
-        this.oscillator2.connect(this.audioContext.destination);
+        this.oscillator2.frequency.value = 8;
+        this.oscillator2.detune.value = 100;
+        this.oscillator2.connect(this.volume);
         this.oscillator2.start();
+        this.oscillator3 = this.audioContext.createOscillator();
+        this.oscillator3.type = 'sine';
+        this.oscillator3.frequency.value = 0;
+        this.oscillator3.connect(this.volume);
+        this.oscillator3.start();
       }
 
-      _animate() {
+      /**
+       * Apply changes / animate
+       * @private
+       */
+      _animate()  {
         let item;
         let randomBoolean;
         let numberToDisplay;
+        let x;
+        let y;
         let i = 0;
 
         for (i; i < this.gridItems.length; i++) {
@@ -167,24 +276,55 @@
           numberToDisplay = parseFloat(Math.random() * 10).toFixed(3);
 
           if (randomBoolean || this.chosenIteration === i) {
-            item.context.clearRect(item.canvas.width / 4, 0, item.canvas.width / 2, item.canvas.height);
+            if (this.staggerMode && this.chosenIteration !== i) {
+              item.context.fillStyle = 'rgba(255, 255, 255, .1)';
+            } else {
+              if (this.chosenIteration === i) {
+                item.context.fillStyle = 'rgba(255, 255, 255, 1)';
+              } else {
+                item.context.fillStyle = 'rgba(255, 255, 255, .1)';
+              }
+              item.context.clearRect(0, item.canvas.height / 4, item.canvas.width, item.canvas.height / 2);
+            }
           }
 
+//          if (this.staggerMode) {
+//            x = (item.canvas.width / 2) + Math.floor(Math.random() * 10) + 1;
+//            y = (item.canvas.height / 2) + Math.floor(Math.random() * 10) + 1;
+//          } else {
+            x = item.canvas.width / 2;
+            y = item.canvas.height / 2;
+          // }
 
-          item.context.fillText(`${numberToDisplay}`, item.canvas.width / 2, item.canvas.height / 2);
+          item.context.fillText(`${numberToDisplay}`, x, y);
         }
 
-        this.oscillator1.frequency.value = numberToDisplay * 15;
-        this.oscillator2.frequency.value = numberToDisplay * 1;
+        this.oscillator1.frequency.value = numberToDisplay * 10;
+
+        if (!this.staggerMode) {
+          this.oscillator2.frequency.value = numberToDisplay * 2;
+          this.oscillator3.frequency.value = 0;
+        } else {
+          this.oscillator3.frequency.value = 200;
+        }
 
       }
 
+      /**
+       * Rendering loop.
+       */
       render() {
         clearTimeout(this.to);
         this._animate();
 
-//        requestAnimationFrame(() => this.render());
-        this.to = setTimeout(() => this.render(), 1000 / (Math.floor(Math.random() * 60) + 1));
+
+        if (this.active) {
+          if (this.staggerMode) {
+            this.to = setTimeout(() => this.render(), 1000 / (Math.floor(Math.random() * 60) + 1));
+          } else {
+            requestAnimationFrame(() => this.render());
+          }
+        }
       }
 
       /**
@@ -193,6 +333,8 @@
        */
       _addEventListeners() {
         window.addEventListener('resize', this._boundResizeListener, { passive: true });
+        window.addEventListener('blur', this._boundBlurListener, { passive: true });
+        window.addEventListener('focus', this._boundFocusListener, { passive: true });
       }
 
       /**
@@ -220,20 +362,72 @@
       }
 
       /**
+       * @listens window.onblur
+       */
+      _onBlur() {
+        this._volumeOff();
+      }
+
+      /**
+       * @listens window.onfocus
+       */
+      _onFocus() {
+        this._volumeOn();
+      }
+
+      /**
        * On element removed from DOM handler.
        */
-      disconnectedCallback () {
+      disconnectedCallback() {
         super.disconnectedCallback();
         this._removeEventListeners();
+        this._destroyAudio();
+      }
+
+      /**
+       * Toggle the audio instance volume between 0%, 100%.
+       * @private
+       */
+      _audioToggle() {
+        if (this.volume) {
+          if (this.active) {
+            this._volumeOn();
+          } else {
+            this._volumeOff();
+          }
+        }
+      }
+
+      _volumeOff() {
+        this.volume.gain.value = 0;
+      }
+
+      _volumeOn() {
+        this.volume.gain.value = CONFIG.VOLUME;
+      }
+
+      /**
+       * Destroy all audio related instances.
+       * @private
+       */
+      _destroyAudio() {
+        this.oscillator1.stop();
+        this.oscillator1 = null;
+        this.oscillator2.stop();
+        this.oscillator2 = null;
+        this.oscillator3.stop();
+        this.oscillator3 = null;
+        this.audioContext = null;
       }
 
       /**
        * Remove the event listeners of this instance.
-       *
        * @private
        */
       _removeEventListeners() {
         window.removeEventListener('resize', this._boundResizeListener);
+        window.removeEventListener('blur', this._boundBlurListener);
+        window.removeEventListener('focus', this._boundFocusListener);
       }
     }
 
