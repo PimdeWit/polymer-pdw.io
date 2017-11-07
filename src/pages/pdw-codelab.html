@@ -12,6 +12,7 @@
 <link rel="import" href="../experiments/svg-morph.html">
 <link rel="import" href="../experiments/steezy-svg.html">
 <link rel="import" href="../experiments/rare-numbers.html">
+<link rel="import" href="../experiments/the-journey.html">
 
 <link rel="import" href="../shared-styles.html">
 
@@ -244,6 +245,7 @@
         <input id="svgrange" type="range" min="1" max="1000" step="1">
       </div>
       <rare-numbers id="rarenumbers" class="experiment" name="/rare-numbers"></rare-numbers>
+      <the-journey id="thejourney" class="experiment" name="/the-journey"></the-journey>
     </iron-pages>
 
     <!--<h3 class="experiment__title">[[route.path]]</h3>-->
@@ -329,6 +331,12 @@
                 text: 'Numbers',
                 year: 2017,
               },
+              {
+                name: '/the-journey',
+                url: 'codelab/the-journey',
+                text: 'The Journey',
+                year: 2017,
+              },
             ],
           },
           _displacementSlice: {
@@ -410,7 +418,7 @@
       /**
        * @param {Number} value
        * @private
-       * @returns {Number}
+       * @return {Number}
        **/
       _getBatteryLevel(value) {
         return Math.round(value * 100);

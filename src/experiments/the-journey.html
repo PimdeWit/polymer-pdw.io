@@ -1,0 +1,336 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="the-journey">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        width: 100%;
+        height: 500px;
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+
+        touch-action: none;
+        -ms-touch-action: none;
+        touch-action: none;
+      }
+    </style>
+
+    <canvas id="canvas"></canvas>
+  </template>
+
+  <script>
+
+    /**
+     * @typedef {Object} Coordinates
+     * @property {Number} x
+     * @property {Number} y
+     */
+
+    /**
+     * @author Pim de Wit / https://pdw.io
+     * @desc An interactive experiment for learning purposes.
+     * @class
+     */
+    class TheJourney extends Polymer.Element {
+      static get is() { return 'the-journey'; }
+      static get properties() {
+        return {
+          active: {
+            type: Boolean,
+            value: false
+          },
+
+          intersectionObserver: Object,
+          canvas: HTMLCanvasElement,
+        }
+      }
+
+      constructor() {
+        super();
+
+        /** @type {Array<Walker>} */
+        this.walkers = [];
+
+        this._boundResizeListener = this._onResize.bind(this);
+
+        /** @type {IntersectionObserver} */
+        this.intersectionObserver = this._createIntersectionObserver();
+        this.intersectionObserver.observe(this);
+      }
+
+      /**
+       * Create and return an IntersectionOBserver instance.
+       * @return {IntersectionObserver}
+       * @private
+       */
+      _createIntersectionObserver() {
+        const options = {
+          root: null,
+          rootMargin: '0px',
+          threshold: 0.3,
+        };
+
+        return new IntersectionObserver(this._onObserve.bind(this), options);
+      }
+
+      /**
+       * On Element Into View handler.
+       * @param {Array} entries
+       * @private
+       */
+      _onObserve(entries) {
+        entries.forEach(entry => {
+          const ratio = entry.intersectionRatio;
+          const isVisible = ratio > 0.3;
+          if (isVisible) {
+            this.setToActive();
+          } else {
+            this.active = false;
+          }
+        });
+      }
+
+      /**
+       * Set the component to active and send a rendering tick to start a loop.
+       * @private
+       */
+      setToActive() {
+        if (!this.active) {
+          this.active = true;
+          this._onResize();
+          this.render();
+        }
+      }
+
+      /**
+       * Connected callback.
+       */
+      async connectedCallback() {
+        super.connectedCallback();
+
+        /**
+         * @type {HTMLCanvasElement}
+         * @private
+         */
+        this._canvas = this.$.canvas;
+
+        /**
+         * @type {CanvasRenderingContext2D}
+         * @private
+         */
+        this._context = this._canvas.getContext('2d');
+
+        this.walkers.push(new Walker(this._canvas));
+
+        this._addEventListeners();
+
+        this.render();
+      }
+
+      /**
+       * Apply changes / animate
+       * @private
+       */
+      _animate()  {
+        this.walkers.forEach((walker, index) => {
+          if (walker.alive) {
+            walker.render();
+          } else {
+            walker.dispose();
+            this.walkers.splice(index, 1);
+          }
+        });
+      }
+
+      /**
+       * Rendering loop.
+       */
+      render() {
+        this._animate();
+
+        if (this.active) requestAnimationFrame(() => this.render());
+      }
+
+      /**
+       * Add event listeners to this instance.
+       * @private
+       */
+      _addEventListeners() {
+        window.addEventListener('resize', this._boundResizeListener, { passive: true });
+      }
+
+      /**
+       * Resize handler.
+       * @listens window.resize
+       * @private
+       */
+      _onResize() {
+        const width = this.parentNode.offsetWidth * window.devicePixelRatio;
+        const height = this.parentNode.offsetHeight * window.devicePixelRatio;
+
+        this.walkers.forEach(walker => {
+
+          if (walker.canvas) walker.resize(width, height);
+        });
+      }
+
+      /**
+       * On element removed from DOM handler.
+       */
+      disconnectedCallback() {
+        super.disconnectedCallback();
+        this._removeEventListeners();
+      }
+
+      /**
+       * Remove the event listeners of this instance.
+       * @private
+       */
+      _removeEventListeners() {
+        window.removeEventListener('resize', this._boundResizeListener);
+      }
+    }
+
+
+    /**
+     * @author Pim de Wit / https://pdw.io
+     * @desc An interactive experiment for learning purposes.
+     * @class
+     */
+    class Walker {
+      constructor(canvas) {
+        /** @type {HTMLCanvasElement} */
+        this.canvas = canvas;
+
+        /** @type {CanvasRenderingContext2D} */
+        this.context = this.canvas.getContext('2d');
+
+        /**
+         * "the maximum extent of a vibration or oscillation, measured from the position of equilibrium." - Google
+         * @type {Number}
+         * @private
+         */
+        this._amplitude = 5;
+
+        /**
+         * "the rate at which something occurs over a particular period of time or in a given sample." - Google
+         * @type {number}
+         * @private
+         */
+        this._frequency = 5;
+
+        /**
+         * The position of the line on the X axis
+         * @type {Number}
+         */
+        this.x = 0;
+
+        /**
+         * The position of the line on the Y axis
+         * @type {Number}
+         */
+        this.y = 0;
+
+        /** @type {Coordinates} */
+        this.spawn = {
+          x: this.canvas.width / 2,
+          y: this.canvas.height / 2
+        };
+
+        /**
+         * The time this instance has been alive.
+         * @type {Number}
+         * @private
+         */
+        this._age = 0;
+
+        /**
+         * The maximum age of this instance before disposing.
+         * @type {Number}
+         * @private
+         */
+        this._maxAge = 10000;
+
+        this.context.fillStyle = 'red';
+      }
+
+      /**
+       * Check if the current instance bypassed its maximum age.
+       * @returns {Boolean}
+       */
+      get alive() {
+        return this.remainingAge > 0;
+      }
+
+      /**
+       * @readonly
+       * @returns {Number}
+       */
+      get age() {
+        return this._age;
+      }
+
+      /**
+       * @readonly
+       * @returns {Number} The remainig age of the instance.
+       */
+      get remainingAge() {
+        return this._maxAge - this._age;
+      }
+
+      /** Process changes to the instance. */
+      animate() {
+        const size = Math.floor(this.remainingAge / 10);
+        const x = this.spawn.x - (size / 2);
+        const y = this.spawn.y - (size / 2);
+
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.context.fillRect(x, y, size, size);
+
+      }
+
+      /** Render loop. */
+      render() {
+        this.animate();
+
+        this._age++;
+      }
+
+      /**
+       * Resize handler. Triggered through a call rather than an event.\
+       * @param {Number} width
+       * @param {Number} height
+       */
+      resize(width, height) {
+        this.canvas.width = width;
+        this.canvas.height = height;
+
+        this.spawn = {
+          x: this.canvas.width / 2,
+          y: this.canvas.height / 2
+        };
+      }
+
+      /**
+       * Clear memory.
+       */
+      dispose() {
+        this.canvas = null;
+        this.context = null;
+        this.x = 0;
+        this.y = 0;
+        this._age = 0;
+        this._maxAge = 0;
+        this.spawn = {};
+      }
+    }
+
+    window.customElements.define(TheJourney.is, TheJourney);
+  </script>
+</dom-module>
