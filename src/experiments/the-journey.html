@@ -53,7 +53,19 @@
 
           amount: {
             type: Number,
-            value: 0,
+            value: 80,
+          },
+
+          size: {
+            type: Number,
+            value: 2,
+            observer: '_sizeObserver'
+          },
+
+          spacing: {
+            type: Number,
+            value: 8,
+            observer: '_spacingObserver'
           },
 
           intersectionObserver: Object,
@@ -139,10 +151,6 @@
          */
         this._context = this._canvas.getContext('2d');
 
-        for (let i = this.amount; i >= 0; i--) {
-          this.walkers.push(new Walker(this._canvas));
-        }
-
         this._addEventListeners();
 
         this.render();
@@ -175,7 +183,7 @@
        */
       render() {
         while (this.walkers.length < this.amount) {
-          this.walkers.push(new Walker(this._canvas));
+          this.walkers.push(new Walker(this._canvas, this.size, this.spacing));
         }
 
         this._animate();
@@ -205,6 +213,10 @@
           if (walker.canvas) walker.resize(width, height);
         });
       }
+
+      _sizeObserver() {}
+
+      _spacingObserver() {}
 
       /**
        * On element removed from DOM handler.
@@ -242,7 +254,7 @@
      * @class
      */
     class Walker {
-      constructor(canvas) {
+      constructor(canvas, size, spacing) {
         /** @type {HTMLCanvasElement} */
         this.canvas = canvas;
 
@@ -263,9 +275,12 @@
 
         /** @type {Size} */
         this.size = {
-          width: WALKER_OPTIONS.SIZE_X,
-          height: WALKER_OPTIONS.SIZE_Y
+          width: size || WALKER_OPTIONS.SIZE_X,
+          height: size || WALKER_OPTIONS.SIZE_Y
         };
+
+        /** @type {Number} */
+        this.spacing = spacing || WALKER_OPTIONS.STEP_SIZE;
 
         /**
          * The time this instance has been alive.
@@ -326,13 +341,13 @@
         let y = this.y; // - (height / 2);
 
         if (direction === WALKER_DIRECTIONS.UP) {
-          y += WALKER_OPTIONS.STEP_SIZE;
+          y += this.spacing;
         } else if (direction === WALKER_DIRECTIONS.RIGHT) {
-          x += WALKER_OPTIONS.STEP_SIZE;
+          x += this.spacing;
         } else if (direction === WALKER_DIRECTIONS.DOWN) {
-          y -= WALKER_OPTIONS.STEP_SIZE;
+          y -= this.spacing;
         } else if (direction === WALKER_DIRECTIONS.LEFT) {
-          x -= WALKER_OPTIONS.STEP_SIZE;
+          x -= this.spacing;
         }
 
         this.x = x;
