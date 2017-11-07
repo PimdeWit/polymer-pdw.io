@@ -27,8 +27,14 @@
 
     /**
      * @typedef {Object} Coordinates
-     * @property {Number} x
-     * @property {Number} y
+     * @property {Number} x The position on the x axis.
+     * @property {Number} y The position on the y axis.
+     */
+
+    /**
+     * @typedef {Object} Size
+     * @property {Number} width
+     * @property {Number} height
      */
 
     /**
@@ -137,6 +143,7 @@
        * @private
        */
       _animate()  {
+        this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
         this.walkers.forEach((walker, index) => {
           if (walker.alive) {
             walker.render();
@@ -219,7 +226,7 @@
 
         /**
          * "the rate at which something occurs over a particular period of time or in a given sample." - Google
-         * @type {number}
+         * @type {Number}
          * @private
          */
         this._frequency = 5;
@@ -235,6 +242,12 @@
          * @type {Number}
          */
         this.y = 0;
+
+        /** @type {Size} */
+        this.size = {
+          width: 2,
+          height: 2
+        };
 
         /** @type {Coordinates} */
         this.spawn = {
@@ -254,9 +267,17 @@
          * @type {Number}
          * @private
          */
-        this._maxAge = 10000;
+        this._maxAge = 1000;
 
         this.context.fillStyle = 'red';
+      }
+
+      /**
+       * @static
+       * @returns {Number}
+       */
+      static getRandomArbitrary(max) {
+        return Math.floor(Math.random() * max) + 1;
       }
 
       /**
@@ -285,14 +306,20 @@
 
       /** Process changes to the instance. */
       animate() {
-        const size = Math.floor(this.remainingAge / 10);
-        const x = this.spawn.x - (size / 2);
-        const y = this.spawn.y - (size / 2);
+        this.x++;
+        const width = this.size.width;
+        const height = this.size.height;
+        const x = this.spawn.x - (width / 2) + this.age;
+        const y = this.spawn.y - (height / 2) + this.y;
+        const direction = Walker.getRandomArbitrary(4);
+        console.log(direction);
 
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.context.fillRect(x, y, size, size);
+        this.context.fillStyle = 'red';
 
+        this.context.save();
+        this.context.fillRect(x, y, width, height);
+        this.context.restore();
       }
 
       /** Render loop. */
