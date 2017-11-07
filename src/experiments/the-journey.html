@@ -51,6 +51,11 @@
             value: false
           },
 
+          amount: {
+            type: Number,
+            value: 0,
+          },
+
           intersectionObserver: Object,
           canvas: HTMLCanvasElement,
         }
@@ -63,7 +68,7 @@
         this.walkers = [];
 
         /** @const */
-        this.amount = 170;
+        this.amount = 10000;
 
         this._boundResizeListener = this._onResize.bind(this);
 
@@ -148,8 +153,9 @@
        * @private
        */
       _animate()  {
-        this._context.fillStyle = 'rgba(255, 228, 7, 0.02)';
+        this._context.fillStyle = 'rgba(0, 0, 7, 0.3)';
         this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
+        this._context.fillStyle = `white`;
         this.walkers.forEach((walker, index) => {
           if (walker.alive) {
             walker.render();
@@ -158,6 +164,10 @@
             this.walkers.splice(index, 1);
           }
         });
+
+        this._context.font = `16px Roboto Mono`;
+        this._context.fillText(`${this.walkers.length - 1} / ${this.amount} particles`, 48, this._canvas.height - 48);
+
       }
 
       /**
@@ -214,8 +224,9 @@
     }
 
     const WALKER_OPTIONS = {
-      STEP_SIZE: 5,
-      SIZE: 4
+      STEP_SIZE: 8,
+      SIZE_X: 2,
+      SIZE_Y: 2
     };
 
     const WALKER_DIRECTIONS = {
@@ -252,8 +263,8 @@
 
         /** @type {Size} */
         this.size = {
-          width: WALKER_OPTIONS.SIZE,
-          height: WALKER_OPTIONS.SIZE
+          width: WALKER_OPTIONS.SIZE_X,
+          height: WALKER_OPTIONS.SIZE_Y
         };
 
         /**
@@ -328,7 +339,6 @@
         this.y = y;
 
 
-        this.context.fillStyle = `black`;
         this.context.fillRect(x, y, width, height);
       }
 
