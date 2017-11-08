@@ -37,6 +37,24 @@
      * @property {Number} height
      */
 
+    const WALKER_OPTIONS = {
+      STEP_SIZE: 8,
+      SIZE_X: 2,
+      SIZE_Y: 2
+    };
+
+    const WALKER_DIRECTIONS = {
+      UP: 0,
+      RIGHT: 1,
+      DOWN: 2,
+      LEFT: 3
+    };
+
+    const WALKER_COLOUR = {
+      HUE: 215,
+      SATURATION: '0%'
+    };
+
     /**
      * @author Pim de Wit / https://pdw.io
      * @desc An interactive experiment for learning purposes.
@@ -53,7 +71,7 @@
 
           amount: {
             type: Number,
-            value: 80,
+            value: 1000,
           },
 
           size: {
@@ -78,9 +96,6 @@
 
         /** @type {Array<Walker>} */
         this.walkers = [];
-
-        /** @const */
-        this.amount = 10000;
 
         this._boundResizeListener = this._onResize.bind(this);
 
@@ -163,7 +178,6 @@
       _animate()  {
         this._context.fillStyle = 'rgba(0, 0, 7, 0.3)';
         this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
-        this._context.fillStyle = `white`;
         this.walkers.forEach((walker, index) => {
           if (walker.alive) {
             walker.render();
@@ -174,6 +188,7 @@
         });
 
         this._context.font = `16px Roboto Mono`;
+        this._context.fillStyle = `blue`;
         this._context.fillText(`${this.walkers.length - 1} / ${this.amount} particles`, 48, this._canvas.height - 48);
 
       }
@@ -235,19 +250,6 @@
       }
     }
 
-    const WALKER_OPTIONS = {
-      STEP_SIZE: 8,
-      SIZE_X: 2,
-      SIZE_Y: 2
-    };
-
-    const WALKER_DIRECTIONS = {
-      UP: 1,
-      RIGHT: 2,
-      DOWN: 3,
-      LEFT: 4
-    };
-
     /**
      * @author Pim de Wit / https://pdw.io
      * @desc An interactive experiment for learning purposes.
@@ -294,7 +296,7 @@
          * @type {Number}
          * @private
          */
-        this._maxAge = Math.floor(Math.random() * 250);
+        this._maxAge = Math.floor(Math.random() * 2500);
 
       }
 
@@ -303,7 +305,11 @@
        * @returns {Number}
        */
       static getRandomArbitrary(max) {
-        return Math.round(Math.random() * max) + 1;
+        return Math.floor(Math.random() * max);
+      }
+
+      static random(min, max) {
+        return min + Math.round(Math.random() * (max - min));
       }
 
       /**
@@ -330,31 +336,24 @@
         return this._maxAge - this._age;
       }
 
+      get ageColor() {
+        return `hsl(${WALKER_COLOUR.HUE}, ${WALKER_COLOUR.SATURATION}, ${100 * this._age / this._maxAge}%)`
+      }
+
       /** Process changes to the instance. */
       animate() {
-//        this.x++;
-//        this.y++;
         const width = this.size.width;
         const height = this.size.height;
-        const direction = Walker.getRandomArbitrary(4);
-        let x = this.x; // - (width / 2);
-        let y = this.y; // - (height / 2);
 
-        if (direction === WALKER_DIRECTIONS.UP) {
-          y += this.spacing;
-        } else if (direction === WALKER_DIRECTIONS.RIGHT) {
-          x += this.spacing;
-        } else if (direction === WALKER_DIRECTIONS.DOWN) {
-          y -= this.spacing;
-        } else if (direction === WALKER_DIRECTIONS.LEFT) {
-          x -= this.spacing;
+        this.context.fillStyle = this.ageColor;
+
+        if (Math.random() >= 0.5) {
+          this.x += Walker.random(-1, 1) * this.spacing;
+        } else {
+          this.y += Walker.random(-1, 1) * this.spacing;
         }
 
-        this.x = x;
-        this.y = y;
-
-
-        this.context.fillRect(x, y, width, height);
+        this.context.fillRect(this.x, this.y, width, height);
       }
 
       /** Render loop. */
