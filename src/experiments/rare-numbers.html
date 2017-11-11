@@ -69,6 +69,7 @@
      * @param {Number} FALLBACK_CANVAS_WIDTH The default canvas width if none is specified.
      * @param {Number} FALLBACK_CANVAS_HEIGHT The default canvas height if none is specified.
      * @readonly
+     * @constant
      */
     const CONFIG = {
       COLUMNS: 4,
@@ -95,6 +96,7 @@
      * Sound options.
      * @type {Array<OscillatorConfig>}
      * @readonly
+     * @constant
      */
     const OSCILLATORS = [
       {
@@ -438,7 +440,7 @@
        */
       _audioToggle() {
         if (this.volume) {
-          if (this.active) {
+          if (this.active && document.hasFocus()) {
             this._volumeOn();
           } else {
             this._volumeOff();
@@ -559,8 +561,8 @@
        * @param {Number} [height]
        */
       resize(width = CONFIG.FALLBACK_CANVAS_WIDTH, height = CONFIG.FALLBACK_CANVAS_HEIGHT) {
-        this.canvas.width = width * window.devicePixelRatio;
-        this.canvas.height = height * window.devicePixelRatio;
+        this.canvas.width = width;
+        this.canvas.height = height;
 
         this.context.font = `${width * CONFIG.FONT_SIZE_MULTIPLIER}px ${CONFIG.FONT}`;
         this.context.textBaseline = CONFIG.TEXT_BASELINE;
