@@ -48,20 +48,47 @@
 
     /**
      * @typedef {Object} OscillatorConfig
-     * @param {String} type The oscillator type. options: 'sawtooth', 'sine', 'square', 'triangle', 'custom'.
-     * @param {AudioParam} frequency The frequency of oscillation in hertz.
-     * @param {AudioParam} [detune] The detuning of oscillation in cents.
+     * @param {String} TYPE The oscillator type. options: 'sawtooth', 'sine', 'square', 'triangle', 'custom'.
+     * @param {AudioParam} FREQUENCY The frequency of oscillation in hertz.
+     * @param {AudioParam} [DETUNE] The detuning of oscillation in cents.
+     * @param {AudioParam} [STAGGER_DETUNE] The detune during stagger mode.
      */
 
     /**
      * The component config.
      * @param {Number} COLUMN The amount of columns.
      * @param {AudioParam} VOLUME The volume of the generated sound.
+     * @param {String} COLOUR The canvas drawing colour.
+     * @param {String} COLOUR_HIGHLIGHTED The highlighted canvas drawing colour.
+     * @param {Number} STAGGER_INITIAL_TIMEOUT Time in milliseconds before activating the stagger mode loop.
+     * @param {Number} STAGGER_MAX_TIMEOUT Maximum time in milliseconds to toggle staggerMode
+     * @param {String} FONT The font used to display the numbers.
+     * @param {Number} FONT_SIZE_MULTIPLIER The font size. (Canvas.width / FONT_SIZE_MULTIPLIER).
+     * @param {String} TEXT_ALIGN The canvas text alignment.  ['left', 'center', 'right'].
+     * @param {String} TEXT_BASELINE The canvas test baseline. ['top', 'bottom', 'middle', 'alphabetic', 'hanging'].
+     * @param {Number} FALLBACK_CANVAS_WIDTH The default canvas width if none is specified.
+     * @param {Number} FALLBACK_CANVAS_HEIGHT The default canvas height if none is specified.
      * @readonly
      */
     const CONFIG = {
       COLUMNS: 4,
-      VOLUME: 0.2
+      ROWS: 4,
+
+      COLOUR: 'rgba(255, 255, 255, .04)',
+      COLOUR_HIGHLIGHTED: 'white',
+
+      VOLUME: 0.2,
+
+      STAGGER_INITIAL_TIMEOUT: 5000,
+      STAGGER_MAX_TIMEOUT: 10000,
+
+      FONT: 'Roboto Mono',
+      FONT_SIZE_MULTIPLIER: 0.1,
+      TEXT_ALIGN: 'center',
+      TEXT_BASELINE: 'middle',
+
+      FALLBACK_CANVAS_WIDTH: 500,
+      FALLBACK_CANVAS_HEIGHT: 500
     };
 
     /**
@@ -71,17 +98,20 @@
      */
     const OSCILLATORS = [
       {
-        type: 'triangle',
-        frequency: 1
+        TYPE: 'triangle',
+        FREQUENCY: 1,
+        DETUNE: 0
       },
       {
-        type: 'square',
-        frequency: 8,
-        detune: 100
+        TYPE: 'square',
+        FREQUENCY: 3,
+        DETUNE: 100,
+        STAGGER_DETUNE: -3000
       },
       {
-        type: 'sine',
-        frequency: 0
+        TYPE: 'sine',
+        FREQUENCY: 0,
+        DETUNE: 0
       }
     ];
 
@@ -106,13 +136,13 @@
 
           rows: {
             type: Number,
-            value: 4
+            value: CONFIG.COLUMNS
           },
           columns: {
             type: Number,
-            value: 4
+            value: CONFIG.ROWS
           },
-          gridItems: Array,
+          instances: Array,
 
           staggerMode: {
             type: Boolean,
@@ -144,7 +174,7 @@
           root: null,
           rootMargin: '0px',
           threshold: 0.3,
-        }
+        };
 
         return new IntersectionObserver(this._onObserve.bind(this), options);
       }
@@ -190,8 +220,11 @@
          */
         this._container = this.$.grid;
 
-        /** @type {Array<GridCanvas>} */
-        this.gridItems = await this._createGridItems();
+        const gridCSSColumns = `1fr `.repeat(this.columns);
+        this._container.style.setProperty('grid-template-columns', gridCSSColumns);
+
+        /** @type {Array<IkedaInspiredNode>} */
+        this.instances = await this._createInstances();
         this.to = null;
 
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -199,13 +232,13 @@
         this.volume.gain.value = 0;
         this.volume.connect(this.audioContext.destination);
 
-        this.chosenIteration = this.chosenIteration = Math.floor(Math.random() * (this.rows * this.columns)) + 1;
+        this.chosenIteration = Math.floor(Math.random() * (this.rows * this.columns));
 
         this._addEventListeners();
 
         this._createSound();
 
-        this._setStaggerMode(5000);
+        this._setStaggerMode(CONFIG.STAGGER_INITIAL_TIMEOUT);
 
         this.render();
         if (this.active) this._audioToggle();
@@ -222,53 +255,36 @@
           this.staggerMode = !this.staggerMode;
 
           if (this.staggerMode) {
-            this.oscillators[1].detune.value = -3000;
+            this.oscillators[1].detune.value = OSCILLATORS[1].STAGGER_DETUNE;
           } else {
-            this.oscillators[1].frequency.value = 3;
-            this.oscillators[1].detune.value = 0;
+            this.oscillators[1].frequency.value = OSCILLATORS[1].FREQUENCY;
+            this.oscillators[1].detune.value = OSCILLATORS[1].DETUNE;
           }
 
-          this._setStaggerMode(Math.random() * 10000);
+          this._setStaggerMode(Math.random() * CONFIG.STAGGER_MAX_TIMEOUT);
         }, timeout);
       }
 
       /**
        * @private
-       * @returns {GridCanvas}
+       * @returns {Array}
        */
-      _createGridItems() {
-        const gridItems = [];
+      _createInstances() {
+        const instances = [];
         const amount = this.rows * this.columns;
         const componentParent = this.parentNode;
+        const width = (componentParent.offsetWidth * window.devicePixelRatio) / this.columns;
+        const height = (componentParent.offsetWidth * window.devicePixelRatio) / this.rows;
         let i = 0;
 
         for (i; i < amount; i++) {
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          const gridItem = {
-            canvas: canvas,
-            context: context
-          };
+          const instance = new IkedaInspiredNode(width, height);
+          this._container.appendChild(instance.canvas);
 
-          canvas.width = (componentParent.offsetWidth * window.devicePixelRatio) / CONFIG.COLUMNS;
-          canvas.height = (componentParent.offsetHeight * window.devicePixelRatio) / CONFIG.COLUMNS;
-
-          context.font = `${canvas.width / 10}px Roboto Mono`;
-          context.textBaseline = 'middle';
-          context.textAlign = 'center';
-
-          context.fillStyle = 'rgba(255, 255, 255, .1)';
-
-          if (this.chosenIteration === i) {
-            context.fillStyle = 'white';
-          }
-
-          this._container.appendChild(canvas);
-
-          gridItems.push(gridItem);
+          instances.push(instance);
         }
 
-        return gridItems;
+        return instances;
       }
 
       /**
@@ -279,7 +295,7 @@
         const context = this.audioContext;
 
         OSCILLATORS.forEach(options => {
-          const oscillator = this._createOscillator(context, options.type, options.frequency, options.detune);
+          const oscillator = this._createOscillator(context, options.TYPE, options.FREQUENCY, options.DETUNE);
 
           oscillator.connect(this.volume);
           oscillator.start();
@@ -313,51 +329,33 @@
        * @private
        */
       _animate()  {
-        let item;
-        let randomBoolean;
-        let numberToDisplay;
-        let x;
-        let y;
+        const chosenInstance = this.instances[this.chosenIteration];
         let i = 0;
 
-        for (i; i < this.gridItems.length; i++) {
-          item = this.gridItems[i];
-          randomBoolean = Math.random() >= 0.3;
-          numberToDisplay = parseFloat(Math.random() * 10).toFixed(3);
+        for (i; i < this.instances.length; i++) {
+          const instance = this.instances[i];
+          const forceClearCanvas = Math.random() >= 0.3;
 
-          if (randomBoolean || this.chosenIteration === i) {
-            if (this.staggerMode && this.chosenIteration !== i) {
-              item.context.fillStyle = 'rgba(255, 255, 255, .1)';
-            } else {
-              if (this.chosenIteration === i) {
-                item.context.fillStyle = 'rgba(255, 255, 255, 1)';
-              } else {
-                item.context.fillStyle = 'rgba(255, 255, 255, .1)';
-              }
-              item.context.clearRect(0, item.canvas.height / 4, item.canvas.width, item.canvas.height / 2);
+          if (instance === chosenInstance) instance.clear();
+
+          if (!this.staggerMode) {
+            if (forceClearCanvas) {
+              instance.clear();
             }
           }
 
-//          if (this.staggerMode) {
-//            x = (item.canvas.width / 2) + Math.floor(Math.random() * 10) + 1;
-//            y = (item.canvas.height / 2) + Math.floor(Math.random() * 10) + 1;
-//          } else {
-            x = item.canvas.width / 2;
-            y = item.canvas.height / 2;
-          // }
 
-          item.context.fillText(`${numberToDisplay}`, x, y);
+          instance.render();
         }
 
-        this.oscillators[0].frequency.value = numberToDisplay * 10;
+        this.oscillators[0].frequency.value = chosenInstance.currentNumber * 10;
 
-        if (!this.staggerMode) {
-          this.oscillators[1].frequency.value = numberToDisplay * 2;
-          this.oscillators[2].frequency.value = 0;
-        } else {
+        if (this.staggerMode) {
           this.oscillators[2].frequency.value = 200;
+        } else {
+          this.oscillators[1].frequency.value = chosenInstance.currentNumber * 2;
+          this.oscillators[2].frequency.value = 0;
         }
-
       }
 
       /**
@@ -393,20 +391,20 @@
        * @private
        */
       _onResize() {
-        const amount = this.rows * this.columns;
         const componentParent = this.parentNode;
-        let i = 0;
+        const width = (componentParent.offsetWidth * window.devicePixelRatio) / this.columns;
+        const height = (componentParent.offsetHeight * window.devicePixelRatio) / this.rows;
+        let i = this.instances.length - 1;
 
-        for (i; i < amount; i++) {
-          this.gridItems[i].canvas.width = (componentParent.offsetWidth * window.devicePixelRatio) / CONFIG.COLUMNS;
-          this.gridItems[i].canvas.height = (componentParent.offsetHeight * window.devicePixelRatio) / CONFIG.COLUMNS;
+        for (i; i >= 0; i--) {
+          const instance = this.instances[i];
 
-          this.gridItems[i].context.font = `${this.gridItems[i].canvas.width / 10}px Roboto Mono`;
+          instance.resize(width, height);
 
-          this.gridItems[i].context.fillStyle = 'rgba(0, 0, 0, .4)';
+          instance.context.fillStyle = CONFIG.COLOUR;
 
           if (this.chosenIteration === i) {
-            this.gridItems[i].context.fillStyle = 'white';
+            instance.context.fillStyle = CONFIG.COLOUR_HIGHLIGHTED;
           }
         }
       }
@@ -458,7 +456,7 @@
 
       /**
        * Set the audio gain.
-       * @param {AudioParam} volume The volume. (Range 0 - 1).
+       * @param {AudioParam} [volume] The volume. (Range 0 - 1).
        */
       _volumeOn(volume = CONFIG.VOLUME) {
         this.volume.gain.value = volume;
@@ -485,6 +483,91 @@
         window.removeEventListener('resize', this._boundResizeListener);
         window.removeEventListener('blur', this._boundBlurListener);
         window.removeEventListener('focus', this._boundFocusListener);
+      }
+    }
+
+    /**
+     * @author Pim de Wit / https://pdw.io
+     * @desc An interactive experiment for learning purposes. Heavily inspired by Ryoji Ikeda.
+     * @class
+     */
+    class IkedaInspiredNode {
+      constructor(width, height) {
+        /** @type {HTMLCanvasElement} */
+        this.canvas = document.createElement('canvas');
+
+        /** @type {CanvasRenderingContext2D} */
+        this.context = this.canvas.getContext('2d');
+
+        /**
+         * The position of our text on the X axis.
+         * @type {Number}
+         */
+        this.x = width / 2;
+
+        /**
+         * The position of our text on the Y axis.
+         * @type {Number}
+         */
+        this.y = height / 2;
+
+        /**
+         * The number currently displayed on the canvas.
+         * @type {Number}
+         * @private
+         */
+        this._currentNumber = 0;
+
+        this.canvas.width = width * window.devicePixelRatio;
+        this.canvas.height = height * window.devicePixelRatio;
+
+        this.context.font = `${width * CONFIG.FONT_SIZE_MULTIPLIER}px ${CONFIG.FONT}}`;
+      }
+
+      /**
+       * Get the number currently displayed on the canvas.
+       * @readonly
+       * @returns {Number}
+       */
+      get currentNumber() {
+        return this._currentNumber;
+      }
+
+      /** Clear the instance' canvas. */
+      clear() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      }
+
+      /** Process changes to the instance. */
+      animate() {
+        const randomDigits = Math.random() * 10;
+        const stringToDisplay = randomDigits.toFixed(3);
+
+        this._currentNumber = stringToDisplay;
+
+        this.context.fillText(`${stringToDisplay}`, this.x, this.y);
+      }
+
+      /** Render loop. */
+      render() {
+        this.animate();
+      }
+
+      /**
+       * Resize handler.
+       * @param {Number} [width]
+       * @param {Number} [height]
+       */
+      resize(width = CONFIG.FALLBACK_CANVAS_WIDTH, height = CONFIG.FALLBACK_CANVAS_HEIGHT) {
+        this.canvas.width = width * window.devicePixelRatio;
+        this.canvas.height = height * window.devicePixelRatio;
+
+        this.context.font = `${width * CONFIG.FONT_SIZE_MULTIPLIER}px ${CONFIG.FONT}`;
+        this.context.textBaseline = CONFIG.TEXT_BASELINE;
+        this.context.textAlign = CONFIG.TEXT_ALIGN;
+
+        this.x = this.canvas.width / 2;
+        this.y = this.canvas.height / 2;
       }
     }
 
