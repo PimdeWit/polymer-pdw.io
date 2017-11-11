@@ -224,8 +224,10 @@
         const width = this.parentNode.offsetWidth * window.devicePixelRatio;
         const height = this.parentNode.offsetHeight * window.devicePixelRatio;
 
-        this.walkers.forEach(walker => {
+        this._canvas.width = width;
+        this._canvas.height = height;
 
+        this.walkers.forEach(walker => {
           if (walker.canvas) walker.resize(width, height);
         });
       }
@@ -371,11 +373,8 @@
        * @param {Number} height
        */
       resize(width, height) {
-        this.canvas.width = width;
-        this.canvas.height = height;
-
-        this.x = Math.floor(this.canvas.width / 2);
-        this.y = Math.floor(this.canvas.height / 2);
+        this.x = Math.floor(width / 2);
+        this.y = Math.floor(height / 2);
       }
 
       /**
