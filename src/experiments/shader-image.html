@@ -193,17 +193,17 @@
       async connectedCallback() {
         super.connectedCallback();
 
-        const secondOne = 'images/illustrations/darkness.png';
         let sizeX = this.sizeX;
         let sizeY = this.sizeY;
+
+        // Quick and dirty for experiment.
         if (this.cover) {
           const parent = this.parentNode;
           const size = parent.offsetWidth > parent.offsetHeight ? parent.offsetWidth : parent.offsetHeight;
-          sizeX = (size * 1.25) / 2;
-          sizeY = size / 2;
+          sizeX = (size / 3 ) * 1.25;
+          sizeY = size / 3;
         }
 
-        const canvas = this.$.container;
         this.shader = new Shader(this.$.container, sizeX, sizeY, this.texture, this.map);
 
         this._addEventListeners();
@@ -417,7 +417,7 @@
             value: new THREE.Vector2(this.width, this.height)
           },
           pointer: {
-            value: new THREE.Vector2(SHADER_CONFIG.SHADER_CENTER, SHADER_CONFIG.SHADER_CENTER)
+            value: new THREE.Vector2(0, 0)
           },
           texture: {
             value: texture
