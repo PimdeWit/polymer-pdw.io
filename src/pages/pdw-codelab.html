@@ -13,6 +13,7 @@
 <link rel="import" href="../experiments/steezy-svg.html">
 <link rel="import" href="../experiments/rare-numbers.html">
 <link rel="import" href="../experiments/the-journey.html">
+<link rel="import" href="../experiments/shader-image.html">
 
 <link rel="import" href="../shared-styles.html">
 
@@ -232,6 +233,8 @@
       </div>
       <rare-numbers id="rarenumbers" class="experiment" name="/rare-numbers"></rare-numbers>
       <the-journey id="thejourney" class="experiment" name="/the-journey"></the-journey>
+      <shader-image id="paradise" texture="images/illustrations/4.jpg" map="images/illustrations/4.jpg" class="experiment" name="/paradise" size-x="400" size-y="600"></shader-image>
+      <shader-image id="darkness" texture="images/illustrations/darkness.png" map="images/illustrations/darkness.png" class="experiment" name="/darkness" cover></shader-image>
     </iron-pages>
 
     <!--<h3 class="experiment__title">[[route.path]]</h3>-->
@@ -311,6 +314,18 @@
                 text: 'The Journey',
                 year: 2017,
               },
+              {
+                name: '/paradise',
+                url: 'codelab/paradise',
+                text: 'Paradise',
+                year: 2017,
+              },
+              {
+                name: '/darkness',
+                url: 'codelab/darkness',
+                text: 'Darkness',
+                year: 2017,
+              }
             ],
           },
           _displacementSlice: {
@@ -339,19 +354,19 @@
         Polymer.RenderStatus.afterNextRender(this, () => {
           const path = this.route.path;
           const selector = `a[name="${path}"]`;
+          const animateElement = this.shadowRoot.querySelector('.experiment.iron-selected');
+          const a = this.shadowRoot.querySelector(selector);
+
           this.menuItems = this.shadowRoot.querySelectorAll('a[name]');
 
           for (let i = this.menuItems.length - 1; i >= 0; i--) {
             this.menuItems[i].classList.remove('active');
           }
 
-          const a = this.shadowRoot.querySelector(selector);
-
           if (a) {
             a.classList.add('active');
           }
 
-          const animateElement = this.shadowRoot.querySelector('.experiment.iron-selected');
           if (animateElement) {
             animateElement.classList.add('animate');
 
@@ -393,7 +408,6 @@
       }
 
     }
-
 
     /**
      * @type {Object}

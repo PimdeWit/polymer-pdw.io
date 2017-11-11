@@ -1,0 +1,483 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../third_party/imports/import-intersection-observer.html">
+<link rel="import" href="../third_party/imports/import-three.html">
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="shader-image">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        width: 100%;
+        height: 500px;
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+
+        touch-action: none;
+        -ms-touch-action: none;
+        touch-action: none;
+      }
+    </style>
+
+    <div id="container"></div>
+
+  </template>
+
+  <script>
+
+    /**
+     * @type {String}
+     * @readonly
+     * @constant
+     */
+    const VERTEX = `
+      void main() {
+        gl_Position = vec4(position, 1.0);
+      }
+    `;
+
+    /**
+     * @type {String}
+     * @readonly
+     * @constant
+     */
+    const FRAGMENT = `
+      uniform float time;
+      uniform vec2 resolution;
+      uniform vec2 pointer;
+      uniform sampler2D texture;
+      uniform sampler2D map;
+
+      float wave(float x,float freq, float speed) {
+        return sin(x * freq + (((time * 1.0) * (3.1415 / 2.0)) * speed));
+      }
+
+      vec2 pixel() {
+        return vec2(1.0, 3.0) / resolution.xy;
+      }
+
+      vec2 waves(vec2 pos) {
+        vec4 maps = texture2D(map, pos);
+        float mask = maps.r;
+        float y = maps.b;
+        float y2 = pow(y, 1.0);
+
+        vec2 intensity = vec2(
+          0.1 - (y2 * 0.5),
+          0.2 + (y2 * 0.8)
+        ) * pixel();
+
+        vec2 waves = vec2(
+          wave(y, 400.0 - (y2 * 200.0), -0.03),
+          wave(y, 400.0 - (y2 * 400.0 * 0.05), -0.045)
+          +wave(y, 900.0 - (y2 * 900.0 * 0.05), -0.05)
+          +wave(pos.x, 20.0 + (y2 * 20.0 * 1.5), -0.01)
+        );
+        return pos + (waves * intensity * mask);
+      }
+
+      vec2 depth(vec2 pos) {
+        vec2 intensity = vec2(0.01, 1.01);
+        float d = 0.05 - pow(texture2D(map, pos).b, 1.0);
+        return pos + (intensity * pointer.x * d);
+      }
+
+      void main() {
+        vec2 st = gl_FragCoord.xy / resolution.xy;
+
+        vec2 turbulence = depth(waves(st));
+
+        vec4 c = texture2D(texture, turbulence);
+
+        gl_FragColor = vec4(c.rgb, 1.0);
+      }
+    `;
+
+    /**
+     * @author Pim de Wit / https://pdw.io
+     * @desc An interactive experiment for learning purposes.
+     * @class
+     */
+    class ShaderImage extends Polymer.Element {
+      static get is() { return 'shader-image'; }
+      static get properties() {
+        return {
+          active: {
+            type: Boolean,
+            value: false
+          },
+
+          amount: {
+            type: Number,
+            value: 1000,
+          },
+
+          cover: Boolean,
+
+          sizeX: {
+            type: Number,
+            value: 500
+          },
+          sizeY: {
+            type: Number,
+            value: 500
+          },
+
+          texture: String,
+          map: String,
+          intersectionObserver: Object,
+          canvas: HTMLCanvasElement,
+        }
+      }
+
+      constructor() {
+        super();
+
+        this._boundResizeListener = this._onResize.bind(this);
+
+        /** @type {IntersectionObserver} */
+        this.intersectionObserver = this._createIntersectionObserver();
+        this.intersectionObserver.observe(this);
+      }
+
+      /**
+       * Create and return an IntersectionOBserver instance.
+       * @return {IntersectionObserver}
+       * @private
+       */
+      _createIntersectionObserver() {
+        const options = {
+          root: null,
+          rootMargin: '0px',
+          threshold: 0.3,
+        };
+
+        return new IntersectionObserver(this._onObserve.bind(this), options);
+      }
+
+      /**
+       * On Element Into View handler.
+       * @param {Array} entries
+       * @private
+       */
+      _onObserve(entries) {
+        entries.forEach(entry => {
+          const ratio = entry.intersectionRatio;
+          const isVisible = ratio > 0.3;
+          if (isVisible) {
+            this.setToActive();
+          } else {
+            this.active = false;
+          }
+        });
+      }
+
+      /**
+       * Set the component to active and send a rendering tick to start a loop.
+       * @private
+       */
+      setToActive() {
+        if (!this.active) {
+          this.active = true;
+          this._onResize();
+          this.render();
+        }
+      }
+
+      /**
+       * Connected callback.
+       */
+      async connectedCallback() {
+        super.connectedCallback();
+
+        const secondOne = 'images/illustrations/darkness.png';
+        let sizeX = this.sizeX;
+        let sizeY = this.sizeY;
+        if (this.cover) {
+          const parent = this.parentNode;
+          const size = parent.offsetWidth > parent.offsetHeight ? parent.offsetWidth : parent.offsetHeight;
+          sizeX = (size * 1.25) / 2;
+          sizeY = size / 2;
+        }
+
+        const canvas = this.$.container;
+        this.shader = new Shader(this.$.container, sizeX, sizeY, this.texture, this.map);
+
+        this._addEventListeners();
+
+        this.render();
+      }
+
+      /**
+       * Apply changes / animate
+       * @private
+       */
+      _animate()  {
+        this.shader.render();
+      }
+
+      /**
+       * Rendering loop.
+       */
+      render() {
+        this._animate();
+
+        if (this.active) requestAnimationFrame(() => this.render());
+      }
+
+      /**
+       * Add event listeners to this instance.
+       * @private
+       */
+      _addEventListeners() {
+        window.addEventListener('resize', this._boundResizeListener, { passive: true });
+      }
+
+      /**
+       * Resize handler.
+       * @listens window.resize
+       * @private
+       */
+      _onResize() {
+        const width = 500;
+        const height = 500;
+      }
+
+      /**
+       * On element removed from DOM handler.
+       */
+      disconnectedCallback() {
+        super.disconnectedCallback();
+        this._removeEventListeners();
+
+        this.shader.dispose();
+      }
+
+      /**
+       * Remove the event listeners of this instance.
+       * @private
+       */
+      _removeEventListeners() {
+        window.removeEventListener('resize', this._boundResizeListener);
+      }
+    }
+
+    /**
+     * Shader related options. Purely to prevent magic numbers.
+     * @type {Object}
+     * @property {Number} SHADER_VIEWPORT_SIZE The size of the projection surface object.
+     * @property {Number} SHADER_CENTER The center of the shader. (Values are usually normalised within a shader)
+     * @property {Number} SHADER_TIME_SPEED The speed of which the time uniform iterates..
+    */
+    const SHADER_CONFIG = {
+      SHADER_VIEWPORT_SIZE: 2,
+      SHADER_CENTER: 0.5,
+      SHADER_TIME_SPEED: 1
+    };
+
+    /**
+     * @author Pim de Wit / https://pdw.io
+     * @class
+     */
+    class Shader {
+      constructor(container, width, height, texturePath, mapPath) {
+        this._boundPointerMoveListener = this._onPointerMoveHandler.bind(this);
+
+        /**
+         * @type {String}
+         * @readonly
+         * @constant
+         */
+        this.vertex = VERTEX;
+
+        /**
+         * @type {String}
+         * @readonly
+         * @constant
+         */
+        this.fragment = FRAGMENT;
+
+        /** @type {Number} */
+        this.width = width;
+
+        /** @type {Number} */
+        this.height = height;
+
+        /**
+         * @type {THREE.Scene}
+         * @readonly
+         * @constant
+         */
+        this.scene = new THREE.Scene();
+
+        /**
+         * @type {THREE.Camera}
+         * @readonly
+         * @constant
+         */
+        this.camera = new THREE.Camera();
+
+        /** @type {THREE.TextureLoader} */
+        this.loader = new THREE.TextureLoader();
+
+        /** @type {Object} */
+        this.uniforms = {};
+
+        /**
+         * @type {THREE.WebGLRenderer}
+         * @readonly
+         * @constant
+         */
+        this.renderer = new THREE.WebGLRenderer();
+        this.renderer.setSize(width, height);
+        container.appendChild(this.renderer.domElement);
+
+        this.camera.z = SHADER_CONFIG.SHADER_VIEWPORT_SIZE;
+
+        this._setup(texturePath, mapPath).then(this._addEventListeners());
+      }
+
+      /**
+       * Create a 3dimensional object to project a shader on.
+       * @param {Number} geometrySize
+       * @param {Object} uniforms
+       * @param {String} vertex
+       * @param {String} fragment
+       * @returns {Mesh}
+       */
+      static createShaderProjectionSurface(geometrySize, uniforms, vertex, fragment) {
+        const geometry = new THREE.PlaneBufferGeometry(geometrySize, geometrySize);
+        const material = new THREE.ShaderMaterial({
+          uniforms: uniforms,
+          vertexShader: vertex,
+          fragmentShader: fragment
+        });
+
+        return new THREE.Mesh(geometry, material);
+      }
+
+      /**
+       * Load an image.
+       * @param {THREE.TextureLoader} loader
+       * @param {String} path
+       * @returns {Promise}
+       */
+      static load(loader, path) {
+        return new Promise((resolve, reject) => {
+          loader.load(path, texture => {
+            resolve(texture);
+          });
+        });
+      }
+
+      /**
+       * Get the X and Y coordinates of the pointer.
+       * @param {Event} event
+       * @returns {{x: Number, y: Number}}
+      */
+      static getPointerCoordinates(event) {
+        let coordinates = {
+          x: 0,
+          y: 0
+        };
+
+        if (event.x || event.x === 0) {
+          coordinates.x = event.x;
+          coordinates.y = event.y;
+        } else if (event.pageX || event.pageX === 0) {
+          coordinates.x = event.pageX;
+          coordinates.y = event.pageY;
+        } else if (event.touches) {
+          if (event.touches[0].pageX || event.touches[0].pageX) {
+            coordinates.x = event.touches[0].pageX;
+            coordinates.y = event.touches[0].pageY;
+          }
+        }
+
+        return coordinates;
+      }
+
+      /**
+       * Initialise the shader environment.
+       * @async
+       * @returns {Promise.<void>}
+       */
+      async _setup(texturePath, mapPath) {
+        const texture = await Shader.load(this.loader, texturePath);
+        const map = await Shader.load(this.loader, mapPath);
+
+        this.uniforms = {
+          time: {
+            value: 1.0
+          },
+          resolution: {
+            value: new THREE.Vector2(this.width, this.height)
+          },
+          pointer: {
+            value: new THREE.Vector2(SHADER_CONFIG.SHADER_CENTER, SHADER_CONFIG.SHADER_CENTER)
+          },
+          texture: {
+            value: texture
+          },
+          map: {
+            value: map
+          }
+        };
+
+        const mesh = Shader.createShaderProjectionSurface(SHADER_CONFIG.SHADER_VIEWPORT_SIZE, this.uniforms, this.vertex, this.fragment);
+
+        this.scene.add(mesh);
+      }
+
+      /** @returns {Number} */
+      get time() {
+        let time = 1;
+
+        if (this.uniforms && this.uniforms.time) {
+          time = this.uniforms.time.value;
+        }
+        return time;
+      }
+
+      /** @param {Number} newTime */
+      set time(newTime) {
+        if (this.uniforms && this.uniforms.time) {
+          this.uniforms.time.value = newTime;
+        }
+      }
+
+      _addEventListeners() {
+        this.renderer.domElement.addEventListener('pointermove', this._boundPointerMoveListener, { passive: true });
+      }
+
+      /** @private */
+      _onPointerMoveHandler(event) {
+        const coordinates = Shader.getPointerCoordinates(event);
+        const bcr = this.renderer.domElement.getBoundingClientRect();
+
+        const x = coordinates.x - bcr.left;
+        const y = coordinates.y - bcr.top;
+
+        this.uniforms.pointer.value.x = x / this.width;
+        this.uniforms.pointer.value.y = y / this.height;
+      }
+
+      render() {
+        this.time += SHADER_CONFIG.SHADER_TIME_SPEED;
+        this.renderer.render(this.scene, this.camera);
+      }
+
+      dispose() {
+        this.scene.traverse(object => {
+          if (object.geometry) object.geometry.dispose();
+          if (object.material) object.material.dispose();
+        });
+      }
+    }
+
+    window.customElements.define(ShaderImage.is, ShaderImage);
+  </script>
+</dom-module>
