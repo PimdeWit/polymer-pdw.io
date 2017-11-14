@@ -3,8 +3,6 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
 
 <link rel="import" href="../experiments/pointer-follower.html">
 <link rel="import" href="../experiments/noise-displacer.html">
@@ -13,6 +11,7 @@
 <link rel="import" href="../experiments/steezy-svg.html">
 <link rel="import" href="../experiments/rare-numbers.html">
 <link rel="import" href="../experiments/the-journey.html">
+<link rel="import" href="../experiments/shader-image.html">
 
 <link rel="import" href="../shared-styles.html">
 
@@ -230,35 +229,20 @@
           ></noise-displacer>
         <input id="noisedisplacerrange" type="range" value="8" min="1" max="256" step="1">
       </div>
-      <div id="svgmorph" class="experiment svg-morph" name="/svg-morph">
-        <svg-morph stroke-length="900" offset="[[svgOffset]]" style="width: 50vw; height: 50vw;" stroke-length="100">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320">
-            <g fill="none" fill-rule="evenodd" stroke="#fff" stroke-width="4">
-              <path d="M160 2.1L62.32 32.27 2 111.23v97.54l60.32 78.95 97.68 30.2 97.68-30.2L318 208.77v-97.54l-60.32-78.95L160 2.08z"/>
-              <path d="M160 50.16L82.33 82.33 50.16 160l32.17 77.67L160 269.84l77.67-32.17L269.84 160l-32.17-77.67L160 50.16z"/>
-              <path d="M160 2.16L48.4 48.4 2.15 160 48.4 271.6 160 317.85l111.6-46.23L317.85 160 271.6 48.4 160 2.15z"/>
-              <path d="M160 2.83L2.83 160 160 317.17 317.17 160 160 2.83z"/>
-              <path d="M160 50.83L50.83 160 160 269.17 269.17 160 160 50.83z"/>
-              <path d="M160 117.2L142.17 160 160 202.8l17.83-42.8L160 117.2z"/>
-            </g>
-          </svg>
-        <input id="svgrange" type="range" min="1" max="1000" step="1">
-      </div>
       <rare-numbers id="rarenumbers" class="experiment" name="/rare-numbers"></rare-numbers>
       <the-journey id="thejourney" class="experiment" name="/the-journey"></the-journey>
+      <shader-image id="paradise" texture="images/illustrations/4.jpg" map="images/illustrations/4.jpg" class="experiment" name="/paradise" size-x="400" size-y="600"></shader-image>
+      <shader-image id="fire-fractal" texture="images/illustrations/darkness.png" map="images/illustrations/darkness.png" class="experiment" name="/fire-fractal" cover></shader-image>
+      <shader-image id="mask-off" texture="images/illustrations/1.jpg" map="images/illustrations/1.jpg" class="experiment" name="/mask-off" size-x="540" size-y="540"></shader-image>
     </iron-pages>
 
     <!--<h3 class="experiment__title">[[route.path]]</h3>-->
-    <paper-tabs class="experiment-menu__tabs" selected="[[route.path]]" attr-for-selected="name" role="navigation" scrollable fit-container>
-      <template is="dom-repeat" items="[[codelabMenu]]">
-        <paper-tab link class="experiment-menu__tab">
-          <a class="experiment-menu__link" href="[[item.url]]" name="[[item.name]]" tabindex="-1">
-            <span>[[item.text]]</span>
-            <span class="experiment-menu__meta">&nbsp;[[item.year]]</span>
-          </a>
-        </paper-tab>
-      </template>
-    </paper-tabs>
+    <template is="dom-repeat" items="[[codelabMenu]]">
+      <a class="experiment-menu__link" href="[[item.url]]" name="[[item.name]]">
+        <span>[[item.text]]</span>
+        <span class="experiment-menu__meta">&nbsp;[[item.year]]</span>
+      </a>
+    </template>
 
     <paper-toast id="toast" class="toast" text="The codelab could contain some battery-draining experiments, You may want to check back later when you are charging your device ([[batteryLevel]]%) 😳" duration="10000">
       <button class="toast__dismiss" on-tap="_closeToast">DISMISS</button>
@@ -325,6 +309,24 @@
                 text: 'The Journey',
                 year: 2017,
               },
+              {
+                name: '/paradise',
+                url: 'codelab/paradise',
+                text: 'Paradise',
+                year: 2017,
+              },
+              {
+                name: '/fire-fractal',
+                url: 'codelab/fire-fractal',
+                text: 'Fire Fractal',
+                year: 2017,
+              },
+              {
+                name: '/mask-off',
+                url: 'codelab/mask-off',
+                text: 'Mask Off',
+                year: 2017,
+              }
             ],
           },
           _displacementSlice: {
@@ -341,17 +343,9 @@
       connectedCallback() {
         super.connectedCallback();
 
-        this._addEventListeners();
+        this.battery = new BatteryManager(this.$.toast);
 
-        if (navigator.getBattery) {
-          navigator.getBattery().then(this._battery.bind(this), () => {
-            console.log('There was an error getting the battery');
-          });
-        } else if (navigator.battery) {
-          this._battery(navigator.battery);
-        } else {
-          console.log('Battery API not supported');
-        }
+        this._addEventListeners();
       }
 
       _routeObserver() {
@@ -361,19 +355,19 @@
         Polymer.RenderStatus.afterNextRender(this, () => {
           const path = this.route.path;
           const selector = `a[name="${path}"]`;
+          const animateElement = this.shadowRoot.querySelector('.experiment.iron-selected');
+          const a = this.shadowRoot.querySelector(selector);
+
           this.menuItems = this.shadowRoot.querySelectorAll('a[name]');
 
           for (let i = this.menuItems.length - 1; i >= 0; i--) {
             this.menuItems[i].classList.remove('active');
           }
 
-          const a = this.shadowRoot.querySelector(selector);
-
           if (a) {
             a.classList.add('active');
           }
 
-          const animateElement = this.shadowRoot.querySelector('.experiment.iron-selected');
           if (animateElement) {
             animateElement.classList.add('animate');
 
@@ -384,45 +378,11 @@
         });
       }
 
-      _battery(battery) {
-        window.battery = battery;
-
-        this.batteryCharging = battery.charging;
-        this.batteryLevel = this._getBatteryLevel(battery.level);
-
-        if (!battery.charging) this._openToast();
-
-        battery.addEventListener('chargingchange', () => {
-          this.batteryCharging = battery.charging;
-
-          battery.charging ? this._closeToast() : this._openToast();
-        }, false);
-
-        battery.addEventListener('levelchange', () => {
-          this.batteryLevel = this._getBatteryLevel(battery.level);
-        });
-      }
-
-      /**
-       * @param {Number} value
-       * @private
-       * @return {Number}
-       **/
-      _getBatteryLevel(value) {
-        return Math.round(value * 100);
-      }
-
       /**
        * Add event listeners
        * @private
        **/
       _addEventListeners() {
-        const svgRange = this.$.svgrange;
-
-        svgRange.addEventListener('input', () => {
-          this.svgOffset = svgRange.value;
-        }, {passive: true});
-
         const rangeNoise = this.$.noisedisplacerrange;
 
         rangeNoise.addEventListener('input', () => {
@@ -430,20 +390,109 @@
         }, {passive: true});
       }
 
-      /**
-       * Open a small dismissible message for the user.
-       * @private
-       */
-      _openToast() {
-        this.$.toast.show();
+      disconnectedCallback() {
+        super.disconnectedCallback();
+        this._dispose();
       }
 
       /**
-       * Close the toast!
+       * Clear up some memory.
        * @private
        */
-      _closeToast() {
-        this.$.toast.hide();
+      _dispose() {
+        this.removeEventListeners();
+        this.battery = null;
+      }
+
+      removeEventListeners() {
+        console.warn('removing listeners from codelab');
+      }
+
+    }
+
+    /**
+     * @type {Object}
+     * @param {Number} MAX_POWER_LEVEL The maximum "charging level" a battery can have. (usually 100)
+     * @constant
+     */
+    const BATTERY_CONSTANTS = {
+      MAX_POWER_LEVEL: 100
+    };
+
+    /**
+     * @author Pim de Wit / https://pdw.io/
+     * @desc Handles everything battery related.
+     * @class
+     */
+    class BatteryManager {
+      /**
+       * @param {*} toast
+       * @constructor
+       */
+      constructor(toast) {
+        this.toast = toast;
+
+        this._init();
+      }
+
+      /**
+       * Get the raw battery level and convert it to a human-recognisable number.
+       * @static
+       */
+      static getBatteryLevel(rawLevel) {
+        return Math.round(rawLevel * BATTERY_CONSTANTS.MAX_POWER_LEVEL);
+      }
+
+      /**
+       * Initialise the instance.
+       * @async
+       * @private
+       */
+      async _init() {
+        this.battery = await navigator.getBattery();
+
+        if (!this.battery) return;
+
+        this._boundChargingChangeHandler = this._onChargingChange.bind(this);
+
+        this._addEventListeners();
+        this._onChargingChange();
+      }
+
+      /**
+       * Add event listeners.
+       * @private
+       */
+      _addEventListeners() {
+        this.battery.addEventListener('chargingchange', this._boundChargingChangeHandler);
+        this.battery.addEventListener('levelchange', this._boundLevelChangeHandler);
+      }
+
+      /**
+       * Battery charging handler.
+       * @listens BatteryManager.battery.onchargingchange
+       */
+      _onChargingChange() {
+        if (this.battery.charging) {
+          this.toast.close();
+        } else {
+          this.toast.open();
+        }
+      }
+
+      /**
+       * Dispose everything related to this class.
+       */
+      dispose() {
+        this._removeEventListeners();
+      }
+
+      /**
+       * Remove all event listeners.
+       * @private
+       */
+      _removeEventListeners() {
+        this.battery.removeEventListener('chargingchange', this._boundChargingChangeHandler);
       }
     }
 

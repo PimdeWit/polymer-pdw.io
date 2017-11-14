@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../third_party/imports/import-intersection-observer.html">
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="the-journey">
@@ -37,24 +38,31 @@
      * @property {Number} height
      */
 
+    /**
+     * Options for the walker instances.
+     * @type {Object}
+     * @param {Number} STEP_SIZE The amount of pixels to iterate on moving.
+     * @param {Number} WIDTH
+     * @param {Number} HEIGHT
+     * @param {Number} MAX_AGE The max age before the instance "dies".
+     * @param {String} BACKGROUND The background colour.
+     * @readonly
+     * @constant
+     */
     const WALKER_OPTIONS = {
       STEP_SIZE: 8,
-      SIZE_X: 2,
-      SIZE_Y: 2,
+      WIDTH: 2,
+      HEIGHT: 2,
+      MAX_AGE: 2000,
       BACKGROUND: 'rgba(0, 0, 0, 0.01)'
-    };
-
-    const WALKER_DIRECTIONS = {
-      UP: 0,
-      RIGHT: 1,
-      DOWN: 2,
-      LEFT: 3
     };
 
     /**
      * @type {Object}
      * @param {Number} HUE (range: 1 - 255)
      * @param {Number} SATURATION (range 1 - 100)
+     * @readonly
+     * @constant
      */
     const WALKER_COLOUR = {
       HUE: 0,
@@ -224,8 +232,10 @@
         const width = this.parentNode.offsetWidth * window.devicePixelRatio;
         const height = this.parentNode.offsetHeight * window.devicePixelRatio;
 
-        this.walkers.forEach(walker => {
+        this._canvas.width = width;
+        this._canvas.height = height;
 
+        this.walkers.forEach(walker => {
           if (walker.canvas) walker.resize(width, height);
         });
       }
@@ -258,10 +268,18 @@
      */
     class Walker {
       constructor(canvas, size, spacing) {
-        /** @type {HTMLCanvasElement} */
+        /**
+         * @type {HTMLCanvasElement}
+         * @readonly
+         * @constant
+         */
         this.canvas = canvas;
 
-        /** @type {CanvasRenderingContext2D} */
+        /**
+         * @type {CanvasRenderingContext2D}
+         * @readonly
+         * @constant
+         */
         this.context = this.canvas.getContext('2d');
 
         /**
@@ -278,8 +296,8 @@
 
         /** @type {Size} */
         this.size = {
-          width: size || WALKER_OPTIONS.SIZE_X,
-          height: size || WALKER_OPTIONS.SIZE_Y
+          width: size || WALKER_OPTIONS.WIDTH,
+          height: size || WALKER_OPTIONS.HEIGHT
         };
 
         /** @type {Number} */
@@ -297,17 +315,14 @@
          * @type {Number}
          * @private
          */
-        this._maxAge = Math.floor(Math.random() * 2000);
+        this._maxAge = Math.floor(Math.random() * WALKER_OPTIONS.MAX_AGE);
+
       }
 
       /**
        * @static
        * @returns {Number}
        */
-      static getRandomArbitrary(max) {
-        return Math.floor(Math.random() * max);
-      }
-
       static random(min, max) {
         return min + Math.round(Math.random() * (max - min));
       }
@@ -336,6 +351,10 @@
         return this._maxAge - this._age;
       }
 
+      /**
+       * @readonly
+       * @returns {String}
+       */
       get ageColor() {
         // return `hsl(${WALKER_COLOUR.HUE + (60 * this._age / this._maxAge)}, ${WALKER_COLOUR.SATURATION}%, 50%)`;
         return `hsl(${WALKER_COLOUR.HUE}, 0%, ${100 * this._age / this._maxAge}%`;
@@ -370,11 +389,8 @@
        * @param {Number} height
        */
       resize(width, height) {
-        this.canvas.width = width;
-        this.canvas.height = height;
-
-        this.x = Math.floor(this.canvas.width / 2);
-        this.y = Math.floor(this.canvas.height / 2);
+        this.x = Math.floor(width / 2);
+        this.y = Math.floor(height / 2);
       }
 
       /**

@@ -164,6 +164,12 @@
         --paper-icon-button-ink-color: #fff;
       }
 
+      @media print {
+        .drawer__toggle {
+          display: none;
+        }
+      }
+
       .drawer__toggle.keyboard-focus {
         background-color: rgba(242, 243, 244, .25);
       }
@@ -253,7 +259,7 @@
         on-opened-changed="_onDrawerStateChange"
         on-app-drawer-transitioned="_onDrawerTransitionEnd"
         narrow
-        swipe-open>
+        disable-swipe>
       <iron-selector selected="[[page]]" attr-for-selected="name" role="navigation">
         <div class="menu">
           <a class="menu__listitem" name="home" href="home" on-tap="closeDrawer"><span class="menu__link">Home</span></a>
