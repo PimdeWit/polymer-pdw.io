@@ -381,13 +381,19 @@
 
         this._addEventListeners();
 
-        setTimeout(() => {
-          const bullets = this.shadowRoot.querySelectorAll(UI_CONFIG.BULLET_SELECTOR);
+        Polymer.RenderStatus.afterNextRender(this, this._createBullets);
+      }
 
-          bullets.forEach(bullet => {
-            this.bullets.push(new MouseAwareElement(bullet));
-          });
-        }, 500);
+      /**
+       * Create interactive bullets.
+       * @private
+       */
+      _createBullets() {
+        const bullets = this.shadowRoot.querySelectorAll(UI_CONFIG.BULLET_SELECTOR);
+
+        bullets.forEach(bullet => {
+          this.bullets.push(new MouseAwareElement(bullet));
+        });
       }
 
       _routeObserver() {
