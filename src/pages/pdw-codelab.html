@@ -62,11 +62,11 @@
 
         border-radius: 200px;
 
-
         background-color: #fff;
 
         transform: scale(0.2);
 
+        pointer-events: none;
       }
 
       .codelab__menu__item.iron-selected .bullet {
@@ -194,6 +194,27 @@
 
         opacity: 0;
       }
+
+
+      .title__overlay {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+
+        opacity: 0;
+
+        text-align: center;
+
+        z-index: 9999;
+        pointer-events: none;
+      }
     </style>
 
     <app-route
@@ -201,6 +222,12 @@
         pattern="/:codelab"
         data="{{routeData}}"></app-route>
 
+    <div class="title__overlay" id="overlay">
+      <header>
+        <h1><span>[[titleCopy]]</span></h1>
+        <p>[[bodyCopy]]</p>
+      </header>
+    </div>
     <iron-pages
         id="wrapper"
         class="experiment-container"
@@ -234,11 +261,9 @@
       <shader-image id="mask-off" texture="images/illustrations/1.jpg" map="images/illustrations/1.jpg" class="experiment" name="/mask-off" size-x="540" size-y="540" style="background-color: #000;"></shader-image>
     </iron-pages>
 
-    <!--<h3 class="experiment__title">[[route.path]]</h3>-->
-
     <iron-selector selected="[[route.path]]" attr-for-selected="name" role="navigation" class="codelab__menu">
       <template is="dom-repeat" items="[[codelabMenu]]">
-        <a class="codelab__menu__item" href="[[item.url]]" name="[[item.name]]">
+        <a class="codelab__menu__item" href="[[item.url]]" on-mouseover="setTitleText" data-title$="[[item.text]]" data-description$="[[item.description]]" name="[[item.name]]">
           <span class="bullet"></span>
         </a>
       </template>
@@ -332,6 +357,8 @@
               }
             ],
           },
+          paragraphCopy: String,
+          titleCopy: String,
           _displacementSlice: {
             type: Number,
             value: 8,
@@ -382,6 +409,19 @@
         this._addEventListeners();
 
         Polymer.RenderStatus.afterNextRender(this, this._createBullets);
+      }
+
+      setTitleText(event) {
+        clearTimeout(this.titleTimeout);
+        const element = event.target;
+        this.titleCopy = element.dataset.title;
+        this.bodyCopy = element.dataset.description;
+
+        this.$.overlay.style.opacity = 1;
+
+        this.titleTimeout = setTimeout(() => {
+          this.$.overlay.style.opacity = 0;
+        }, 1000);
       }
 
       /**
@@ -445,7 +485,6 @@
 
         this.bullets.forEach(bullet => {
           bullet.coordinates = coordinates;
-
           const distance = bullet.distance;
 
           if (distance < UI_CONFIG.BULLET_POINTER_THRESHOLD) {
@@ -470,6 +509,9 @@
         this.battery = null;
       }
 
+      /**
+       * Remove all event listeners.
+       */
       removeEventListeners() {
         window.removeEventListener('pointermove', this._boundPointerHandler);
       }
