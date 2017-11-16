@@ -45,7 +45,7 @@
         display: inline-block;
         font-size: calc(2vw + 1em);
 
-        filter: url(#filter);
+        /*filter: url(#filter);*/
 
         transition-property: opacity, visibility, transform;
         transition-duration: 400ms;
@@ -294,12 +294,12 @@
 
     <div class="codelab__menu">
       <div class="codelab__menu__titlecontainer">
-        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="codelab__menu__title--filter" aria-hidden="true">
-          <filter id="filter">
-            <feTurbulence baseFrequency="0.25 0.0005" stitchTiles="stitch" type="fractalNoise" result="glitch"/>
-            <feDisplacementMap in="SourceGraphic" in2="glitch" scale="0" id="displacement"/>
-          </filter>
-        </svg>
+        <!--<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="codelab__menu__title&#45;&#45;filter" aria-hidden="true">-->
+          <!--<filter id="filter">-->
+            <!--<feTurbulence baseFrequency="0.25 0.0005" stitchTiles="stitch" type="fractalNoise" result="glitch"/>-->
+            <!--<feDisplacementMap in="SourceGraphic" in2="glitch" scale="0" id="displacement"/>-->
+          <!--</filter>-->
+        <!--</svg>-->
 
         <span id="thumbtitle" class="codelab__menu__title" aria-hidden="true">[[thumbTitle]]</span>
       </div>
@@ -402,14 +402,6 @@
           },
           paragraphCopy: String,
           thumbTitle: String,
-          renderBullet: {
-            type: Boolean,
-            value: false
-          },
-          renderBulletTime: {
-            type: Number,
-            value: 0
-          },
           _displacementSlice: {
             type: Number,
             value: 8,
@@ -469,17 +461,8 @@
         this.thumbTitle = element.dataset.title;
 
         this.$.thumbtitle.removeAttribute('aria-hidden');
-        this.renderBullet = true;
-        this.renderBulletTime = 0;
-
-        if (!this.bulletIsAnimating) {
-          this.renderBulletTitle();
-          this.bulletIsAnimating = true;
-        }
 
         this.titleTimeout = setTimeout(() => {
-          this.renderBullet = false;
-          this.bulletIsAnimating = false;
           this.$.thumbtitle.setAttribute('aria-hidden', true);
         }, 1000);
       }

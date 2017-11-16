@@ -112,6 +112,7 @@
         this.walkers = [];
 
         this._boundResizeListener = this._onResize.bind(this);
+        this._boundPointerListener = this._onPointerMove.bind(this);
 
         /** @type {IntersectionObserver} */
         this.intersectionObserver = this._createIntersectionObserver();
@@ -220,7 +221,18 @@
        * @private
        */
       _addEventListeners() {
+        // window.addEventListener('pointermove', this._boundPointerListener, { passive: true });
         window.addEventListener('resize', this._boundResizeListener, { passive: true });
+      }
+
+      _onPointerMove(event) {
+        console.log(event.x, event.y);
+        this.walkers.forEach(walker => {
+          if (walker.canvas) {
+            walker.x = event.x;
+            walker.y = event.y;
+          }
+        })
       }
 
       /**
