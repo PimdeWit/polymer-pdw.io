@@ -29,12 +29,46 @@
       .codelab__menu {
         display: flex;
         align-items: center;
-        justify-content: center;
+        flex-direction: column;
 
         position: absolute;
         bottom: 3vh;
 
         width: 100%;
+      }
+
+      .codelab__menu__titlecontainer {
+        position: relative;
+      }
+
+      .codelab__menu__title {
+        display: inline-block;
+        font-size: calc(2vw + 1em);
+
+        filter: url(#filter);
+
+        transition-property: opacity, visibility, transform;
+        transition-duration: 400ms;
+        transition-timing-function: ease-in-out;
+      }
+
+      .codelab__menu__title--filter {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        visibility: hidden;
+      }
+
+      .codelab__menu__title[aria-hidden="true"] {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+      }
+
+      .codelab__menu__list {
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .codelab__menu__item {
@@ -47,7 +81,7 @@
       }
 
       .codelab__menu__item + .codelab__menu__item {
-        margin-left: 0px;
+        margin-left: 0;
       }
 
       .codelab__menu__item .bullet {
@@ -77,6 +111,10 @@
         opacity: 1;
 
         transform: scale(0.5);
+      }
+
+      .codelab__menu__item:visited {
+        background-color: red;
       }
 
       .experiment-container {
@@ -195,7 +233,6 @@
         opacity: 0;
       }
 
-
       .title__overlay {
         display: flex;
         align-items: center;
@@ -222,12 +259,6 @@
         pattern="/:codelab"
         data="{{routeData}}"></app-route>
 
-    <div class="title__overlay" id="overlay">
-      <header>
-        <h1><span>[[titleCopy]]</span></h1>
-        <p>[[bodyCopy]]</p>
-      </header>
-    </div>
     <iron-pages
         id="wrapper"
         class="experiment-container"
@@ -261,13 +292,25 @@
       <shader-image id="mask-off" texture="images/illustrations/1.jpg" map="images/illustrations/1.jpg" class="experiment" name="/mask-off" size-x="540" size-y="540" style="background-color: #000;"></shader-image>
     </iron-pages>
 
-    <iron-selector selected="[[route.path]]" attr-for-selected="name" role="navigation" class="codelab__menu">
-      <template is="dom-repeat" items="[[codelabMenu]]">
-        <a class="codelab__menu__item" href="[[item.url]]" on-mouseover="setTitleText" data-title$="[[item.text]]" data-description$="[[item.description]]" name="[[item.name]]">
-          <span class="bullet"></span>
-        </a>
-      </template>
-    </iron-selector>
+    <div class="codelab__menu">
+      <div class="codelab__menu__titlecontainer">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="codelab__menu__title--filter" aria-hidden="true">
+          <filter id="filter">
+            <feTurbulence baseFrequency="0.25 0.0005" stitchTiles="stitch" type="fractalNoise" result="glitch"/>
+            <feDisplacementMap in="SourceGraphic" in2="glitch" scale="0" id="displacement"/>
+          </filter>
+        </svg>
+
+        <span id="thumbtitle" class="codelab__menu__title" aria-hidden="true">[[thumbTitle]]</span>
+      </div>
+      <iron-selector selected="[[route.path]]" attr-for-selected="name" role="navigation" class="codelab__menu__list">
+        <template is="dom-repeat" items="[[codelabMenu]]">
+          <a class="codelab__menu__item" href="[[item.url]]" data-title$="[[item.text]]" data-description$="[[item.description]]" name="[[item.name]]" on-mouseover="showBulletTitle">
+            <span class="bullet"></span>
+          </a>
+        </template>
+      </iron-selector>
+    </div>
 
     <paper-toast id="toast" class="toast" text="The codelab could contain some battery-draining experiments, You may want to check back later when you are charging your device! 😳" duration="10000">
       <button class="toast__dismiss" on-tap="_closeToast">DISMISS</button>
@@ -358,7 +401,15 @@
             ],
           },
           paragraphCopy: String,
-          titleCopy: String,
+          thumbTitle: String,
+          renderBullet: {
+            type: Boolean,
+            value: false
+          },
+          renderBulletTime: {
+            type: Number,
+            value: 0
+          },
           _displacementSlice: {
             type: Number,
             value: 8,
@@ -408,20 +459,39 @@
 
         this._addEventListeners();
 
-        Polymer.RenderStatus.afterNextRender(this, this._createBullets);
+        //
+        // Polymer.RenderStatus.afterNextRender(this, this._createBullets);
       }
 
-      setTitleText(event) {
+      showBulletTitle(event) {
         clearTimeout(this.titleTimeout);
         const element = event.target;
-        this.titleCopy = element.dataset.title;
-        this.bodyCopy = element.dataset.description;
+        this.thumbTitle = element.dataset.title;
 
-        this.$.overlay.style.opacity = 1;
+        this.$.thumbtitle.removeAttribute('aria-hidden');
+        this.renderBullet = true;
+        this.renderBulletTime = 0;
+
+        if (!this.bulletIsAnimating) {
+          this.renderBulletTitle();
+          this.bulletIsAnimating = true;
+        }
 
         this.titleTimeout = setTimeout(() => {
-          this.$.overlay.style.opacity = 0;
+          this.renderBullet = false;
+          this.bulletIsAnimating = false;
+          this.$.thumbtitle.setAttribute('aria-hidden', true);
         }, 1000);
+      }
+
+      renderBulletTitle() {
+        this.renderBulletTime += (Math.random() * 0.1);
+        const time = this.renderBulletTime;
+
+        let scale = Math.sin(this.renderBulletTime) * 100;
+        console.log(scale);
+        this.$.displacement.setAttribute('scale', scale);
+        if (this.renderBullet) requestAnimationFrame(() => this.renderBulletTitle());
       }
 
       /**
