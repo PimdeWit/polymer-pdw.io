@@ -15,7 +15,6 @@
 <link rel="lazy-import" href="../pages/pdw-codelab.html">
 <link rel="lazy-import" href="../pages/pdw-404.html">
 
-<link rel="import" href="pdw-app-styles.html">
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="pdw-app">
@@ -26,19 +25,24 @@
         --app-primary-color: #1a1a1a;
         --app-secondary-color: #4285f4;
 
+        --drawer-toggle-line-width: 32px;
+        --drawer-toggle-line-height: 2px;
+        --drawer-toggle-line-color: #fff;
+        --drawer-toggle-timing-function: cubic-bezier(0.710, 0.000, 0.285, 1.000);
+
         display: block;
         position: relative;
 
         width: 100%;
 
+        transition-property: opacity;
+        transition-duration: 500ms;
+        transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1.000);
+
         opacity: 0;
       }
 
-      :host([active]) {
-        opacity: 1;
-
-        transition: .5s opacity cubic-bezier(0.645, 0.045, 0.355, 1.000);
-      }
+      :host([active]) { opacity: 1; }
 
       .a11y-skip {
         position: absolute;
@@ -85,7 +89,7 @@
 
         contain: strict;
         z-index: 9002;
-        --paper-icon-button-ink-color: #fff;
+        --paper-button-ink-color: #fff;
       }
 
       @media print {
@@ -98,23 +102,22 @@
         background-color: rgba(242, 243, 244, .25);
       }
 
-      .drawer__toggle .lines { width: 24px; }
+      .drawer__toggle .lines { width: var(--drawer-toggle-line-width); }
 
       .drawer__toggle .line {
-
         position: absolute;
         top: 0;
 
-        width: 24px;
-        height: 2px;
+        width: var(--drawer-toggle-line-width);
+        height: var(--drawer-toggle-line-height);
 
-        background-color: white;
+        background-color: var(--drawer-toggle-line-color);
 
         transform-origin: center;
 
         transition-property: transform;
         transition-duration: .8s;
-        transition-timing-function: cubic-bezier(0.710, 0.000, 0.285, 1.000);
+        transition-timing-function: var(--drawer-toggle-timing-function);
       }
 
       .drawer__toggle .line:first-child {
@@ -124,15 +127,16 @@
       .drawer__toggle .line:last-child {
         top: 60%;
 
-        transform: scaleX(0.5) translateX(-12px);
+        transform: scaleX(0.5);
+        transform-origin: left;
       }
 
       .drawer__toggle--open .line:first-child {
-        transform: rotate(45deg) translate(3px, 3px);
+        transform: rotate(45deg) translate(12.5%, 150%);
       }
 
       .drawer__toggle--open .line:last-child {
-        transform: rotate(-45deg) translate(4px, -4px);
+        transform: rotate(-45deg) translateY(200%);
       }
 
     </style>
@@ -146,7 +150,7 @@
 
     <button id="a11y-skip" class="a11y-skip" on-tap="_focusMainContent">Skip to main content</button>
 
-    <paper-button id="drawertoggle" class="drawer__toggle" icon="menu" on-tap="toggleDrawer">
+    <paper-button class="drawer__toggle">
       <div class="lines">
         <div class="line"></div>
         <div class="line"></div>
