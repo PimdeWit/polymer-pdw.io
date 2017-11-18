@@ -15,11 +15,128 @@
 <link rel="lazy-import" href="../pages/pdw-codelab.html">
 <link rel="lazy-import" href="../pages/pdw-404.html">
 
-<link rel="import" href="../pdw-app-styles.html">
+<link rel="import" href="pdw-app-styles.html">
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="pdw-app">
   <template>
+
+    <style include="shared-styles">
+      :host {
+        --app-primary-color: #1a1a1a;
+        --app-secondary-color: #4285f4;
+
+        display: block;
+        position: relative;
+
+        width: 100%;
+
+        opacity: 0;
+      }
+
+      :host([active]) {
+        opacity: 1;
+
+        transition: .5s opacity cubic-bezier(0.645, 0.045, 0.355, 1.000);
+      }
+
+      .a11y-skip {
+        position: absolute;
+        top: -1000px;
+        left: -1000px;
+
+        padding: .75rem 1.25rem;
+        overflow: hidden;
+        text-align: left;
+        text-decoration: none;
+      }
+
+      .a11y-skip:focus {
+        top: 0;
+        left: 0;
+
+        padding: 24px 32px;
+
+        background-color: #bdbdbd;
+
+        color: #111;
+
+        font-size: 20px;
+
+        text-decoration: none;
+
+        z-index: 1;
+      }
+
+      .drawer__toggle {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+
+        width: 48px;
+        height: 48px;
+        min-width: 0;
+
+        padding: 8px;
+
+        border-radius: 100%;
+
+        mix-blend-mode: difference;
+
+        contain: strict;
+        z-index: 9002;
+        --paper-icon-button-ink-color: #fff;
+      }
+
+      @media print {
+        .drawer__toggle {
+          display: none;
+        }
+      }
+
+      .drawer__toggle.keyboard-focus {
+        background-color: rgba(242, 243, 244, .25);
+      }
+
+      .drawer__toggle .lines { width: 24px; }
+
+      .drawer__toggle .line {
+
+        position: absolute;
+        top: 0;
+
+        width: 24px;
+        height: 2px;
+
+        background-color: white;
+
+        transform-origin: center;
+
+        transition-property: transform;
+        transition-duration: .8s;
+        transition-timing-function: cubic-bezier(0.710, 0.000, 0.285, 1.000);
+      }
+
+      .drawer__toggle .line:first-child {
+        top: 40%;
+      }
+
+      .drawer__toggle .line:last-child {
+        top: 60%;
+
+        transform: scaleX(0.5) translateX(-12px);
+      }
+
+      .drawer__toggle--open .line:first-child {
+        transform: rotate(45deg) translate(3px, 3px);
+      }
+
+      .drawer__toggle--open .line:last-child {
+        transform: rotate(-45deg) translate(4px, -4px);
+      }
+
+    </style>
+
     <app-location route="{{route}}"></app-location>
     <app-route
         route="{{route}}"
@@ -56,3 +173,5 @@
 
   </template>
 </dom-module>
+
+<script src="pdw-app.js"></script>
