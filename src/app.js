@@ -1,3 +1,6 @@
+const VERSION = `0.0.1`;
+const AUTHOR = `Pim de Wit`;
+
 window.addEventListener('load', () => {
   const polyfillScript = document.createElement('script');
   const font = document.createElement('link');
