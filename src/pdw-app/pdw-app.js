@@ -1,3 +1,8 @@
+/**
+ * @author Pim de Wit / https://pdw.io
+ * @desc The application shell.
+ * @class
+ */
 class PdwApp extends Polymer.Element {
 
   static get is() {
