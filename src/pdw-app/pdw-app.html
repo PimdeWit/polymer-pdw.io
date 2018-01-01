@@ -34,15 +34,7 @@
         position: relative;
 
         width: 100%;
-
-        transition-property: opacity;
-        transition-duration: 500ms;
-        transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1.000);
-
-        opacity: 0;
       }
-
-      :host([active]) { opacity: 1; }
 
       .a11y-skip {
         position: absolute;
@@ -83,12 +75,19 @@
 
         border-radius: 100%;
 
-        transform: translate3d(1em, 1em, 0);
+        /*transform: translate3d(1em, 1em, 0);*/
+        transform-origin: right;
 
-        mix-blend-mode: difference;
+        animation: toggleAnim 3s cubic-bezier(.19, 1, .22, 1) forwards;
 
-        z-index: 9002;
+        z-index: 1;
         --paper-button-ink-color: #fff;
+      }
+
+      @keyframes toggleAnim {
+        0% { transform: translate3d(-150%, 1em, 0); }
+        50% { transform: scaleX(6) translate3d(-100%, 1em, 0); }
+        100% { transform: scaleX(1) translate3d(1em, 1em, 0); }
       }
 
       @media print {
@@ -149,7 +148,7 @@
 
     <button id="a11y-skip" class="a11y-skip" on-tap="_focusMainContent">Skip to main content</button>
 
-    <paper-button class="drawer__toggle">
+    <paper-button id="drawertoggle" class="drawer__toggle">
       <div class="lines">
         <div class="line"></div>
         <div class="line"></div>
