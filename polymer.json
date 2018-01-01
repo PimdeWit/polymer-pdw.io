@@ -28,6 +28,13 @@
       "js": {"minify": true},
       "css": {"minify": true},
       "html": {"minify": true}
+    },
+    {
+      "preset": "es6-bundled",
+      "bundle": true,
+      "js": {"compile": true, "minify": true},
+      "css": {"minify": true},
+      "html": {"minify": true}
     }
   ]
 }
