@@ -22,6 +22,10 @@
         padding: 10vw;
 
         box-sizing: border-box;
+
+        animation: fadeIn 1s cubic-bezier(0.645, 0.045, 0.355, 1.000) .8s forwards;
+
+        opacity: 0;
       }
 
       @media (min-width: 720px) {
@@ -40,6 +44,10 @@
 
       .disclaimer {
         margin-top: 2em;
+      }
+
+      @keyframes fadeIn {
+        100% { opacity: 1; }
       }
     </style>
 

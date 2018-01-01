@@ -1,3 +1,6 @@
+const LOADER_CONTAINER = document.querySelector('.loader-container');
+const LOADER_BAR = document.querySelector('.loader__bar');
+
 /**
  * @author Pim de Wit / https://pdw.io
  * @desc The application shell.
@@ -31,15 +34,20 @@ class PdwApp extends Polymer.Element {
   constructor() {
     super();
 
-    Polymer.RenderStatus.afterNextRender(this, () => {
-      this.rootPattern = (new URL(this.rootPath)).pathname;
+    // this.$.revealer.setAttribute('aria-hidden', true);
+    LOADER_BAR.style.transform = 'transformX(-10%)';
 
-      this.setAttribute('active', '');
-    });
   }
 
   connectedCallback() {
     super.connectedCallback();
+
+    this.rootPattern = (new URL(this.rootPath)).pathname;
+    LOADER_BAR.style.transform = 'none';
+
+    setTimeout(() => {
+      LOADER_CONTAINER.classList.add('loaded');
+    }, 200);
   }
 
   /**

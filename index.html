@@ -44,6 +44,112 @@
     <meta name="msapplication-TileColor" content="#1a1a1a">
     <meta name="msapplication-tap-highlight" content="no">
 
+    <style>
+      *, *:before, *:after {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        display: flex;
+        margin: 0;
+
+        color: #f2f3f4;
+        -webkit-font-smoothing: antialiased;
+        font-family: 'Work Sans', 'Roboto', 'Noto', sans-serif;
+        line-height: 1.5;
+        font-weight: 400;
+
+        background-color: #1a1a1a;
+
+        -ms-touch-action: manipulation;
+        touch-action: manipulation;
+
+      }
+
+      .loader-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        overflow: hidden;
+
+        /*clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);*/
+
+        transition-property: transform;
+        transition-duration: 1s;
+        transition-delay: 0.3s;
+        transition-timing-function: cubic-bezier(.19, 1, .22, 1);
+
+        transform-origin: center top;
+
+        background-color: #000;
+
+        z-index: 9001;
+
+        will-change: clip-path;
+      }
+
+      .loader-container.loaded {
+        transform: scaleY(0);
+        /*animation: polygons 2s cubic-bezier(.19, 1, .22, 1) forwards;*/
+      }
+
+      .loader {
+        position: relative;
+        width: 256px;
+        height: 1px;
+
+        overflow: hidden;
+        background-color: rgba(255, 255, 225, .2);
+
+        transition-property: opacity;
+        transition-duration: .2s;
+        transition-timing-function: cubic-bezier(.19, 1, .22, 1);
+      }
+
+      .loader-container.loaded .loader {
+        opacity: 0;
+      }
+
+      .loader__bar {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+
+        background-color: #fff;
+
+        transform: translateX(-100%);
+
+        transition-property: transform;
+        transition-duration: .6s;
+        transition-timing-function: cubic-bezier(.19, 1, .22, 1);
+
+        will-change: transform;
+      }
+
+      .loader-container.loaded .loader__bar {
+        transform: none;
+      }
+
+      @keyframes polygons {
+        100% {
+          clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+        }
+      }
+    </style>
+
     <script>
       // Register the base URL
       const baseUrl = document.querySelector('base').href;
@@ -74,31 +180,14 @@
 
     <script async src="src/app.js"></script>
 
-    <style>
-      *, *:before, *:after {
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
-      }
-
-      body {
-        display: flex;
-        margin: 0;
-
-        color: #f2f3f4;
-        -webkit-font-smoothing: antialiased;
-        font-family: 'Work Sans', 'Roboto', 'Noto', sans-serif;
-        line-height: 1.5;
-        font-weight: 400;
-
-        background-color: #1a1a1a;
-
-        -ms-touch-action: manipulation;
-        touch-action: manipulation;
-
-      }
-    </style>
   </head>
   <body>
+    <div class="loader-container">
+      <div class="loader">
+        <div class="loader__bar"></div>
+      </div>
+    </div>
+
     <pdw-app></pdw-app>
     <noscript>
       <div style="padding: 80px;">
