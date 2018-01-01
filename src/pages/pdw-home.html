@@ -1,5 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
 <!--<link rel="import" href="../experiments/image-dots.html">-->
+<link rel="import" href="../experiments/noise-displacer.html">
+
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="pdw-home">
@@ -10,6 +13,8 @@
       }
 
       .intro {
+        position: relative;
+
         width: 100%;
         min-width: 320px;
         height: 90vh;
@@ -23,7 +28,7 @@
 
         box-sizing: border-box;
 
-        animation: fadeIn 1s cubic-bezier(0.645, 0.045, 0.355, 1.000) .8s forwards;
+        animation: fadeIn 1s cubic-bezier(0.645, 0.045, 0.355, 1.000) 1.3s forwards;
 
         opacity: 0;
       }
@@ -43,13 +48,42 @@
       }
 
       .disclaimer {
-        margin-top: 2em;
+        position: absolute;
+        bottom: -1em;
+
+        opacity: .4;
       }
 
       @keyframes fadeIn {
         100% { opacity: 1; }
       }
+
+      .experiment {
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+      }
     </style>
+
+    <noise-displacer
+      class="experiment"
+      primary-color="[94, 235, 232]"
+      secondary-color="[24, 55, 202]"
+      slice-size="16"
+      noise-x="12"
+      noise-y="12"
+      noise-width="1"
+      noise-height="100"
+      density="0.99"
+      mix-multiplier="20"
+      distortion-offset="40"
+      distortion-count="8"
+      text="🖖"
+      cornertext
+    ></noise-displacer>
 
     <section class="intro">
       <h2 class="intro__title">Pim de Wit is a creative technologist exploring the critical relationship between behaviour, art, and information.</h2>

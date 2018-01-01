@@ -52,6 +52,9 @@
 
       body {
         display: flex;
+
+        min-height: 100vh;
+
         margin: 0;
 
         color: #f2f3f4;
@@ -60,7 +63,7 @@
         line-height: 1.5;
         font-weight: 400;
 
-        background-color: #1a1a1a;
+        background-color: #181818;
 
         -ms-touch-action: manipulation;
         touch-action: manipulation;
@@ -81,12 +84,10 @@
 
         overflow: hidden;
 
-        /*clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);*/
-
         transition-property: transform;
         transition-duration: 1s;
-        transition-delay: 0.3s;
-        transition-timing-function: cubic-bezier(.19, 1, .22, 1);
+        transition-delay: 1s;
+        transition-timing-function: cubic-bezier(.2, 1, .2, 1);
 
         transform-origin: center top;
 
@@ -110,13 +111,15 @@
         overflow: hidden;
         background-color: rgba(255, 255, 225, .2);
 
-        transition-property: opacity;
-        transition-duration: .2s;
-        transition-timing-function: cubic-bezier(.19, 1, .22, 1);
+        transform-origin: right;
       }
 
       .loader-container.loaded .loader {
-        opacity: 0;
+        animation: loadedAnim 0.9s cubic-bezier(.19, 1, .22, 1) forwards .4s;
+      }
+
+      @keyframes loadedAnim {
+        100% { transform: scaleX(0) }
       }
 
       .loader__bar {
@@ -145,7 +148,7 @@
 
       @keyframes polygons {
         100% {
-          clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+          clip-path: polygon(0% 100%, 0% 100%, 100% 100%, 0% 100%);
         }
       }
     </style>
