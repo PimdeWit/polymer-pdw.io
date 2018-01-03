@@ -20,16 +20,7 @@
         touch-action: none;
       }
 
-      .box {
-        position: absolute;
-        width: 50px;
-        height: 50px;
-        background-color: white;
-        mix-blend-mode: difference;
-      }
     </style>
-
-    <div class="box"></div>
     <canvas id="canvas"></canvas>
   </template>
 
@@ -74,7 +65,7 @@
      * @constant
      */
     const WALKER_COLOUR = {
-      HUE: 0,
+      HUE: 256,
       SATURATION: 100
     };
 
@@ -377,8 +368,8 @@
        * @returns {String}
        */
       get ageColor() {
-        // return `hsl(${WALKER_COLOUR.HUE + (60 * this._age / this._maxAge)}, ${WALKER_COLOUR.SATURATION}%, 50%)`;
-        return `hsl(${WALKER_COLOUR.HUE}, 0%, ${100 * this._age / this._maxAge}%`;
+        return `hsl(${WALKER_COLOUR.HUE + (60 * this._age / this._maxAge)}, ${WALKER_COLOUR.SATURATION}%, 50%)`;
+        // return `hsl(${WALKER_COLOUR.HUE}, 0%, ${100 * this._age / this._maxAge}%`;
       }
 
       /** Process changes to the instance. */
