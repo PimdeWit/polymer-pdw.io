@@ -16,8 +16,8 @@
         position: relative;
 
         width: 100%;
-        min-width: 320px;
-        height: 90vh;
+        min-width: 20em;
+        height: 100vh;
 
         display: flex;
         align-items: flex-start;
@@ -59,32 +59,22 @@
       }
 
       .experiment {
-        position: absolute;
-        top: 0;
-        left: 0;
+        width: 80vw;
+        height: 10vh;
 
-        width: 100%;
-        height: 100%;
+        margin: 0 auto;
+
+        overflow: hidden;
+
+        transform: translateY(-5vh);
+      }
+
+      .wow {
+        height: 100vh;
+
+        background-color: #101111;
       }
     </style>
-
-    <noise-displacer
-      class="experiment"
-      primary-color="[255, 255, 255]"
-      secondary-color="[255, 255, 255]"
-      background-color="#101111"
-      slice-size="1"
-      noise-x="20"
-      noise-y="20"
-      noise-width="1"
-      noise-height="10"
-      density="0.99"
-      mix-multiplier="20"
-      distortion-offset="40"
-      distortion-count="80"
-      text="🖖"
-      cornertext
-    ></noise-displacer>
 
     <section class="intro">
       <h2 class="intro__title">Pim de Wit is a creative technologist exploring the critical relationship between behaviour, art, and information.</h2>
@@ -95,6 +85,29 @@
       </div>
       <small class="disclaimer">This site may contain flashing images and stroboscopic sequences.</small>
     </section>
+
+    <section class="wow">
+      <noise-displacer
+        class="experiment"
+        id="experiment"
+        primary-color="[255, 255, 255]"
+        secondary-color="[255, 255, 255]"
+        background-color="#000"
+        slice-size="8"
+        noise-x="2"
+        noise-y="2"
+        noise-width="1"
+        noise-height="8"
+        density="0.5"
+        mix-multiplier="[[scrollY]]"
+        distortion-offset="40"
+        distortion-count="8"
+        text="🖖"
+        cornertext
+      ></noise-displacer>
+      <h2>Lorem Ipsum dolor sit amet</h2>
+      <p>Lorem  ipsum</p>
+    </section>
   </template>
 
   <script>
@@ -102,6 +115,10 @@
       static get is() { return 'pdw-home'; }
       static get properties() {
         return {
+          scrollY: {
+            type: Number,
+            value: 16
+          }
         };
       }
 
@@ -111,6 +128,12 @@
 
       connectedCallback() {
         super.connectedCallback();
+
+        window.addEventListener('scroll', this.onPointerDown.bind(this));
+      }
+
+      onPointerDown(event) {
+        this.scrollY = document.documentElement.scrollTop + 16;
       }
     }
 

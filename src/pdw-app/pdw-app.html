@@ -66,6 +66,12 @@
         z-index: 1;
       }
 
+      .menu-container {
+        position: absolute;
+        top: 1em;
+        right: 1em;
+      }
+
       .drawer__toggle {
         position: fixed;
 
@@ -157,7 +163,7 @@
       </div>
     </paper-button>
 
-    <iron-selector selected="[[page]]" attr-for-selected="name" role="navigation">
+    <iron-selector selected="[[page]]" attr-for-selected="name" role="navigation" class="menu-container">
       <div class="menu">
         <a class="menu__listitem" name="home" href="home" on-tap="closeDrawer"><span class="menu__link">Home</span></a>
         <a class="menu__listitem" name="view2" href="view2" on-tap="closeDrawer"><span class="menu__link">About</span></a>
