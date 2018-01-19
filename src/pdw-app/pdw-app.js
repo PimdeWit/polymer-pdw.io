@@ -22,6 +22,11 @@ class PdwApp extends Polymer.Element {
       rootPattern: String,
       routeData: Object,
       subroute: String,
+
+      menuOpened: {
+        type: Boolean,
+        value: false
+      }
     };
   }
 
@@ -50,7 +55,7 @@ class PdwApp extends Polymer.Element {
 
       setTimeout(() => {
         LOADER_CONTAINER.parentNode.removeChild(LOADER_CONTAINER);
-      }, 1500);
+      }, 1800);
     }, 200);
   }
 
@@ -94,6 +99,24 @@ class PdwApp extends Polymer.Element {
 
   _showPage404() {
     this.page = '404';
+  }
+
+  /** Menu */
+
+  openMenu() {
+    this.$.menu.removeAttribute('aria-hidden');
+    this.$.menutoggle.setAttribute('opened', true);
+    this.menuOpened = true;
+  }
+
+  closeMenu() {
+    this.$.menu.setAttribute('aria-hidden', true);
+    this.$.menutoggle.removeAttribute('opened');
+    this.menuOpened = false;
+  }
+
+  toggleMenu() {
+    this.menuOpened ? this.closeMenu() : this.openMenu();
   }
 }
 

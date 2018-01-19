@@ -90,10 +90,9 @@
 
         transform-origin: center top;
 
-        background-color: #101111;
-        background-color: #000;
+        background-color: #fff;
 
-        color: #fff;
+        color: #212223;
 
         z-index: 9001;
 
@@ -101,8 +100,8 @@
       }
 
       .loader-container.loaded {
-        /*transform: scaleY(0);*/
-        opacity: 0;
+        transform: scaleY(0);
+        /*opacity: 0;*/
         /*animation: polygons 2s cubic-bezier(.19, 1, .22, 1) forwards;*/
       }
 
@@ -112,7 +111,7 @@
         height: 1px;
 
         overflow: hidden;
-        background-color: rgba(255, 255, 225, .2);
+        background-color: rgba(0, 0, 0, .2);
 
         transform-origin: right;
       }
@@ -161,7 +160,7 @@
         width: 51px;
         height: 32px;
 
-        margin-right: 1em;
+        margin-right: calc(1em + 1vw);
 
         transition-property: transform, opacity;
         transition-duration: 600ms;
@@ -171,6 +170,26 @@
 
       .loaded .logo {
         transform: translateY(1em);
+        opacity: 0;
+      }
+
+      .disclaimer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+
+        width: 100%;
+
+        padding: 1em;
+
+        opacity: 1;
+
+        transition-property: opacity;
+        transition-duration: 500ms;
+        transition-timing-function: cubic-bezier(.19, 1, .22, 1);
+      }
+
+      .loaded .disclaimer {
         opacity: 0;
       }
     </style>
@@ -214,6 +233,7 @@
       <div class="loader">
         <div class="loader__bar"></div>
       </div>
+      <small class="disclaimer">This site may contain flashing images and stroboscopic&nbsp;sequences.</small>
     </div>
 
     <pdw-app></pdw-app>
