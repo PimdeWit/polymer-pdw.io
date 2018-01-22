@@ -1,0 +1,295 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="dc-texteffect">
+  <template>
+    <style>
+      :host {
+        display: block;
+
+        word-break: break-all;
+      }
+
+      * {
+        word-break: break-all;
+      }
+
+      /* For absolute positioning */
+      .text {
+        position: relative;
+      }
+
+      /* Allows for transforms */
+      span {
+        display: inline-block;
+
+        word-break: break-all;
+        line-break: loose;
+      }
+
+      /* Fill in a space for empty spans (spaces) */
+      span:empty::after {
+        content: '\00a0';
+      }
+
+      /** WAVE -------------------------------------------------------------- */
+
+      :host([animation="wave"]) .text span {
+        animation-duration: 2000ms;
+        animation-timing-function: var(--easing-cubic);
+        animation-fill-mode: forwards;
+      }
+
+      :host([animation="wave"]) .text:hover span {
+        animation-name: wave;
+      }
+
+
+      /** FLY IN ------------------------------------------------------------ */
+
+      :host([animation="fly-in"]) .text span {
+        animation-duration: 2000ms;
+        animation-timing-function: var(--easing-cubic);
+        animation-fill-mode: forwards;
+      }
+
+      :host([animation="fly-in"]) .text:hover span {
+        animation-name: fly-in;
+      }
+
+
+      /** LINK -------------------------------------------------------------- */
+
+      :host([animation="link"]) .text {
+        padding: 0 4px;
+      }
+
+      :host([animation="link"]) .text:hover::before {
+        transform: scaleX(1);
+      }
+
+      :host([animation="link"]) .text::before {
+        content: '';
+        display: block;
+
+        position: absolute;
+        top: 30%;
+        left: 0;
+
+        width: 100%;
+        height: 40%;
+
+        transform-origin: right;
+        transform: scaleX(0);
+
+        transition-property: transform;
+        transition-duration: 500ms;
+        transition-timing-function: var(--easing);
+
+        background-color: rgba(0, 0, 0, .2);
+      }
+
+      @keyframes fly-in {
+        0% { opacity: 1; }
+        50% {
+          opacity: 0;
+          transform: perspective(600px) rotateZ(45deg);
+        }
+
+        51% {
+          opacity: 0;
+        }
+        100% { opacity: 1; }
+      }
+
+      @keyframes wave {
+        0% { opacity: 1; }
+        50% {
+          opacity: 0;
+          transform: translateY(20%) rotate(10deg);
+        }
+
+        51% {
+          opacity: 0;
+          transform: translateY(-20%);
+        }
+        100% { opacity: 1; }
+      }
+    </style>
+
+
+    <span id="text" class="text">
+      <template is="dom-if" if="{{letters}}">
+        <template is="dom-repeat" items="[[letters]]"><span style$="animation-delay: [[item.delay]]ms; animation-duration: [[duration]]ms">[[item.letter]]</span></template>
+      </template>
+
+      <template id="dom-if" if="{{!letters}}">
+         [[text]]
+      </template>
+    </span>
+
+  </template>
+
+  <script>
+    class DCTexteffect extends Polymer.Element {
+      static get is() { return 'dc-texteffect'; }
+
+      static get properties() {
+        return {
+          animation: {
+            type: String,
+            value: 'wave'
+          },
+          text: {
+            type: String,
+            value: 'hello world'
+          },
+          letters: {
+            type: Array,
+            value: []
+          },
+          iterative: {
+            type: Boolean,
+            value: false
+          },
+          delayIteration: {
+            type: Number,
+            value: 200
+          },
+          duration: {
+            type: Number,
+            value: 2000
+          }
+        };
+      }
+
+      constructor() {
+        super();
+
+        this.letters = [];
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        if (this.iterative) {
+          const letterGroup = stringToArray(this.text);
+
+          letterGroup.forEach((letter, index) => {
+            if (letter === ' ') letter = '';
+
+            const item = {
+              letter: letter,
+              delay: this.delayIteration * index
+            };
+
+            this.letters.push(item);
+          });
+        } else {
+          this.letters = null;
+        }
+
+        if (this.animation === 'textscramble') {
+          this.textScramble();
+        }
+      }
+
+      textScramble() {
+        const textScramble = new TextScramble(this.$.text);
+
+        let counter = 0;
+        const next = () => {
+          textScramble.setText(this.text).then(() => {
+            // setTimeout(next, 800);
+          })
+          counter = (counter + 1) % phrases.length;
+        }
+
+        next();
+      }
+    }
+
+    const phrases = [
+      'wdianahsugwbzodeisslkchabapqefreelanceqdigitalnhevtkxncedesigner'
+    ];
+
+
+    /** (c) Justin Windle a.k.a Soulwire */
+    class TextScramble {
+      constructor(el) {
+        this.el = el;
+        this.chars = 'abcdefghijklmnopqrstuvwxyz';
+        this.update = this.update.bind(this);
+      }
+
+      setText(newText) {
+        const oldText = this.el.innerText;
+        const length = Math.max(oldText.length, newText.length);
+        const promise = new Promise((resolve) => this.resolve = resolve);
+
+        this.queue = [];
+
+        for (let i = 0; i < length; i++) {
+          const from = oldText[i] || '';
+          const to = newText[i] || '';
+          const start = Math.floor(Math.random() * 40);
+          const end = start + Math.floor(Math.random() * 40);
+
+          this.queue.push({ from, to, start, end });
+        }
+
+        cancelAnimationFrame(this.frameRequest);
+
+        this.frame = 0;
+        this.update();
+
+        return promise;
+      }
+
+      update() {
+        let output = '';
+        let complete = 0;
+
+        for (let i = 0, n = this.queue.length; i < n; i++) {
+          let { from, to, start, end, char } = this.queue[i];
+
+          if (this.frame >= end) {
+            complete++;
+            output += to;
+          } else if (this.frame >= start) {
+            if (!char || Math.random() < 0.28) {
+              char = this.randomChar();
+              this.queue[i].char = char;
+            }
+            output += `<span class="dud">${char}</span>`;
+          } else {
+            output += from;
+          }
+        }
+
+        this.el.innerHTML = output;
+
+        if (complete === this.queue.length) {
+          this.resolve();
+        } else {
+          this.frameRequest = requestAnimationFrame(this.update);
+          this.frame++;
+        }
+      }
+
+      randomChar() {
+        return this.chars[Math.floor(Math.random() * this.chars.length)];
+      }
+    }
+
+    /**
+     * Convert a String to an Array.
+     * @param {String} text
+     * @returns {Array}
+     */
+    function stringToArray(text) {
+      return Array.from(text);
+    }
+
+    window.customElements.define(DCTexteffect.is, DCTexteffect);
+  </script>
+</dom-module>

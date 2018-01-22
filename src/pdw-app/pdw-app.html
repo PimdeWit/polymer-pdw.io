@@ -6,7 +6,7 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
-<link rel="import" href="../experiments/pointer-follower.html">
+<link rel="import" href="../experiments/dc-texteffect.html">
 <link rel="import" href="../utilities/pdw-icons/pdw-icons.html">
 
 <link rel="lazy-import" href="../pages/pdw-home.html">
@@ -80,6 +80,8 @@
       }
 
       .menu__toggle {
+        display: block;
+
         position: fixed;
 
         width: 48px;
@@ -108,6 +110,12 @@
       }
 
       @media print {
+        .menu__toggle {
+          display: none;
+        }
+      }
+
+      @media (min-width: 720px) {
         .menu__toggle {
           display: none;
         }
@@ -287,6 +295,49 @@
       .menu__meta__social > *:not(:last-child) {
         margin-right: 1em;
       }
+
+      .menu--desktop {
+        display: none;
+        align-items: center;
+
+        position: absolute;
+        top: 1em;
+        right: 1em;
+
+        z-index: 1;
+      }
+
+      @media (min-width: 720px) {
+        .menu--desktop {
+          display: flex;
+        }
+      }
+
+      .menu--desktop__link:not(:last-child) {
+        margin-right: 1em;
+      }
+
+      .menu--desktop__link {
+        display: block;
+
+        color: #fff;
+        text-decoration: none;
+
+        transform: translateY(calc(-1em - 100%));
+
+        animation: slideInDesktop 1200ms cubic-bezier(.4, 0, .2, 1) forwards 3s;
+      }
+
+      .menu--desktop__link:nth-of-type(2) { animation-delay: 3050ms; }
+      .menu--desktop__link:nth-of-type(3) { animation-delay: 3100ms; }
+      .menu--desktop__link:nth-of-type(4) { animation-delay: 3150ms; }
+      .menu--desktop__link:nth-of-type(5) { animation-delay: 3200ms; }
+
+      @keyframes slideInDesktop {
+        100% {
+          transform: translateY(0);
+        }
+      }
     </style>
 
     <app-location route="{{route}}"></app-location>
@@ -324,6 +375,13 @@
         <div class="line"></div>
       </div>
     </paper-button>
+
+    <iron-selector selected="[[page]]" attr-for-selected="name" role="navigation" class="menu--desktop">
+      <a class="menu--desktop__link" name="home" href="home" on-tap="closeMenu"><dc-texteffect animation="wave" text="Home" iterative duration="320" delay-iteration="20"></dc-texteffect></a>
+      <a class="menu--desktop__link" name="view2" href="view2" on-tap="closeMenu"><dc-texteffect animation="wave" text="About" iterative duration="320" delay-iteration="20"></dc-texteffect></a>
+      <a class="menu--desktop__link" name="illustrations" href="illustrations" on-tap="closeMenu"><dc-texteffect animation="wave" text="Illustrations" iterative duration="320" delay-iteration="20"></dc-texteffect></a>
+      <a class="menu--desktop__link" name="codelab" href="codelab" on-tap="closeMenu"><dc-texteffect animation="wave" text="Codelab" iterative duration="320" delay-iteration="20"></dc-texteffect></a>
+    </iron-selector>
 
     <div id="maincontent" tabindex="-1"></div>
     <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="404" role="main">
