@@ -302,11 +302,13 @@
         display: none;
         align-items: center;
 
-        position: absolute;
+        position: fixed;
         top: 1em;
         right: 1em;
 
-        z-index: 1;
+        mix-blend-mode: difference;
+
+        z-index: 500;
       }
 
       @media (min-width: 720px) {
