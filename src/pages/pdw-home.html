@@ -2,6 +2,7 @@
 
 <!--<link rel="import" href="../experiments/image-dots.html">-->
 <link rel="import" href="../experiments/noise-displacer.html">
+<link rel="import" href="../experiments/shader-image.html">
 
 <link rel="import" href="../shared-styles.html">
 
@@ -56,7 +57,13 @@
       @media (min-width: 720px) {
         .intro {
           width: 80%;
+          margin: 0 auto;
         }
+      }
+
+      .intro__title {
+        position: relative;
+        mix-blend-mode: difference;
       }
 
       .menu {}
@@ -106,9 +113,19 @@
 
         background-color: #101111;
       }
+
+      shader-image {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+
+        transform: translate(-50%, -50%);
+      }
     </style>
 
     <section class="intro">
+      <shader-image id="paradise" texture="images/illustrations/8.jpg" map="images/illustrations/8.jpg" size-x="385" size-y="560"
+        shader-style="CHROMA_3D"></shader-image>
       <small class="version">v0 &mdash; 0 &mdash; 1</small>
       <h2 class="intro__title">Pim de Wit is a creative technologist exploring the critical relationship between behaviour, art, and&nbsp;information.</h2>
       <!--<div class="menu">-->
@@ -116,11 +133,6 @@
         <!--<a class="menu__listitem" name="illustrations" href="illustrations"><span class="menu__link">Illustrations</span></a>-->
         <!--<a class="menu__listitem" name="codelab" href="codelab"><span class="menu__link">Codelab</span></a>-->
       <!--</div>-->
-    </section>
-
-    <section class="wow">
-      <h2>Lorem Ipsum dolor sit amet</h2>
-      <p>Lorem  ipsum</p>
     </section>
   </template>
 
