@@ -1,6 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../shared-styles.html">
 
+<link rel="import" href="page-behaviour.html">
+
 <dom-module id="pdw-view2">
   <template>
     <style include="shared-styles">
@@ -43,7 +45,7 @@
   </template>
 
   <script>
-    class PdwView2 extends Polymer.Element {
+    class PdwView2 extends PageBehaviour(Polymer.Element) {
       static get is() { return 'pdw-view2'; }
     }
 

@@ -1,5 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 
+<link rel="import" href="page-behaviour.html">
+
 <dom-module id="pdw-atelier">
   <template>
     <style>
@@ -14,7 +16,7 @@
   </template>
 
   <script>
-    class PdwAtelier extends Polymer.Element {
+    class PdwAtelier extends PageBehaviour(Polymer.Element) {
       static get is() { return 'pdw-atelier'; }
       static get properties() {
         return {

@@ -5,6 +5,8 @@
 
 <link rel="import" href="../shared-styles.html">
 
+<link rel="import" href="page-behaviour.html">
+
 <dom-module id="pdw-illustrations">
   <template>
     <style include="shared-styles">
@@ -72,7 +74,7 @@
   </template>
 
   <script>
-    class PdwIllustrations extends Polymer.Element {
+    class PdwIllustrations extends PageBehaviour(Polymer.Element) {
       static get is() { return 'pdw-illustrations'; }
 
       static get properties() {

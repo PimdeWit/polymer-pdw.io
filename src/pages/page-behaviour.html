@@ -1,0 +1,18 @@
+<script>
+  const SHELL = document.querySelector('pdw-app');
+
+  const PageBehaviour = superclass => class extends superclass {
+    static get properties() {
+      return {
+      };
+    }
+
+    connectedCallback() {
+      super.connectedCallback();
+
+      if (SHELL && SHELL.children.length > 0) {
+        SHELL.removeChild(SHELL.children[0]);
+      }
+    }
+  };
+</script>

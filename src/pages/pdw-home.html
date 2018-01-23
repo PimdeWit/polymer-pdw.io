@@ -3,6 +3,8 @@
 
 <link rel="import" href="../shared-styles.html">
 
+<link rel="import" href="page-behaviour.html">
+
 <dom-module id="pdw-home">
   <template>
     <style include="shared-styles">
@@ -112,7 +114,7 @@
   </template>
 
   <script>
-    class PdwHome extends Polymer.Element {
+    class PdwHome extends PageBehaviour(Polymer.Element) {
       static get is() { return 'pdw-home'; }
       static get properties() {
         return {
