@@ -6,7 +6,8 @@
     "src/pages/pdw-view2.html",
     "src/pages/pdw-illustrations.html",
     "src/pages/pdw-codelab.html",
-    "src/pages/pdw-404.html"
+    "src/pages/pdw-404.html",
+    "src/pages/page-behaviour.html"
   ],
   "sources": [
     "src/**/*",

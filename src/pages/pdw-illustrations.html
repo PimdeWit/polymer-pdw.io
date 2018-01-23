@@ -3,6 +3,8 @@
 
 <link rel="import" href="../third_party/imports/import-intersection-observer.html">
 
+<link rel="import" href="../experiments/shader-image.html">
+
 <link rel="import" href="../shared-styles.html">
 
 <link rel="import" href="page-behaviour.html">
@@ -45,23 +47,21 @@
         z-index: 1;
       }
 
-      iron-image.fade-in {
+      /* iron-image.fade-in {
         animation: polygons 1s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
-      }
+      } */
 
       iron-image + iron-image {
         margin-top: 3em;
       }
 
-      @keyframes polygons {
+      /* @keyframes polygons {
         from {
           transform: scale(.9);
           opacity: 0;
         }
-      }
+      } */
     </style>
-
-
 
     <section class="intro">
       <h1>Illustrations</h1>
@@ -79,6 +79,8 @@
 
       static get properties() {
         return {
+          width: Number,
+          height: Number,
           images: {
             type: Array,
             value: [
@@ -247,6 +249,13 @@
         };
       }
 
+      constructor() {
+        super();
+
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+      }
+
       connectedCallback() {
         super.connectedCallback();
 
@@ -256,14 +265,11 @@
           const options = {
             root: null,
             rootMargin: '0px',
-            threshold: 0.3,
+            threshold: 0,
           };
 
           this.interSectionObserver = new IntersectionObserver(this._onObserve.bind(this), options);
-
-          this.imageElements.forEach(image => {
-            this.interSectionObserver.observe(image);
-          });
+          this.imageElements.forEach(image => this.interSectionObserver.observe(image));
 
           this._onResize();
         });
@@ -285,7 +291,6 @@
         const element = entry[0].target;
 
         if (element.src) return;
-
 
         element.src = element.dataset.src;
         element.classList.add('fade-in');

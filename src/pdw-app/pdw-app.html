@@ -5,6 +5,7 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../experiments/dc-texteffect.html">
+<link rel="import" href="../pages/page-behaviour.html">
 
 <link rel="lazy-import" href="../pages/pdw-home.html">
 <link rel="lazy-import" href="../pages/pdw-view2.html">
@@ -179,8 +180,9 @@
         contain: strict;
       }
 
-      @media (min-width: 800px) {
+      @media (min-width: 720px) {
         .menu {
+          display: none;
           width: auto;
           min-width: 50%;
         }
@@ -339,6 +341,10 @@
           transform: translateY(0);
         }
       }
+
+      .page-wrapper {
+        contain: content;
+      }
     </style>
 
     <app-location route="{{route}}"></app-location>
@@ -385,7 +391,7 @@
     </iron-selector>
 
     <div id="maincontent" tabindex="-1"></div>
-    <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="404" role="main">
+    <iron-pages class="page-wrapper" selected="[[page]]" attr-for-selected="name" fallback-selection="404" role="main">
       <pdw-home name="home"></pdw-home>
       <pdw-view2 name="view2"></pdw-view2>
       <pdw-illustrations name="illustrations"></pdw-illustrations>
