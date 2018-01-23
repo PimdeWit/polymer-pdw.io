@@ -2,45 +2,34 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="generator" content="Polymer Starter Kit">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
     <title>Portfolio | Pim de Wit</title>
-    <meta name="description" content="Pim de Wit - Art & development portfolio">
+    <meta name="description" content="Pim de Wit is a creative technologist exploring the critical relationship between behaviour, art, and information.">
     <meta name="author" content="https://pdw.io">
 
-    <!--
-      If deploying to a non-root path, replace href="/" with the full path to the project root.
-      For example: href="/polymer-starter-kit/relative-path-example/"
-    -->
     <base href="/">
 
-    <link rel="icon" href="images/manifest/favicon.ico">
+    <link rel="icon" href="assets/manifest/favicon.ico">
 
-    <!-- See https://goo.gl/OOhYW5 -->
     <link rel="manifest" href="/manifest.json">
 
-    <!-- See https://goo.gl/qRE0vM -->
     <meta name="theme-color" content="#1a1a1a">
 
-    <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="pdw.io">
 
-    <!-- Add to homescreen for Safari on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="pdw.io">
 
-    <!-- Homescreen icons -->
-    <link rel="apple-touch-icon" href="images/manifest/icon-48x48.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="images/manifest/icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="96x96" href="images/manifest/icon-96x96.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="images/manifest/icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="images/manifest/icon-192x192.png">
+    <link rel="apple-touch-icon" href="assets/manifest/icon-48x48.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="assets/manifest/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="assets/manifest/icon-96x96.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="assets/manifest/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="assets/manifest/icon-192x192.png">
 
-    <!-- Tile icon for Windows 8 (144x144 + tile color) -->
-    <meta name="msapplication-TileImage" content="images/manifest/icon-144x144.png">
+    <meta name="msapplication-TileImage" content="assets/manifest/icon-144x144.png">
     <meta name="msapplication-TileColor" content="#1a1a1a">
     <meta name="msapplication-tap-highlight" content="no">
 
@@ -81,6 +70,8 @@
         align-items: center;
         justify-content: center;
 
+        padding-top: 18em;
+
         overflow: hidden;
 
         transition-property: transform, opacity;
@@ -90,9 +81,9 @@
 
         transform-origin: center top;
 
-        background-color: #fff;
+        background-color: #101010;
 
-        color: #212223;
+        color: #fff;
 
         z-index: 9001;
 
@@ -192,6 +183,39 @@
       .loaded .disclaimer {
         opacity: 0;
       }
+
+      h1 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0.001;
+      }
+
+      pdw-app {
+        position: relative;
+        display: block;
+        width: 100vw;
+        z-index: 9002;
+      }
+
+      .a {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+
+        width: 100%;
+        min-width: 20em;
+
+        padding: 10vw;
+        margin: 0;
+
+        color: #fff;
+
+        font-size: calc(1.5rem + 1vw);
+        font-weight: 400;
+
+        transform: translate(-50%, -50%);
+      }
     </style>
 
     <script>
@@ -226,21 +250,22 @@
 
   </head>
   <body>
+    <h1>Pim de Wit is a creative technologist exploring the critical relationship between behaviour, art, and information.</h1>
+       
+    <pdw-app>
+      <p class="a">Pim de Wit is a creative technologist exploring the critical relationship between behaviour, art, and&nbsp;information.</p>
+    </pdw-app>
+
     <div class="loader-container">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 206 69" class="logo">
-        <path fill="currentcolor" fill-rule="evenodd" d="M30.4 21.28c2.95 3.34 4.42 7.91 4.42 13.72 0 5.8-1.47 10.38-4.42 13.72-2.96 3.33-6.95 5-12 5-2.63 0-5-.58-7.08-1.73a12.67 12.67 0 0 1-4.86-4.6v20.73H.7V17h5.04l.36 6.26a12.05 12.05 0 0 1 4.86-5.07 14.53 14.53 0 0 1 7.45-1.91c5.04 0 9.03 1.67 11.99 5zm-4.36 23.7c2.02-2.48 3.02-5.8 3.02-9.98 0-4.18-1-7.5-3.02-9.97-2.02-2.47-4.78-3.71-8.28-3.71-3.46 0-6.2 1.2-8.24 3.6-2.04 2.4-3.06 5.62-3.06 9.65v.86c0 4.03 1.02 7.25 3.06 9.65 2.04 2.4 4.78 3.6 8.24 3.6 3.5 0 6.26-1.24 8.28-3.7zM75.42.43V53h-5.04l-.36-6.26a12.05 12.05 0 0 1-4.86 5.07 14.53 14.53 0 0 1-7.45 1.91c-5.04 0-9.03-1.67-11.99-5C42.77 45.38 41.3 40.8 41.3 35c0-5.8 1.47-10.38 4.42-13.72 2.96-3.33 6.95-5 12-5 2.63 0 5 .58 7.08 1.73a12.67 12.67 0 0 1 4.86 4.6V.45h5.76zM66.6 45.08c2.04-2.4 3.06-5.62 3.06-9.65v-.86c0-4.03-1.02-7.25-3.06-9.65-2.04-2.4-4.78-3.6-8.24-3.6-3.5 0-6.26 1.24-8.28 3.7-2.02 2.48-3.02 5.8-3.02 9.98 0 4.18 1 7.5 3.02 9.97 2.02 2.47 4.78 3.71 8.28 3.71 3.46 0 6.2-1.2 8.24-3.6zM138.5 17l-12.53 36h-5.76l-10.15-28.66L100.47 53h-5.76L82.18 17h6.41l9.07 29.3 9.8-29.3h5.76L123 46.3l9.07-29.3h6.4zm7.26 28.66c.87.86 1.3 1.99 1.3 3.38 0 1.4-.43 2.52-1.3 3.38a4.54 4.54 0 0 1-3.38 1.3c-1.4 0-2.52-.43-3.39-1.3a4.58 4.58 0 0 1-1.3-3.38c0-1.4.44-2.52 1.3-3.38.87-.87 2-1.3 3.39-1.3 1.39 0 2.52.43 3.38 1.3zM155.8 8.9a4.23 4.23 0 0 1-1.19-3.13c0-1.3.4-2.34 1.19-3.13a4.2 4.2 0 0 1 3.13-1.2c1.3 0 2.34.4 3.13 1.2a4.2 4.2 0 0 1 1.19 3.13c0 1.3-.4 2.34-1.19 3.13a4.2 4.2 0 0 1-3.13 1.19c-1.3 0-2.34-.4-3.13-1.19zm6 44.1h-5.76V17h5.76v36zm38.76-31.75c3.1 3.31 4.65 7.9 4.65 13.75 0 5.86-1.55 10.44-4.65 13.75-3.1 3.31-7.35 4.97-12.78 4.97-5.42 0-9.68-1.66-12.78-4.97-3.1-3.31-4.64-7.9-4.64-13.75 0-5.86 1.55-10.44 4.64-13.75 3.1-3.31 7.36-4.97 12.78-4.97 5.43 0 9.69 1.66 12.78 4.97zm-21.34 3.67c-2.07 2.45-3.1 5.8-3.1 10.08 0 4.27 1.03 7.63 3.1 10.08 2.06 2.45 4.92 3.67 8.56 3.67 3.65 0 6.5-1.22 8.57-3.67 2.07-2.45 3.1-5.8 3.1-10.08 0-4.27-1.03-7.63-3.1-10.08-2.06-2.45-4.92-3.67-8.57-3.67-3.64 0-6.5 1.22-8.56 3.67z"/>
-      </svg>
       <div class="loader">
         <div class="loader__bar"></div>
       </div>
       <small class="disclaimer">This site may contain flashing images and stroboscopic&nbsp;sequences.</small>
     </div>
 
-    <pdw-app></pdw-app>
-
     <noscript>
       <div style="padding: 80px;">
-        <h3 style="font-weight: 400">Pim de Wit is a creative technologist exploring the critical relationship between behaviour, art, and information.</h3>
+        <h2 style="font-weight: 400">Pim de Wit is a creative technologist exploring the critical relationship between behaviour, art, and information.</h2>
         <p>This site is heavily dependant on javascript! My apologies!<br>If you're still interested you can visit <a href="http://showcase.pimdewit.nl/" style="color:lightskyblue">my old site</a> instead!</p>
       </div>
     </noscript>

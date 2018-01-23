@@ -2,12 +2,9 @@
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../experiments/dc-texteffect.html">
-<link rel="import" href="../utilities/pdw-icons/pdw-icons.html">
 
 <link rel="lazy-import" href="../pages/pdw-home.html">
 <link rel="lazy-import" href="../pages/pdw-view2.html">
@@ -395,6 +392,8 @@
       <pdw-codelab name="codelab" route="[[subroute]]"></pdw-codelab>
       <pdw-404 name="404"></pdw-404>
     </iron-pages>
+
+    <slot></slot>
 
   </template>
 </dom-module>

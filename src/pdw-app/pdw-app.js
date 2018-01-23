@@ -48,15 +48,17 @@ class PdwApp extends Polymer.Element {
     super.connectedCallback();
 
     this.rootPattern = (new URL(this.rootPath)).pathname;
+
     LOADER_BAR.style.transform = 'none';
 
     setTimeout(() => {
       LOADER_CONTAINER.classList.add('loaded');
-
-      setTimeout(() => {
-        LOADER_CONTAINER.parentNode.removeChild(LOADER_CONTAINER);
-      }, 2000);
+      document.body.classList.add('loaded');
     }, 200);
+
+    setTimeout(() => {
+      LOADER_CONTAINER.parentNode.removeChild(LOADER_CONTAINER);
+    }, 2000);
   }
 
   /**

@@ -12,9 +12,21 @@
 
       #container {
         position: absolute;
+        top: 0;
+        left: 0;
+
         width: 100%;
         height: 100%;
+
+        transition-property: opacity;
+        transition-duration: 800ms;
+        transition-timing-function: var(--easing);
       }
+
+      #container[aria-hidden="true"] {
+        opacity: 0;
+      }
+
       canvas {
         position: absolute;
         width: 100% !important;
@@ -24,30 +36,9 @@
         -ms-touch-action: none;
         touch-action: none;
       }
-
-      #reveal {
-        position: absolute;
-        top: 0;
-        left: 0;
-
-        width: 100%;
-        height: 100%;
-
-        transform-origin: top;
-
-        transition-property: transform;
-        transition-duration: 800ms;
-        transition-delay: 1200ms;
-
-        background-color: #000;
-      }
-
-      #reveal[aria-hidden="true"] {
-        transform: scaleY(0);
-      }
     </style>
 
-    <div id="container"></div>
+    <div id="container" aria-hidden="true"></div>
     <div id="reveal"></div>
 
   </template>
@@ -609,7 +600,7 @@
         this.render();
 
         setTimeout(() => {
-          this.$.reveal.setAttribute('aria-hidden', true);
+          this.$.container.removeAttribute('aria-hidden');
         }, 800);
       }
 
