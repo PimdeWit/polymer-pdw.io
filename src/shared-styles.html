@@ -4,6 +4,10 @@
 <dom-module id="shared-styles">
   <template>
     <style>
+      *, *:before, *:after {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
 
       .no-overflow {
         overflow: hidden;
@@ -18,32 +22,17 @@
         font-weight: 400;
       }
 
-      h1 {
-        margin: 16px 0;
-        color: #f2f3f4;
-        font-size: 2.5em;
-        font-weight: 400;
-        word-break: break-all;
-      }
-
-      h2 {
-        font-size: calc(1.5rem + 1vw);
-      }
-
-
-      @media (min-width: 960px) {
-        h1 {
-          font-size: 4em;
-        }
-      }
+      h1 { font-size: var(--typography-size-h1); }
+      h2 { font-size: var(--typography-size-h2); }
+      h3 { font-size: var(--typography-size-h3); }
+      h4 { font-size: var(--typography-size-h4); }
 
       .container {
-        display: block;
         position: relative;
-        width: 80%;
-        max-width: 1440px;
+        width: var(--container-width);
 
         margin: 0 auto;
+        padding: var(--container-padding);
       }
 
       ::selection {

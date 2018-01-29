@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../shared-styles.html">
 
 <link rel="import" href="page-behaviour.html">
@@ -10,53 +11,114 @@
         display: block;
       }
 
-      shader-image {
-        position: absolute;
-        top: 0;
-        right: 0;
+      .container {
+        padding-top: 20vh;
+        padding-bottom: 20vh;
+      }
 
-        width: 50vw;
-        height: 100vh;
+      iron-image {
+        display: block;
+        width: 100%;
+        height: 500px;
+      }
+
+      hr {
+        height: 1px;
+
+        margin: 20vh 0;
+
+        background-color: var(--color-secondary);
+        border: 0;
       }
     </style>
 
-    <h1>About</h1>
+    <div class="container">
+      <h1>About</h1>
 
-    <p>With roots in digital art I am now focused on creating unique experiences with the help of digital media. Specialised on web-applications. The products I create will (almost) always involve human centred design, social (online) experiences and programming.</p>
+      <p>pdw.io is the artistic presence of Pim de Wit.</p>
 
-    <hr>
-    <h2>Clients (include, but are not limited to)</h2>
-    <ul>
-      <li>Google</li>
-      <li>Volkswagen</li>
-      <li>Samsung</li>
-      <li>Coca Cola</li>
-      <li>Toyota</li>
-      <li>Legal & General</li>
-      <li></li>
-    </ul>
+      <template is="dom-if" if="{{spotify}}">
+        <p>Apparently I've been listening a lot to <a href="[[spotify.url]]" target="_blank" rel="noopener noreferrer nofollow">[[spotify.artist]]</a></p>
+        <img src="[[spotify.image]]">
+      </template>
 
-    <hr>
-    <h2>Awards & Recognitions</h2>
-    <ul>
-      <li>FloatArt London <span>2014, Exhibition</span></li>
-      <li>Thingscon Berlin <span>2014, Exhibition</span></li>
-      <li>D&AD Feature <span>2014, Digital feature</span></li>
-      <li>D&AD New Bloods Award Nomination <span>2014</span></li>
-      <li>FWA Award <span>2013, w/ ThisPage</span></li>
-      <li>Webby Award <span>2013, w/ ThisPage</span></li>
-      <li>Abduzeedo (4) <span>2012, Digital feature</span></li>
-      <li>Daily Inspiration <span>2012, Digital feature</span></li>
-      <li>From Up North (3) <span>2012, Digital feature</span></li>
-      <li>Advanced Photoshop (2)<span>2011, Magazine feature + interview</span></li>
-      <li>The Visual Wall <span>2011, Digital Feature</span></li>
-      <li>Hangaroundtheweb <span>2011, Digital feature</span></li>
-    </ul>
+      <hr>
+      <h2>Clients (include, but are not limited to)</h2>
+      <ul>
+        <li>Google</li>
+        <li>Volkswagen</li>
+        <li>Samsung</li>
+        <li>Coca Cola</li>
+        <li>Toyota</li>
+        <li>Legal &amp; General</li>
+      </ul>
+  
+      <hr>
+      <h2>Awards &amp; Recognitions</h2>
+      <ul>
+        <li>FloatArt London <span>2014, Exhibition</span></li>
+        <li>Thingscon Berlin <span>2014, Exhibition</span></li>
+        <li>D&AD Feature <span>2014, Digital feature</span></li>
+        <li>D&AD New Bloods Award Nomination <span>2014</span></li>
+        <li>FWA Award <span>2013, w/ ThisPage</span></li>
+        <li>Webby Award <span>2013, w/ ThisPage</span></li>
+        <li>Abduzeedo (4) <span>2012, Digital feature</span></li>
+        <li>Daily Inspiration <span>2012, Digital feature</span></li>
+        <li>From Up North (3) <span>2012, Digital feature</span></li>
+        <li>Advanced Photoshop (2)<span>2011, Magazine feature + interview</span></li>
+        <li>The Visual Wall <span>2011, Digital Feature</span></li>
+        <li>Hangaroundtheweb <span>2011, Digital feature</span></li>
+      </ul>
+    </div>
   </template>
 
   <script>
+    const SPOTIFY_API_CALL = 'https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=1&offset=0';
+    const SPOTIFY_TOKEN = 'BQDmNf8aAErL6B7FywMi_S05OQbPX5Xqv3GeHC5B3RPEQ6DNgJ01DkKw67vbg2nvD8U05qyEOxnqTy9VgOBDAoNWtrYU_ydLlbpIiaYvU814Y0146HPwTn51RRuWza1NfHiND85c0d_OQvnWKDN6NB65zg';
+    const SPOTIFY = {
+      CALL: 'https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=1&offset=0',
+      TOKEN: 'BQDmNf8aAErL6B7FywMi_S05OQbPX5Xqv3GeHC5B3RPEQ6DNgJ01DkKw67vbg2nvD8U05qyEOxnqTy9VgOBDAoNWtrYU_ydLlbpIiaYvU814Y0146HPwTn51RRuWza1NfHiND85c0d_OQvnWKDN6NB65zg',
+      TYPE: 'Bearer'
+    }
+
+    const SPOTIFY_REQUEST = new Request(SPOTIFY.CALL, {
+      method: 'GET',
+      mode: 'cors',
+      redirect: 'follow',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `${SPOTIFY.TYPE} ${SPOTIFY.TOKEN}`
+      }
+    });
+  
     class PdwView2 extends PageBehaviour(Polymer.Element) {
       static get is() { return 'pdw-view2'; }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        console.log('hi');
+
+        this.getSpotify();
+      }
+
+      async getSpotify() {
+        const response = await fetch(SPOTIFY_REQUEST);
+        const result = await response.json();
+        const artist = result.items[0];
+
+        const name = artist.name;
+        const image = artist.images[0].url;
+        const url = artist.external_urls.spotify;
+
+        console.log(artist);
+
+        this.spotify = {
+          artist: name,
+          image: image,
+          url: url
+        };
+      }
     }
 
     window.customElements.define(PdwView2.is, PdwView2);
