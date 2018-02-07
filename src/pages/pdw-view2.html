@@ -65,7 +65,7 @@
         <li>Abduzeedo (4) <span>2012, Digital feature</span></li>
         <li>Daily Inspiration <span>2012, Digital feature</span></li>
         <li>From Up North (3) <span>2012, Digital feature</span></li>
-        <li>Advanced Photoshop (2)<span>2011, Magazine feature + interview</span></li>
+        <li>Advanced Photoshop (2) <span>2011, Magazine feature + interview</span></li>
         <li>The Visual Wall <span>2011, Digital Feature</span></li>
         <li>Hangaroundtheweb <span>2011, Digital feature</span></li>
       </ul>
@@ -73,8 +73,6 @@
   </template>
 
   <script>
-    const SPOTIFY_API_CALL = 'https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=1&offset=0';
-    const SPOTIFY_TOKEN = 'BQDmNf8aAErL6B7FywMi_S05OQbPX5Xqv3GeHC5B3RPEQ6DNgJ01DkKw67vbg2nvD8U05qyEOxnqTy9VgOBDAoNWtrYU_ydLlbpIiaYvU814Y0146HPwTn51RRuWza1NfHiND85c0d_OQvnWKDN6NB65zg';
     const SPOTIFY = {
       CALL: 'https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=1&offset=0',
       TOKEN: 'BQDmNf8aAErL6B7FywMi_S05OQbPX5Xqv3GeHC5B3RPEQ6DNgJ01DkKw67vbg2nvD8U05qyEOxnqTy9VgOBDAoNWtrYU_ydLlbpIiaYvU814Y0146HPwTn51RRuWza1NfHiND85c0d_OQvnWKDN6NB65zg',
@@ -96,8 +94,6 @@
 
       connectedCallback() {
         super.connectedCallback();
-
-        console.log('hi');
 
         this.getSpotify();
       }
